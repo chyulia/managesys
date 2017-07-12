@@ -263,7 +263,7 @@ MAIN_OUTFIT_BASE = 'data_import/main/'
 #     ('47 11 * * *', 'django.core.management.call_command', ['aizhan_5domain_visits']),
 # ]
 CRONJOBS = [
-    #
+
     ('*/1 * * * *', 'QinggangManageSys.views.paralle_test1'),
 
 ]
