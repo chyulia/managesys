@@ -49,10 +49,7 @@ def home(request):
 	}
 	infost = int_information()
 	print(len(infost))
-	for infotype, infos in infost.items():
-		print(infotype)
-		for info in infos:
-			print(info.id)
+
 	contentVO['infost'] = infost
 
 	# the_abstract = get_object_or_404(ContentPost, title="abstract")
@@ -84,7 +81,22 @@ def user_login(request):
 		return HttpResponseRedirect("/index")
 	print(contentVO['state'])
 	return render(request, MAIN_OUTFIT_BASE + 'login.html',contentVO)
-
+def module_nav(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	contentVO={
+	'title':'模块导航',
+	'state':None
+	}
+	infost = int_information()
+	contentVO['infost'] = infost
+	module_type = request.GET.get('module_type', '')
+	if module_type =='':
+		return render(request, MAIN_OUTFIT_BASE + 'index.html',contentVO)
+	elif module_type=='1':
+		return render(request, MAIN_OUTFIT_BASE + 'nav1.html',contentVO)
+	else:
+		return render(request, MAIN_OUTFIT_BASE + 'nav2.html',contentVO)
 #用户注册
 def user_register(request):
 	print("进行注册处理")

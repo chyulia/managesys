@@ -14,6 +14,7 @@ urlpatterns = [
     #需要对相同业务的加载与处理写一个分发器
     url(r'^$', views.home),
     url(r'^index$', views.home),
+    url(r'^module_nav$', views.module_nav),
     #用户登录
     url(r'^login$',views.user_login),
     #用户注册
@@ -57,7 +58,7 @@ urlpatterns = [
     url(r'^cust_trade',views.cust_trade),
     url(r'^liusinuo',views.space),
     url(r'^stockControl',views.stockControl),
-    url(r'^market_share',views.market_share),    
+    url(r'^market_share',views.market_share),
     #钢种自动加载
     url(r'^GetTradeNo',views.getAllTradeNo_time),
     #数据仓库更新
@@ -129,10 +130,10 @@ urlpatterns = [
     url(r'^analysis_tool$',chyulia.analysis_tool),
     url(r'^violent_analyse$',violent_analyse.violent_analyse),
     url(r'^regression_analyse$',chyulia.regression_analyse),
-    
+
 
     #添加工具类方法，之后处理为批处理事件
     url(r'^relation_ana$',batchprocess.relation_ana),
     url(r'^report$',batchprocess.report),
-    
+
 ]

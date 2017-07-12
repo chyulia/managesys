@@ -1,0 +1,45 @@
+{% extends "data_import/base.html" %}
+{% load static %}
+{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
+{% block pagejs %}
+<!-- <script type="text/javascript" src="{% static 'data_import/index/js/jQuery.blockUI.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.pack.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.SuperSlide.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/js/jquery-1.12.4.js' %}"></script> -->
+{% endblock %}
+
+{% block pagecss %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/set.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/animate.css' %}">
+{% endblock %}
+
+{% block content %}
+ <!-- start slider Section -->
+
+<section id="module_sec">
+<div class="container">
+    <div class="row">
+      <div id="works"  class=" clearfix grid">
+      {% for infotype,infos in infost.items %}
+        {% if infotype == '3' %}
+          {% for info in infos %}
+      <figure class="effect-oscar  wowload fadeInUp">
+         <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+         <figcaption>
+             <h2>{{info.title}}</h2>
+             <p><br>
+             <a class="page-scroll" href="{{info.link}}">{{info.title}}</a></p>
+         </figcaption>
+     </figure>
+         {% endfor %}
+       {% endif %}
+     {% endfor %}
+   </div>
+    </div>
+</div>
+</section>
+
+
+<!-- End module Section -->
+{% endblock %}
