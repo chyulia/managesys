@@ -1,6 +1,6 @@
 
 #实验室
-db_host = '202.204.54.75'
+db_host = '202.204.54.212'
 db_user = 'root'
 db_password = '123456'
 db_name = 'qinggang'
