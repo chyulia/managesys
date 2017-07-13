@@ -133,7 +133,6 @@ urlpatterns = [
     url(r'^violent_analyse$',violent_analyse.violent_analyse),
     url(r'^singlefurnace_regression_analyse',chyulia.singlefurnace_regression_analyse),
     url(r'^multifurnace_regression_analyse',fluc_chyulia.multifurnace_regression_analyse),
-    url(r'^regression_analyse$',chyulia.regression_analyse),
 
 
     #添加工具类方法，之后处理为批处理事件
