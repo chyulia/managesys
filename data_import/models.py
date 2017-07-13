@@ -1877,3 +1877,20 @@ class SALES2_REFID_SUBID(models.Model):
 			for each in item[1].items():
 				#print('{0}:{1}'.format(each[0],each[1]))
 				setattr(self,each[0],each[1])
+
+class Information(models.Model):
+	title = models.CharField(max_length=150)
+	subtitle = models.CharField(max_length=150,null=True,blank=True)
+	link = models.CharField(max_length=150,null=True,blank=True)
+	content = models.TextField(blank=True)
+	pub_date = models.DateTimeField('date published', auto_now_add=True)
+	last_edit_date = models.DateTimeField('last edited', auto_now=True)
+	publisher = models.CharField(max_length=30)
+	infotype = models.IntegerField()
+	#type={1:"页面底部导航栏"，2:“核心模块入口”}
+	def set_attr(self,**kwargs):
+		#print(kwargs.items())
+		for item in kwargs.items():
+			for each in item[1].items():
+				#print('{0}:{1}'.format(each[0],each[1]))
+				setattr(self,each[0],each[1])

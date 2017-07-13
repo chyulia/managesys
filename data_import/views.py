@@ -28,7 +28,7 @@ from .models import ContentPost
 
 import logging
 import logging.config
-
+from data_import.structure import int_information
 
 from .models import ContentPost
 from .liusinuo import mysql
@@ -47,11 +47,18 @@ def home(request):
 	'title':'主页',
 	'state':None
 	}
+	infost = int_information()
+	print(len(infost))
+
+	contentVO['infost'] = infost
+
 	# the_abstract = get_object_or_404(ContentPost, title="abstract")
 	# contentVO["abstract"] = the_abstract
 	# contentVO["state"] = "success"
+	print(contentVO)
 	logger.debug(MAIN_OUTFIT_BASE)
 	return render(request, MAIN_OUTFIT_BASE + 'index.html',contentVO)
+
 
 #用户登录
 def user_login(request):
@@ -74,7 +81,22 @@ def user_login(request):
 		return HttpResponseRedirect("/index")
 	print(contentVO['state'])
 	return render(request, MAIN_OUTFIT_BASE + 'login.html',contentVO)
-
+def module_nav(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	contentVO={
+	'title':'模块导航',
+	'state':None
+	}
+	infost = int_information()
+	contentVO['infost'] = infost
+	module_type = request.GET.get('module_type', '')
+	if module_type =='':
+		return render(request, MAIN_OUTFIT_BASE + 'index.html',contentVO)
+	elif module_type=='1':
+		return render(request, MAIN_OUTFIT_BASE + 'nav1.html',contentVO)
+	else:
+		return render(request, MAIN_OUTFIT_BASE + 'nav2.html',contentVO)
 #用户注册
 def user_register(request):
 	print("进行注册处理")
@@ -607,7 +629,8 @@ def echarts(request):
 
 from data_import.liusinuo.main import main
 from data_import.liusinuo.sql_market_share import sql_market_share
-from data_import.liusinuo.sql_stockControl import sql_stockControl
+#from data_import.liusinuo.sql_stockControl import sql_stockControl
+from data_import.sql_stockControl import sql_stockControl
 def space(request):
 	print('请求主页')
 	if not request.user.is_authenticated():
@@ -791,6 +814,9 @@ def stockControl(request):
 			rst = []
 			for key in dictionary.keys():
 				rst.append({'name': key, 'value': dictionary.get(key)})
+				print (type(dictionary.get(key)))
+			print("geshi zhuanhuan wanbi")
+
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': rst,
 				                            'module_name': module_name
@@ -832,7 +858,7 @@ def market_share(request):
 
 
 
-#import data_import.liusinuo.update_mysql_space 
+#import data_import.liusinuo.update_mysql_space
 from data_import.liusinuo.update_mysql_space import update_mysql_space_orderNo
 #更新数据仓库：销售部分——空间分析
 def update_mysql_space(request):

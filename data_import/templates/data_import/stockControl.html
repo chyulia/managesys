@@ -9,18 +9,18 @@
 
 
 <h1>销售部分：库存管理</h1> 
-<a href='/space'>>>>跳转到：空间分析</a>&nbsp;&nbsp;&nbsp;
+<!-- <a href='/space'>>>>跳转到：空间分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/market_share'>>>>跳转到：市场份额分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/time'>>>>跳转到：时间分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/trade'>>>>跳转到：钢种分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/cust_time'>>>>跳转到：客户分析（按时间）</a>&nbsp;&nbsp;&nbsp;
 <a href='/cust_trade'>>>>跳转到：客户分析（按钢种）</a>
-<br>
+<br> -->
 {% csrf_token %}
 <br>
 <!--<h3> 输入 </h3>-->
 
-<div >
+<!-- <div >
 <h4>两行三列：</h4>
 <table border="1" width="500">
     <tr>
@@ -43,9 +43,9 @@
     </tr>
 </table>
 </div>
-<br>
+<br> -->
 
-<div>
+<!-- <div>
     钢种选择:
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=45>45
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=50>50
@@ -58,17 +58,17 @@
 <br>
 
 <div>
-<button id="btnDrawChart" >分析结果绘图</button>
-</div>
-<div id="main4" style="width: 800px;height:400px;"></div>
+<button id="btnDrawChart" onclick="click_DrawChart()">分析结果绘图</button>
+</div> -->
+<div id="main4" style="width: 1200px;height:3000px;"></div>
 <div id="main5" style="width: 60px;height:400px;">
-<textarea id="txt" style="width: 800px;height:100px;"></textarea>
+<!-- <textarea id="txt" style="width: 800px;height:100px;"></textarea> -->
 </div>
 
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
 <script type="text/javascript">
-
-    $('#btnDrawChart').click(function(){ //点击绘图按钮后，绘制相应图形
+    //$('#btnDrawChart').click(function(){ //点击绘图按钮后，绘制相应图形
+    function click_DrawChart(){ //点击绘图按钮后，绘制相应图形
         //提取输入值
         var module = 2
         var module_unit_key = ''
@@ -103,6 +103,8 @@
             }
         ).done(function(data) {
             console.log(" ajax 执行完毕 即将绘图");
+            console.log(data)
+            console.log(data.result)
             drawStockControl(data.result,module_unit_key);
             $("#txt").empty();
             $("#txt").append(data.describe); 
@@ -111,9 +113,9 @@
                 console.log("wrong");
             });
         
-    });
-    
+    };
 
+    window.onload=click_DrawChart;
 </script>
 <script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>
 <!-- <script type="text/javascript">

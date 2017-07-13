@@ -12,3 +12,4 @@ sklearn
 cx_Oracle
 python-docx
 sqlalchemy
+django_crontab

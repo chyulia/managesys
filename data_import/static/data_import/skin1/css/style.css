@@ -313,7 +313,7 @@ vertical-align : middle;
 width : 100%;
 }
 #slider_sec {
-background-image : url("../img/slider.jpg");
+background-image : url("../img/m5.jpg");
 background-position : center center;
 background-repeat : no-repeat;
 background-size : 100% 100%;
@@ -395,6 +395,7 @@ margin-top : 10px;
 }
 #pr_sec {
 padding : 70px 0;
+background-color: #f9f9fc;
 }
 .service {
 
@@ -1004,4 +1005,13 @@ display : block;
 	height:auto;
 	float: left;
 	position : relative;
+}
+#blank {
+	top:100px;
+}
+#module_sec .zzsc-containe{
+margin-top: 1000px;
+padding:300px;
+height : 6500px;
+width : 100%;
 }

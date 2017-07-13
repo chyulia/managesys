@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.contrib.auth.models import Permission
 from . import models
-from .models import ContentPost, ContentPostImage
+from .models import ContentPost, ContentPostImage,Information
 
 from django.forms import TextInput, Textarea
 
@@ -10,7 +11,7 @@ from django.core.files.base import ContentFile
 import os
 from django.conf import settings
 import platform
-
+from .util import get_model_attrs
 # Register your models here.
 
 class TransRelationAdmin(admin.ModelAdmin):
@@ -70,6 +71,11 @@ class ContentPostAdmin(admin.ModelAdmin):
                 obj.md_file.close()
         obj.save()
 
+class InformationAdmin(admin.ModelAdmin):
+    list_display = ('id','title', 'subtitle', 'content', 'pub_date', 'last_edit_date', 'publisher', 'infotype')
+    list_filter = ('infotype','publisher')
 
+admin.site.register(Information,InformationAdmin)
+admin.site.register(Permission)
 admin.site.register(models.TransRelation,TransRelationAdmin)
 admin.site.register(ContentPost, ContentPostAdmin)

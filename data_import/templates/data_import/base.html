@@ -28,9 +28,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/owl.carousel.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/responsive.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/style.css' %}" />
-
-    {% block pagecss %}{% endblock pagecss %}
-
+    {% block pagecss %}{% endblock  %}
     <!-- Loading Flat UI -->
     <!-- <link href="{% static 'data_import/flat-ui/dist/css/flat-ui.css' %}" rel="stylesheet"> -->
     <!-- <link href="{% static 'data_import/flat-ui/docs/assets/css/demo.css' %}" rel="stylesheet"> -->
@@ -106,13 +104,13 @@
                             </li>
                             <li><a href="#">销售分析<i class="fa fa-angle-down"></i></a>
                                 <ul>
-                                    <li><a class="page-scroll" href="/space">刘斯诺</a></li>
                                     <li><a class="page-scroll" href="/space">空间分析</a></li>
                                     <li><a class="page-scroll" href='/market_share'>市场份额分析</a></li>
                                     <li><a class="page-scroll" href="/time">时间分析</a></li>
                                     <li><a class="page-scroll" href="/trade">钢种分析</a></li>
                                     <li><a class="page-scroll" href="/cust_time">客户分析（按时间）</a></li>
-                                    <li><a class="page-scroll" href="/cust_trade">客户分析（按钢种）</a></li>
+                                      <li><a class="page-scroll" href="/cust_trade">客户分析（按钢种）</a></li>
+                                    <li><a class="page-scroll" href="/stockControl">库存管理</a></li>
                                 </ul>
                             </li>
                             <li><a href="#">价格预测<i class="fa fa-angle-down"></i></a>
@@ -163,53 +161,20 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="all_tstm">
-
+      {% for infotype, infos in infost.items %}
+        {% if infotype == '1' %}
+          {% for info in infos %}
             <div class="clnt_tstm">
                 <div class="sngl_tstm">
                     <i class="fa fa-quote-right"></i>
-                    <h3>基本情况 </h3>
-                    <p>针对钢铁产品生产数据拥有庞大的规模，不断变化的类型，不断演化的分析模式，存在信息量大，信息存储的格式繁多，信息较分散不集中，现有技术难以为钢铁产品生产过程进行相应支持等具体问题，为此需要建立青特钢智能分析与决策技术平台。
-                    在智能分析与决策技术的基础理论、技术方法、模型算法与应用支撑平台等多个层面，构造综合集成的智能分析与决策技术体系，形成符合钢铁生产大数据特点的数据整合与数据分析挖掘技术和智能分析与决策技术平台。</p>
-                    <h6>- Kai Feng</h6>
+                    <h3>{{info.title}} </h3>
+                    <p>{{info.content}}</p>
+                    <h6>- {{info.publisher}}</h6>
                 </div>
             </div>
-
-            <div class="clnt_tstm">
-                <div class="sngl_tstm">
-                    <i class="fa fa-quote-right"></i>
-                    <h3>项目需求 </h3>
-                    <p>目前已经建立并投入使用的信息化系统包括财务业务一体化系统、产销质一体化系统、检化验系统、能源管控系统、自助计量系统、综合二级数采集成系统，以及生产工艺的一级、二级系统等。以上诸多系统的投入使用，直接表现为公司的数据爆炸。</p>
-                    <h6>- Kai Feng</h6>
-                </div>
-            </div>
-
-            <div class="clnt_tstm">
-                <div class="sngl_tstm">
-                    <i class="fa fa-quote-right"></i>
-                    <h3>建设方案 </h3>
-                    <p>本项目是在青岛特钢生产流程范围内，面向生产制造和经营管理相关的分析评价、预测与决策等数据分析挖掘需求，以产品质量管理为主线，针对生产工序间质量分析、生产数据挖掘为目标的节能减排、营销决策支持等具体需求，深度融合实时生产数据、生产管理信息以及工艺知识，研发基于云计算与大数据技术的数据分析挖掘、深度学习、决策分析模型，利用已有成果和开源技术研发模型驱动的可视化、系统化的青岛特钢大数据智能分析与决策应用支撑平台。</p>
-                    <h6>- Kai Fengo</h6>
-                </div>
-            </div>
-
-            <div class="clnt_tstm">
-                <div class="sngl_tstm">
-                    <i class="fa fa-quote-right"></i>
-                    <h3>关键技术 </h3>
-                    <p>本项目是在青岛特钢生产流程范围内，面向生产制造和经营管理相关的分析评价、预测与决策等数据分析挖掘需求，以产品质量管理为主线，针对生产工序间质量分析、生产数据挖掘为目标的节能减排、营销决策支持等具体需求，深度融合实时生产数据、生产管理信息以及工艺知识，研发基于云计算与大数据技术的数据分析挖掘、深度学习、决策分析模型，利用已有成果和开源技术研发模型驱动的可视化、系统化的青岛特钢大数据智能分析与决策应用支撑平台。</p>
-                    <h6>- Kai Feng</h6>
-                </div>
-            </div>
-
-            <div class="clnt_tstm">
-                <div class="sngl_tstm">
-                    <i class="fa fa-quote-right"></i>
-                    <h3>考核标准 </h3>
-                    <p>项目研究青特钢生产制造数据、经营管理数据、营销数据等大数据的多元异构集成、存储、可视化决策分析等技术；研究开发基于大数据的决策分析模型、算法，构建模型驱动的钢铁企业大数据智能分析与决策支撑平台；形成面向PC和移动终端的智能分析决策支持系统。</p>
-                    <h6>- Kai Feng</h6>
-                </div>
-            </div>
-
+            {% endfor %}
+        {% endif %}
+      {% endfor %}
 
             </div>
         </div>
@@ -222,7 +187,7 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ft">
+            <!-- <div class="ft">
                 <ul>
                     <li><a href=""><i class="fa fa-facebook"></i></a></li>
                     <li><a href=""><i class="fa fa-twitter"></i></a></li>
@@ -234,10 +199,10 @@
                     <li><a href=""><i class="fa fa-skype"></i></a></li>
                     <li><a href=""><i class="fa fa-google"></i></a></li>
                 </ul>
-            </div>
+            </div> -->
             <ul class="copy_right">
-                <li>&copy; 2016</li>
-                <li>developer by md. shiddikur rahman</li>
+                <li>&copy; 2017</li>
+                <li>developer by USTB1001</li>
             </ul>
         </div>
     </div>

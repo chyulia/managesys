@@ -9,29 +9,29 @@
 
 
 <h1>销售部分：客户分析（按钢种）</h1> 
-<a href='/space'>>>>跳转到：空间分析</a>&nbsp;&nbsp;&nbsp;
+<!-- <a href='/space'>>>>跳转到：空间分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/market_share'>>>>跳转到：市场份额分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/time'>>>>跳转到：时间分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/trade'>>>>跳转到：钢种分析</a>&nbsp;&nbsp;&nbsp;
 <a href='/cust_time'>>>>跳转到：客户分析（按时间）</a>&nbsp;&nbsp;&nbsp;
-<a href='/stockControl'>>>>跳转到：库存管理</a>
+<a href='/stockControl'>>>>跳转到：库存管理</a> -->
 {% csrf_token %}
 <br>
 <br>
 <!--<h3> 输入 </h3>-->
 <div>
-    分析模块:
+<!--     分析模块:
     <select name="select_module" id="select_module" class="xla_1">
-<!--         <option value="1">空间分析</option>
+        <option value="1">空间分析</option>
         <option value="2">时间分析</option>
-        <option value="3">钢种分析</option> -->
+        <option value="3">钢种分析</option>
         <option value="4">客户分析</option>
-    </select>
-    子模块:
+    </select> -->
+<!--     子模块:
     <select name="select_module_unit_key" id="select_module_unit_key" class="xla_2">
-<!--         <option value=1>某客户按时间分析</option> -->
+        <option value=1>某客户按时间分析</option>
         <option value=2>某客户按钢种分析</option>
-    </select>
+    </select> -->
     分析内容:
     <select name="select_aspect" id="select_aspect" class="xla_2">
         <option value="1">总销量</option>
@@ -39,12 +39,7 @@
         <option value="3">退货率</option>
         <option value="4">质量问题个数</option>
     </select>
-</div>
-<br>
-<div>
-    起始时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-01-01' / >
-    终止时间: <input name="select_date2" id="select_date2" type="date"  value = '2016-07-31' / >
-    时间选择依据:
+    时间依据:
     <select name="select_time_choose" id="select_time_choose" class="xla_3">
         <option value="1">订单时间</option>
         <option value="2">发货时间</option>
@@ -54,17 +49,22 @@
         <option value="6">订单存货时间</option>
         <option value="7">质保书时间</option>
         <option value="8">外库接收时间</option>
-    </select><br>
+    </select>
+   
 </div>
 <br>
 <div>
-    时间选取快捷按钮：
-    <button id="btnSelectDate_oneYear" onclick="SelectDate_default()" > 还原默认值 </button>
+    起始时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-05-01' / >
+    终止时间: <input name="select_date2" id="select_date2" type="date"  value = '2016-07-31' / >
+    快捷按钮：
+    <button id="btnSelectDate_oneYear" onclick="SelectDate_default()" > 默认值 </button>
     <button id="btnSelectDate_oneMonth" onclick="SelectDate_oneMonth()" > 近一月 </button>
     <button id="btnSelectDate_threeMonth" onclick="SelectDate_threeMonth()" > 近三月 </button>
     <button id="btnSelectDate_halfYear" onclick="SelectDate_halfYear()" > 近半年 </button>
     <button id="btnSelectDate_oneYear" onclick="SelectDate_oneYear()" > 近一年 </button>
+    
 </div>
+
 <br>
 <div>
     客户编号
@@ -76,17 +76,18 @@
 <button id="btnDrawChart" >分析结果绘图</button>
 </div>
 <br>
-<div>
+<!-- <div>
     展示方式： 
     <select name="select_showStyle" id="select_showStyle" class="xla_8" " value = '月' style="display:inline;">
         <option value="1">饼状图</option>
         <option value="2">漏斗图</option>
     </select>
 </div>
-<br>
+<br> -->
 <div id="main4" style="width: 800px;height:400px;"></div>
+<div id="main7" style="width: 800px;height:400px;"></div>
 <div id="main5" style="width: 60px;height:400px;">
-<textarea id="txt" style="width: 800px;height:500px;"></textarea>
+<textarea id="txt" style="width: 800px;height:300px;"></textarea>
 </div>
 
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
@@ -109,27 +110,31 @@
     }
  
 
-        select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
-        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
-        if (this.value == 1){
-             drawpie(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
-        }else{
-             drawfunnel(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
-        }
+    //     select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
+    //     //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+    //     if (this.value == 1){
+    //          drawpie(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+    //     }else{
+    //          drawfunnel(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+    //     }
        
-    }
+    // }
 
     $('#btnDrawChart').click(function(){ //点击绘图按钮后，绘制相应图形
         //提取输入值
-        var module = $ ("#select_module").find("option:selected").val();
-        var module_unit_key = $ ("#select_module_unit_key").find("option:selected").val();
+        //var module = $ ("#select_module").find("option:selected").val();
+        //var module_unit_key = $ ("#select_module_unit_key").find("option:selected").val();
+        var module = 4;   
+        var module_unit_key = 2; 
+
         var aspect = $ ("#select_aspect").find("option:selected").val();
         var dateChoose = $ ("#select_time_choose").find("option:selected").val();
         var space = "";
         var space_name = "";
         //var tradeNo = $ ("#select_trade").find("option:selected").val();
         var tradeNoNoNo = []
-        var showStyle = $ ("#select_showStyle").find("option:selected").val();
+        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+        var showStyle = 1
         var sql_cust =  $ ("#select_cust").val();
         console.log(sql_cust);
         var sql_date1_ = document.getElementById("select_date1").value;
@@ -195,11 +200,13 @@
             data_save.showStyle = showStyle;
             data_save.sql_cust = sql_cust;
             data_save.sql_cust = sql_cust;
-             if ( showStyle == 1 ){
-                drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
-            }else {
-                drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
-            }
+            //  if ( showStyle == 1 ){
+            //     drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // }else {
+            //     drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // }
+            drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
             //console.log(sql_date1)
             //console.log(data.unite)
             $("#txt").empty();

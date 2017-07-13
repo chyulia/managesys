@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'taggit',
     'data_import',
+    'django_crontab',
 ]
 
 
@@ -129,7 +130,9 @@ TIME_ZONE = 'Asia/Shanghai'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh_CN'
+
+#LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
@@ -255,3 +258,12 @@ custom settings
 '''
 # 系统基本界面主目录
 MAIN_OUTFIT_BASE = 'data_import/main/'
+#
+# CRONJOBS = [
+#     ('47 11 * * *', 'django.core.management.call_command', ['aizhan_5domain_visits']),
+# ]
+CRONJOBS = [
+
+    ('*/1 * * * *', 'QinggangManageSys.views.paralle_test1'),
+
+]

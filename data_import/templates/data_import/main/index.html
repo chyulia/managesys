@@ -1,8 +1,22 @@
 {% extends "data_import/base.html" %}
+{% load static %}
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
+{% block pagejs %}
+<!-- <script type="text/javascript" src="{% static 'data_import/index/js/jQuery.blockUI.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.pack.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.SuperSlide.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/js/jquery-1.12.4.js' %}"></script> -->
+{% endblock %}
+
+{% block pagecss %}
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/normalize.css' %}"> -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/demo.css' %}"> -->
+<link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/style.css' %}">
+{% endblock %}
 
 {% block indexcontent %}
  <!-- start slider Section -->
+
 <section id="slider_sec">
 <div class="container">
     <div class="row">
@@ -12,8 +26,6 @@
               <ol class="carousel-indicators">
                 <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
                 <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="3"></li>
               </ol>
 
               <!-- Wrapper for slides -->
@@ -21,32 +33,16 @@
                 <div class="item active">
                     <div class="wrap_caption">
                       <div class="caption_carousel">
-                        <h1>价格预测</h1>
-                        <p>选择种类、影响因素、预测时间、尺度，给出相应的价格预测曲线，包括历史价格展示和未来价格预测两部分</p>
-                      </div>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="wrap_caption">
-                      <div class="caption_carousel">
-                        <h1>销售分析</h1>
-                        <p>空间分析、时间分析、客户分析、钢种分析</p>
-                      </div>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="wrap_caption">
-                      <div class="caption_carousel">
-                        <h1>订单效益测算</h1>
-                        <p>输入订单信息，对订单成本、效益进行分析，并给出接单策略</p>
+                        <h1><a href="/module_nav?module_type=1">生产过程成本与质量分析</a></h1>
+                        <p>以工序为目标进行操作</p>
                       </div>
                     </div>
                 </div>
                 <div class="item ">
                     <div class="wrap_caption">
                       <div class="caption_carousel">
-                        <h1>生产过程成本与质量分析</h1>
-                        <p>以工序为目标进行操作</p>
+                        <h1><a href="/module_nav?module_type=2">销售分析与价格预测</a></h1>
+                        <p>空间分析、时间分析、客户分析、钢种分析；选择种类、影响因素、预测时间、尺度，给出相应的价格预测曲线，包括历史价格展示和未来价格预测两部分</p>
                       </div>
                     </div>
                 </div>
@@ -66,61 +62,27 @@
     </div>
 </div>
 </section>
+
+
 <!-- End slider Section -->
 <!-- start Service Section -->
 <section id="pr_sec">
 <div class="container">
 	<div class="row">
-		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
-			<div class="title_sec">
-				<h1>核心模块</h1>
-				<h2>常用模块的快捷入口</h2>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-			<div class="service">
-				<i class="fa fa-globe"></i>
-				<h2>价格预测</h2>
-				<div class="service_hoverly">
-					<i class="fa fa-globe"></i>
-					<h2><a class="page-scroll" href="/ironstoneprice">铁矿石价格预测</a></h2>
-					<p>历史价格展示和未来价格预测两部分</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-			<div class="service">
-				<i class="fa fa-paper-plane"></i>
-				<h2>销售分析</h2>
-				<div class="service_hoverly">
-					<i class="fa fa-paper-plane"></i>
-					<h2><a class="page-scroll" href='/market_share'>市场份额分析</a></h2>
-					<p>空间分析、时间分析、客户分析、钢种分析</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-			<div class="service">
-				<i class="fa fa-wordpress"></i>
-				<h2>WordPress</h2>
-				<div class="service_hoverly">
-					<i class="fa fa-wordpress"></i>
-					<h2>WordPress</h2>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore ab odio quas  , voluptate aspernatur!</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-			<div class="service">
-				<i class="fa fa-paint-brush"></i>
-				<h2>Graphic Design</h2>
-				<div class="service_hoverly">
-					<i class="fa fa-paint-brush"></i>
-					<h2>Graphic Design</h2>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore ab odio quas  , voluptate aspernatur!</p>
-				</div>
-			</div>
-		</div>
+  		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
+  			<div class="title_sec">
+  				<h1>核心模块</h1>
+  				<h2>常用模块的快捷入口</h2>
+  			</div>
+  		</div>
+
+    {% for infotype,infos in infost.items %}
+      {% if infotype == '2' %}
+        {% for info in infos %}
+        <div class="ribbon"><div class="wrap"><span class="ribbon6"><a class="page-scroll" href='{{info.link}}'>{{info.subtitle}}</a></span></div></div>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
 	</div>
 </div>
 </section>

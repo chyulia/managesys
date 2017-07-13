@@ -490,7 +490,7 @@ function drawpie(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,s
 //钢种分析漏斗图 (Echarts 2)
 function drawfunnel(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust){
 
-    var myChart = echarts.init(document.getElementById('main4'));
+    var myChart = echarts.init(document.getElementById('main7'));
     console.log(data);
     //console.log(tradeNo);
     //console.log(data[0]);
@@ -735,30 +735,46 @@ function EXPMA(data,N){//  N 为周期天数  data 为全部数据的list
 
 
 ////库存管理
-function drawStockControl(data,showStyle){
+function drawStockControl(data,module_unit_key){
 
     //var myChart = echarts.init(document.getElementById('main4'));
-    console.log("正在绘图");
+    //console.log("正在绘图");
+    console.log(data);
 
+    for (var i=0;i<4;i++)
+    {
+        if(data[i].name == 'tradeNo'){
+            tradeNo = data[i].value;            
+        }else if (data[i].name == 'stock_All'){
+            stock_All = data[i].value;            
+        }else if (data[i].name == 'stock_overstock'){
+            stock_overstock = data[i].value;
+        }else{
+            percent = data[i].value;
+        }
+    }
+
+    // console.log(tradeNo)
+    // console.log(stock_All)
+    // console.log(stock_overstock)
+    // console.log(percent)
 
     option = {
     title : {
-        text: "title",
+        text: "库存管理",
         subtext: "subtext",
         x:'center'
     },
     tooltip : {
         trigger: 'axis', 
         formatter : function (params) {
-                if (params[0].value == "总销量为0，无法计算退货率！"){
-                    return params[0].name ;
-                }else{
-                    return params[0].name ;
-                }
+                //console.log(params);
+                return params[0].name + "<br/>" +  params[0].seriesName + ":" + params[0].value + "<br/>2017-04-01以前总重量:" + params[1].value ;
             }
     },
-    
     legend: {
+        orient: 'vertical',
+        x:'left',
         data:['总重量', '库龄大于3月的总重量']
     },
     toolbox: {
@@ -780,19 +796,21 @@ function drawStockControl(data,showStyle){
     yAxis : [
         {
             type : 'category',
-            data : ['巴西','印尼','美国','印度','中国','世界人口(万)']
+            data : tradeNo
         }
     ],
     series : [
         {
             name:'总重量',
             type:'bar',
-            data:[18203, 23489, 29034, 104970, 131744, 630230]
+            data:stock_All
+           
         },
         {
             name:'库龄大于3月的总重量',
             type:'bar',
-            data:[19325, 23438, 31000, 121594, 134141, 681807]
+            data:stock_overstock
+            
         }
     ]
 

@@ -1,0 +1,84 @@
+{% extends "data_import/base.html" %}
+{% load static %}
+{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
+{% block pagejs %}
+<!-- <script type="text/javascript" src="{% static 'data_import/index/js/jQuery.blockUI.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.pack.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/index/js/jquery.SuperSlide.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_import/js/jquery-1.12.4.js' %}"></script> -->
+{% endblock %}
+
+{% block pagecss %}
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/normalize.css' %}"> -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/demo.css' %}"> -->
+<link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/set.css' %}">
+{% endblock %}
+
+{% block content %}
+ <!-- start slider Section -->
+ <div id="blank"></div>
+<section id="module_sec">
+<div class="container">
+    <div class="row">
+      <!-- <div class="zzsc-container">
+      	<section>
+      		<h2><span>生产过程成本与质量分析</span></h2>
+      		<div class="ribbon"><span class="ribbon1"><span><a class="page-scroll" href="/chen">转炉数据分析</a>1</span></span></div>
+      		<div class="ribbon"><span class="ribbon2"><a class="page-scroll" href="/fluctuation">波动率分析</a</span></div>
+      		<div class="ribbon"><span class="ribbon3"><a class="page-scroll" href="/ha">转炉数据预处理</a></span></div>
+      		<div class="ribbon"><span class="ribbon4"><a class="page-scroll" href="/product_quality">转炉单炉次质量回溯</a></span></div>
+      		<div class="ribbon"><span class="ribbon5"><a class="page-scroll" href="/w_fluc_quality">转炉多炉次质量回溯</a></span></div>
+      	</section>
+      </div> -->
+      <!-- works -->
+      <div id="works"  class=" clearfix grid">
+          <figure class="effect-oscar  wowload fadeIn">
+              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+              <figcaption>
+                  <h2>转炉数据分析</h2>
+                  <p><br>
+                  <a class="page-scroll" href="/chen">转炉数据分析</a></p>
+              </figcaption>
+          </figure>
+           <figure class="effect-oscar  wowload fadeInUp">
+              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+              <figcaption>
+                  <h2>波动率分析</h2>
+                  <p><br>
+                  <a class="page-scroll" href="/fluctuation">波动率分析</a></p>
+              </figcaption>
+          </figure>
+           <figure class="effect-oscar  wowload fadeInUp">
+              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+              <figcaption>
+                  <h2>数据预处理</h2>
+                  <p><br>
+                  <a class="page-scroll" href="/ha">转炉数据预处理</a></p>
+              </figcaption>
+          </figure>
+           <figure class="effect-oscar  wowload fadeInUp">
+              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+              <figcaption>
+                  <h2>单炉质量回溯</h2>
+                  <p><br>
+                  <a class="page-scroll" href="/product_quality">转炉单炉质量回溯</a></p>
+              </figcaption>
+          </figure>
+           <figure class="effect-oscar  wowload fadeInUp">
+              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
+              <figcaption>
+                  <h2>多炉质量回溯</h2>
+                  <p><br>
+                  <a class="page-scroll" href="/w_fluc_quality">转炉多炉质量回溯</a></p>
+              </figcaption>
+          </figure>
+
+      </div>
+      <!-- works -->
+    </div>
+</div>
+</section>
+
+
+<!-- End module Section -->
+{% endblock %}
