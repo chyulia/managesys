@@ -6,20 +6,18 @@
 {% block content %}
 
 <h2>青钢转炉数据分析-转炉-成本-单炉次</h2>
-<h7><a href='/fluctuation'>To波动率分析页面  </a><a href='/test'>  To时间插件测试</a></h7>
-<div style="width:1000px">
-    <div style="width:850px">
+<!-- <h7><a href='/fluctuation'>To波动率分析页面  </a><a href='/test'>  To时间插件测试</a></h7> -->
+<div style="width:1500px">
+    <div style="width:1000px">
 
         <!-- 隐藏域 -->
         <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
         <input type="hidden" name="hidden_inform2" id='hidden_inform2'>
         <input type="hidden" name="hidden_inform3" id='hidden_inform3'>
         <input type="hidden" name="hidden_inform4" id='hidden_inform4'>
-        <input type="hidden" name="hidden_inform5" id='hidden_inform5'>
-        <input type="hidden" name="hidden_inform6" id='hidden_inform6'>
 
         <!-- <p><strong>单炉次成本相关字段分析</strong></p> -->
-        <p>请输入炉次号，例如：1634230，并选择筛选条件。注：当前数据库数据截至2016年7月！</p>
+        <p>请输入炉次号，例如：1634230，并选择筛选条件。</p>
         <label>炉次号：</label><input type="text" name="prime_analyse" value="1634230" id="prime_analyse">
         <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="SPECIFICATION_name">
                 <option value='all' selected = "selected">所有钢种</option>
@@ -33,18 +31,24 @@
                 <option value='B'>乙班</option>
                 <option value='C'>丙班</option>
             </select>
+    </div>
+    <div style="margin-top:5px">
         <label>对比时间：</label>
-                <div id="reportrange" class="pull-right dateRange" style="width:250px;height:26px">
-                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                    <span id="searchDateRange"></span>
-                    <b class="caret"></b>
-                </div>
+            <input id="datepicker-example7-start" type="text">
+            至 <input id="datepicker-example7-end" type="text">
+            快捷选项：<button id="thisMonth" onclick="months(this,1,0)" > 近一月 </button>
+                    <button id="this3Month" onclick="months(this,3,0)" > 近三月 </button>
+                    <button id="this6Month" onclick="months(this,6,0)" > 近半年 </button>
+                    <button id="this1Year" onclick="months(this,12,0)" > 近一年 </button>
+                    <button id="allData" onclick="months(this,'all',1)" > 全部数据 </button>
+
 
     </div>
     <button onclick="cost_produce()" id='click2' style="width:150px;height:26px;margin-top:5px">成本字段分析</button>
 </div>
 
 <div style="width:1550px">
+    <div id="loadingarea" style="float:middle;width:1000px;height:30px"></div>
     <div id="main1" style="float:left;width:700px;height:300px"></div>
     <div id="main2" style="float:left;width:800px;height:300px"></div>
     <div id="main3" style="float:left;width:700px;height:300px"></div>
@@ -53,9 +57,9 @@
         <p><strong>转炉工序单炉次字段成本追溯结果：</strong></p>
         <textarea id="cause_txt" style="width: 700px;height:250px;"></textarea>
     </div>
-    <div style="float:right;width:800px;height:450px">
-        <div id="main5" style="float:left;width:700px;height:350px"></div>
-        <div id='coloum_div' style="width:700px;height:100px">
+    <div style="float:right;width:800px;height:350px">
+        <div id="main5" style="float:left;width:700px;height:300px"></div>
+        <div id='coloum_div' style="width:700px;height:50px">
             <!-- 改变柱状个数 -->
             <lebel >请选择分布区间数：</lebel>
             <select name='change_column' id='change_column' onChange="change_column()">
@@ -71,29 +75,31 @@
 
 <!-- <button onclick='updatevalue()' id='updatevalue'>定期更新数据库转炉字段统计值</button> -->
 <!-- <link href="/static/data_import/bootstrap.min.css" rel="stylesheet"> -->
+<!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">    -->
 <link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />
 <link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />
 <link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script>
 <script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
+<script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
+<link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
 
 <script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
 <script type="text/javascript">
-    // //定期更新数据库中表结构表中的期望等参数值(现已单独成文件，不放在整体程序中)
-    // function updatevalue(){
-    //     $.ajax({
-    //     type: "post",
-    //     url:  "/updatevalue",
-    //     data: {},
-    //     error: function() {
-    //         alert("发生错误！");
-    //     },
-    //     success: function(data) {
-    //         alert(data.state);
-    //     }
-    //  })
-    // }
 
+    function months(obj,month1,month2){//调用插件接口
+        //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
+        //hidden_inform隐藏域用于在进行追溯时直接从页面读取信息
+        if (month1=='all'){
+            $('#datepicker-example7-start').val('2016-01-01');
+            $('#datepicker-example7-end').val(moment().format('YYYY-MM-DD'));    
+
+            }
+        else{
+            $('#datepicker-example7-start').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
+            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD')); 
+            }
+        }
 
 
     //改变概率直方分布的柱状个数
@@ -110,9 +116,15 @@
         var heat_no = $("#prime_analyse").val();
         var SPECIFICATION = $("#SPECIFICATION").val();
         var OPERATECREW = $("#OPERATECREW").val();
-        var starttime = $('#hidden_inform5').val();
-        var endtime = $('#hidden_inform6').val();
+        var starttime = $('#datepicker-example7-start').val();
+        var endtime = $('#datepicker-example7-end').val();
         console.log(heat_no)
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
         $.ajax({
             type: "post",
             url:  "/cost_produce",
@@ -126,42 +138,49 @@
                 //alert(data.result.yvalue)
                 // alert(data.result.offset_result[0]);
                 // $("#offset").val(data.result.offset_result[0]);
-                    if (data.state=='error'){
-                        // alert('当前筛选条件无可分析数据！')
-                        $("#main1").empty();
-                        $("#main1").append("\n\n\n\n注：当前"+heat_no+"炉次不存在！");
-                        $("#main2").empty();
-                        $("#main3").empty();
-                        $("#main4").empty();
-                        // $("#cause_area").hide();
-                        $("#main5").empty();
-                        $("#coloum_div").hide();
-
-                    }else{
-                    drawBarChart_raw(data.result);
-                    drawBarChart_material(data.result);
-                    drawBarChart_product(data.result);
-                    drawBarChart_alloy(data.result);
-                    $("#coloum_div").hide();
+                if (data.state=='error'){
+                    // alert('当前筛选条件无可分析数据！')
+                    $("#main1").empty();
+                    $("#main1").append("\n\n\n\n注：当前"+heat_no+"炉次不存在！");
+                    $("#main2").empty();
+                    $("#main3").empty();
+                    $("#main4").empty();
+                    // $("#cause_area").hide();
                     $("#main5").empty();
-                    regression_analyse(data.result);
-                    // alert(data.result.raw.heat_no);
-                    // alert(data.result.raw.str_select);
-                    }
+                    $("#coloum_div").hide();
+                    $('#loadingarea').hide();
+
+                }else{
+                drawBarChart_raw(data.heat_no,data.result);
+                drawBarChart_material(data.heat_no,data.result);
+                drawBarChart_product(data.heat_no,data.result);
+                drawBarChart_alloy(data.heat_no,data.result);
+                $("#coloum_div").hide();
+                $("#main5").empty();
+                // $('#loadingarea').hide();
+                singlefurnace_regression_analyse(data);
+                // alert(data.result.raw.heat_no);
+                // alert(data.result.raw.str_select);
+                }
 
             }
         })
     };
-    function regression_analyse(result){
-         var heat_no = $("#prime_analyse").val();
-         var str_select = result.raw.str_select;
-         var json_result = JSON.stringify(result);
+    function singlefurnace_regression_analyse(result){
+         // var heat_no = $("#prime_analyse").val();
+         // var str_select = result.str_select;
+        var json_result = JSON.stringify(result);
          // alert(json_result);
          // alert(result);
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        myChart_loading.showLoading({
+             text: "成本字段正在追溯中...请勿执行其它操作！"
+                });
+
           $.ajax({
             type: "post",
-            url:  "/regression_analyse",
-            data: {'heat_no':heat_no,'str_select':str_select,'result':json_result},
+            url:  "/singlefurnace_regression_analyse",
+            data: {'result':json_result},
             error: function() {
                 alert("错误！！");
             },
@@ -170,6 +189,7 @@
                 $("#cause_txt").empty();
                 $("#cause_txt").append(data.str_cause);
                 $("#cause_area").show();
+                $('#loadingarea').hide();
             }
         })
 
@@ -183,7 +203,7 @@
         $.ajax({
             type: "post",
             url:  "/max_influence",
-            data: {'field':fieldname_english,'offset_value':offset_value,'heat_no':heat_no},
+            data: {'field':fieldname_english,'offset_value':offset_value,'heat_no':heat_no,'str_select':str_select},
             error: function() {
                 alert("错误！！");
             },
@@ -219,9 +239,12 @@
     };
 
     // 条形图（原料raw）(多Y轴)
-    function drawBarChart_raw(result){
+    function drawBarChart_raw(heat_no,result){
         var myChart = echarts.init(document.getElementById('main1'));
-        var colors = ['#FF8C69','#FF8247','#FF7256','#FF6347','#FF34B3','#FF0000','#FF7F50','#FF7F24'];
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        // var colors = ['#FCBE91','#AB837D','#E6DD86','#BCA997','#ADC8C8','#9D947E','#AE8083','#9C8987','#807455','#DEC87B','#C3B7BB'];
+        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
         var barWidth_value=40;//柱条（K线蜡烛）宽度
         var barGap_value='100%';//柱间距离，默认为柱形宽度的30%，可设固定值
         var barCategoryGap_value='60%';//类目间柱形距离，默认为类目间距的20%，可设固定值
@@ -230,7 +253,7 @@
             var option = {
                 color:colors,
                 title: {
-                    text: '炉次号'+result.raw.heat_no+'的原料组成',
+                    text: '炉次号'+heat_no+'的原料组成',
                     x:'center'
                 },
                 tooltip: {
@@ -525,9 +548,12 @@
     };
 
     // 条形图（物料material）(多Y轴)
-    function drawBarChart_material(result){
+    function drawBarChart_material(heat_no,result){
         var myChart = echarts.init(document.getElementById('main2'));
-        var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        // var colors = ['#FCBE91','#AB837D','#E6DD86','#BCA997','#ADC8C8','#9D947E','#AE8083','#9C8987','#807455','#DEC87B','#C3B7BB'];
+         var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
         var barWidth_value=40;
         var barGap_value='100%';
         var barCategoryGap_value='60%';
@@ -536,7 +562,7 @@
             var option = {
                 color:colors,
                 title: {
-                    text: '炉次号'+result.material.heat_no+'的物料组成',
+                    text: '炉次号'+heat_no+'的物料组成',
                     x:'center'
                 },
                 tooltip: {
@@ -899,9 +925,11 @@
     };
 
     // 条形图（产品product）（多Y轴）
-    function drawBarChart_product(result){
+    function drawBarChart_product(heat_no,result){
         var myChart = echarts.init(document.getElementById('main3'));
-        var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
         var barWidth_value=60;
         var barGap_value='100%';
         var barCategoryGap_value='60%';
@@ -909,7 +937,7 @@
             var option = {
                 color:colors,
                 title: {
-                    text: '炉次号'+result.raw.heat_no+'的产品组成',
+                    text: '炉次号'+heat_no+'的产品组成',
                     x:'center'
                 },
                 tooltip: {
@@ -1067,9 +1095,11 @@
     };
 
     // 条形图（合金alloy）(多Y轴)
-    function drawBarChart_alloy(result){
+    function drawBarChart_alloy(heat_no,result){
         var myChart = echarts.init(document.getElementById('main4'));
-        var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
         var barWidth_value=40;
         var barGap_value='100%';
         var barCategoryGap_value='60%';
@@ -1078,7 +1108,7 @@
             var option = {
                 color:colors,
                 title: {
-                    text: '炉次号'+result.alloy.heat_no+'的合金组成',
+                    text: '炉次号'+heat_no+'的合金组成',
                     x:'center'
                 },
                 tooltip: {
@@ -1382,11 +1412,11 @@
                     },
                     {
                         type : 'category',
-                        axisLine: {show:true},
-                        axisTick: {show:true},
-                        axisLabel: {show:true},
-                        splitArea: {show:true},
-                        splitLine: {show:true},
+                        // axisLine: {show:true},
+                        // axisTick: {show:true},
+                        // axisLabel: {show:true},
+                        // splitArea: {show:true},
+                        // splitLine: {show:true},
                         data : result.ana_result.scope,
                         show:false,
                     }
@@ -1514,72 +1544,23 @@
             $("#coloum_div").hide();
             $("#cause_area").hide();
 
-            //时间插件:计算波动率的时间范围
-            $('#reportrange span').html('2016-01-01' + ' - ' + moment().format('YYYY-MM-DD'));
-            $('#hidden_inform5').val('all')
-            $('#hidden_inform6').val('all')
-
-
-            $('#reportrange').daterangepicker(
-                    {
-                        // startDate: moment().startOf('day'),
-                        //endDate: moment(),
-                        minDate: '2016-01-01',    //最小时间
-                        maxDate : moment(), //最大时间
-                        dateLimit : {
-                            days : 100
-                        }, //起止时间的最大间隔
-                        showDropdowns : true,
-                        showWeekNumbers : false, //是否显示第几周
-                        timePicker : false, //是否显示小时和分钟
-                        timePickerIncrement : 60, //时间的增量，单位为分钟
-                        timePicker12Hour : false, //是否使用12小时制来显示时间
-                        ranges : {
-                            // '最近1小时': [moment().subtract('hours',1), moment()],
-                            // '今日': [moment().startOf('day'), moment()],
-                            // '昨日': [moment().subtract('days', 1).startOf('day'), moment().subtract('days', 1).endOf('day')],
-                            // '最近7日': [moment().subtract('days', 6), moment()],
-                            // '最近30日': [moment().subtract('days', 29), moment()],
-                            // '上个月': [moment().subtract('month', 2),moment().subtract('month', 1)]
-                            '最近一月': [moment().subtract('month', 1),moment()],
-                            '最近三月': [moment().subtract('month', 3),moment()],
-                            '最近半年': [moment().subtract('month', 6),moment()],
-                            '最近一年': [moment().subtract('years', 1),moment()],
-                            '最近两年': [moment().subtract('years', 2),moment()],
-                            '所有历史时间':['2016-01-01',moment()],
-                        },
-                        opens : 'right', //日期选择框的弹出位置
-                        buttonClasses : [ 'btn btn-default' ],
-                        applyClass : 'btn-small btn-primary blue',
-                        cancelClass : 'btn-small',
-                        format : 'YYYY-MM-DD', //控件中from和to 显示的日期格式
-                        separator : ' to ',
-                        locale : {
-                            applyLabel : '确定',
-                            cancelLabel : '取消',
-                            fromLabel : '起始时间',
-                            toLabel : '结束时间',
-                            customRangeLabel : '自定义',
-                            daysOfWeek : [ '日', '一', '二', '三', '四', '五', '六' ],
-                            monthNames : [ '一月', '二月', '三月', '四月', '五月', '六月',
-                                    '七月', '八月', '九月', '十月', '十一月', '十二月' ],
-                            firstDay : 1
-                        }
-                    }, function(start, end, label) {//格式化日期显示框
-                        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-                        if (label=='所有历史时间'){
-                            $('#hidden_inform5').val('all');
-                            $('#hidden_inform6').val('all');
-                        }else{
-                            $('#hidden_inform5').val(start.format('YYYY-MM-DD'));
-                            $('#hidden_inform6').val(end.format('YYYY-MM-DD'));
-                        }
-
-
-        });
-
             });
 
+ $(document).ready(function() {
+            //时间范围
+            $('#datepicker-example7-start').Zebra_DatePicker({
+                direction: ['2016-01-01', false],
+                pair: $('#datepicker-example7-end')
+            });
+            $('#datepicker-example7-end').Zebra_DatePicker({
+                direction: 1
+            });
+           
+            //设置控件默认时间
+            $('#datepicker-example7-start').val('2016-01-01');
+            $('#datepicker-example7-end').val(moment().subtract('month', 0).format('YYYY-MM-DD'));
+           
+        });
 
 
 </script>

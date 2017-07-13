@@ -82,17 +82,19 @@ urlpatterns = [
     url(r'^product_quality',hashuang.product_quality),
     #同时计算正态分布和概率分布
     url(r'^probability_distribution',qualityzhuanlu.probability_distribution),
-    url(r'^m_quality',qualityzhuanlu.cost),
+    url(r'^qualityfields',qualityzhuanlu.qualityfields),
     #单炉次原因追溯
     #url(r'^q_max_influence',qualityzhuanlu.max_influence),
-    url(r'^retrospectfactor_all',qualityzhuanlu.retrospectfactor_all),
+    url(r'^quality_singlefurnace_regression_analyse',qualityzhuanlu.quality_singlefurnace_regression_analyse),
     #比较多炉次波动率计算(m_fluc_qulity.html)
     url(r'^w_fluc_quality',hashuang.w_fluc_quality),
     #波动率原因追溯
-    url(r'^s_fluc_quality',fluc_quality.fluc_cost_pop),
-    url(r'^b_fluc_influence',fluc_quality.fluc_influence),
+    url(r'^fluc_qualityfields',fluc_quality.fluc_qualityfields),
+    url(r'^quality_fluc_influence',fluc_quality.quality_fluc_influence),
+    url(r'^quality_multifurnace_regression_analyse',fluc_quality.quality_multifurnace_regression_analyse),
+    
     #暴力求解
-    url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),
+    # url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),
 
     #钢铁价格预测
     #price-predict
@@ -115,9 +117,7 @@ urlpatterns = [
     url(r'^getGrape',chyulia.getGrape),
     #跳转到波动率页面fluctuation.html
     url(r'^fluctuation$',chyulia.fluctuation),
-    #单炉次原因追溯
-    url(r'^max_influence',chyulia.max_influence),
-    #定期更新数据库转炉字段统计值
+    #定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
     url(r'^updatevalue',chyulia.updatevalue),
     #同时计算正态分布和概率分布
     url(r'^probability_normal',chyulia.probability_normal),
@@ -125,10 +125,14 @@ urlpatterns = [
     url(r'^fluc_cost_produce',fluc_chyulia.fluc_cost_produce),
     #波动率原因追溯
     url(r'^fluc_influence',fluc_chyulia.fluc_influence),
+    #定期更新数据库中表结构表中的期望等参数值（本月及上月数据），每日更新
+    url(r'^daily_updatevalue',fluc_chyulia.daily_updatevalue),
     url(r'^test',chyulia.test),
     url(r'^analysis_tool$',chyulia.analysis_tool),
     url(r'^violent_analyse$',violent_analyse.violent_analyse),
-    url(r'^regression_analyse$',chyulia.regression_analyse),
+    url(r'^singlefurnace_regression_analyse',chyulia.singlefurnace_regression_analyse),
+    url(r'^multifurnace_regression_analyse',fluc_chyulia.multifurnace_regression_analyse),
+    
     
 
     #添加工具类方法，之后处理为批处理事件

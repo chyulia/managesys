@@ -15,7 +15,7 @@ import platform
 
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local' ,'TP-PC')
+dev_machines = ('cheng-cx','cheng-cx.local')
 
 if node in dev_machines:
     # folder QinggangManageSys
@@ -29,7 +29,7 @@ if node in dev_machines:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            #'HOST': '202.204.54.212',
+            # 'HOST': '202.204.54.212',
             'HOST': 'localhost',
             'PORT': '3306',
         },
