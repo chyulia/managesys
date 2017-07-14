@@ -740,6 +740,7 @@ def cust_time(request):
 	elif request.method == "POST":
 		print(request.POST)
 		try:
+
 			dictionary, conclusion, module_name, aspect_name, unite, maxValue = main(int(request.POST.get("module")),
 										  								int(request.POST.get('aspect')),
 										  								int(request.POST.get('dateChoose')),
@@ -754,6 +755,7 @@ def cust_time(request):
 			rst = []
 			for key in dictionary.keys():
 				rst.append({'name': key, 'value': dictionary.get(key)})
+			 
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': rst,
 				                            'module_name': module_name,
@@ -773,7 +775,8 @@ def cust_trade(request):
 	elif request.method == "POST":
 		print(request.POST)
 		try:
-			dictionary, conclusion, module_name = main(int(request.POST.get("module")),
+			print("+++++++++++++++++")
+			dictionary, conclusion, module_name,aspect_name,unite,maxValue = main(int(request.POST.get("module")),
 										  								int(request.POST.get('aspect')),
 										  								int(request.POST.get('dateChoose')),
 										 						 		request.POST.get('sql_date1'),
@@ -787,6 +790,7 @@ def cust_trade(request):
 			rst = []
 			for key in dictionary.keys():
 				rst.append({'name': key, 'value': dictionary.get(key)})
+			print("********")
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': rst,
 				                            'module_name': module_name,
