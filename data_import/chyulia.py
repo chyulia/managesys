@@ -11,7 +11,7 @@ import datetime
 import csv
 from decimal import *
 from . import batchprocess
-
+import time
 #计算投入/输出产品分布
 def cost_produce(request):
 	print("enter cost_produce")
@@ -23,14 +23,13 @@ def cost_produce(request):
 
 	contentVO={
 		'title':'测试',
-		'state':'success'
+		'state':'success',
+		'heat_no':heat_no,
 	}
-
 
 	#先查出当前炉次实际所属钢种及班别
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	# sqlVO["sql"]="SELECT HEAT_NO,nvl(TOTAL_SLAB_WGT,0) as TOTAL_SLAB_WGT,nvl(LDG_TOTAL_SLAB_WGT,0) as LDG_TOTAL_SLAB_WGT ,nvl(STEEL_SLAG,0) as STEEL_SLAG FROM qg_user.PRO_BOF_HIS_ALLFIELDS where heat_no='"+heat_no+"'";
 	sqlVO["sql"]="SELECT HEAT_NO,SPECIFICATION,OPERATECREW FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO='"+heat_no+"'";
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	if len(scrapy_records)==0:#无该炉次号
@@ -52,11 +51,16 @@ def cost_produce(request):
 	else:
 		str_select=str_select+" and OPERATECREW = '"+OPERATECREW_ask+"'"
 
-	if time1=='all':
+	# 当前时间
+	time_now=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+	print(time_now,time2)
+	#时间筛选条件
+	if time1=='2016-01-01' and time2==time_now:#走缓存
 		pass
-	else:
-		str_select=str_select+" and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')>'"+time1+"' and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')<'"+time2+"'"
-	print('str_select',str_select)
+	else:#执行普通分析
+		str_select=str_select+" and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')>='"+time1+"' and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')<='"+time2+"'"
+
+	contentVO['str_select']=str_select
 
 	#result 用来存放四大类字段的结果
 	classification_results={}
@@ -132,8 +136,6 @@ def cost_produce(request):
 		print('offset_result',offset_result)
 		print('offset_resultlist',offset_resultlist)
 		ana_result={}
-		ana_result['heat_no']=heat_no#炉次号
-		ana_result['str_select']=str_select#筛选条件
 		ana_result['xname']=xasis_fieldname_ch#字段中文名字
 		ana_result['xEnglishname']=xasis_fieldname#字段英文名字
 		ana_result['danwei']=danwei#字段的数值单位
@@ -154,7 +156,7 @@ def offset(xasis_fieldname,yaxis,str_select):
 	offset_result=[]
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	print('len(xasis_fieldname)',len(xasis_fieldname))
+	# print('len(xasis_fieldname)',len(xasis_fieldname))
 
 	parameters=["MAX_VALUE","MIN_VALUE","DESIRED_VALUE","STANDARD_DEVIATION",'NUMERICAL_LOWER_BOUND','NUMERICAL_UPPER_BOUND','IF_FIVENUMBERSUMMARY']
 	for i in range (len(xasis_fieldname)):#实际计算范围为从0到len(xasis_fieldname)-1
@@ -162,9 +164,9 @@ def offset(xasis_fieldname,yaxis,str_select):
 		# 	offset_result.append(None)
 		# 	continue;
 		sqlVO["sql"]="SELECT MAX_VALUE,MIN_VALUE,DESIRED_VALUE,STANDARD_DEVIATION,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND,IF_FIVENUMBERSUMMARY FROM qg_user.PRO_BOF_HIS_ALLSTRUCTURE where DATA_ITEM_EN = \'"+xasis_fieldname[i]+"\'"
-		print(sqlVO["sql"])
+		# print(sqlVO["sql"])
 		scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-		print(scrapy_records)
+		# print(scrapy_records)
 		# print(temp_array)
 		# print(yaxis[i])
 		# print(isinstance(yaxis[i],float))#判断数据类型
@@ -210,7 +212,7 @@ def offset(xasis_fieldname,yaxis,str_select):
 						scrapy_records1[k][xasis_fieldname[i]] = float(value)
 			frame=DataFrame(scrapy_records1)
 			df=frame.sort_values(by=xasis_fieldname[i])
-			print(df)
+			# print(df)
 			#进行五数清洗
 			if scrapy_records[0]['IF_FIVENUMBERSUMMARY']==1:
 				
@@ -329,7 +331,7 @@ def probability_normal(request):
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	sqlVO["sql"]="SELECT HEAT_NO,"+bookno+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO>'1500000'"+str_select+bound_select
-	print(sqlVO["sql"])
+	# print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	print('len(scrapy_records):',len(scrapy_records))
 	if len(scrapy_records)<50:
@@ -347,21 +349,20 @@ def probability_normal(request):
 			 ivalue_i.append(ivalue_valid)
 			 ivalue_i.sort(reverse=True)
 	ivalue_valid=ivalue_i[0]#取所有有效位数的最大个数
-	print(ivalue_valid)		
+	# print(ivalue_valid)		
 	for i in range(len(scrapy_records)):
 		value = scrapy_records[i].get(bookno,None)
 		if value != None :
 			scrapy_records[i][bookno] = float(value)			
 	frame=DataFrame(scrapy_records)	
 	df=frame.sort_values(by=bookno)
-	dfr=df[df>0].dropna(how='any')
-	#print(dfr['1622324'])
-	#print(dfr[bookno].dtype)
+	# dfr=df[df>0].dropna(how='any')
+
 	#进行五数清洗
 	if float(IF_FIVENUMBERSUMMARY)==1:
-		clean=Wushu(dfr[bookno])['result']
+		clean=Wushu(df[bookno])['result']
 	else:
-		clean=dfr[bookno]
+		clean=df[bookno]
 	print('五数清洗后的数据条数：',len(clean))
 
 	if len(clean)<50:#数据不足100条
@@ -374,7 +375,7 @@ def probability_normal(request):
 		else:	
 			bc=(clean.max()-clean.min())/coloum_number
 		bcq=math.ceil(bc*1000)/1000
-		print(bcq)
+		# print(bcq)
 		try:
 			#计算概率直方分布
 			section=pd.cut(clean,math.ceil((clean.max()-clean.min())/bcq))
@@ -386,8 +387,8 @@ def probability_normal(request):
 	#numy=[ele for ele in end]
 	desx=[ele for ele in describe.index]
 	desy=[ele for ele in describe]
-	print(numx)
-	print(describe)
+	# print(numx)
+	# print(describe)
 
 	s1=pd.Series(numx)
 	d1=getA(s1)
@@ -477,7 +478,7 @@ def probability_normal(request):
 	contentVO['ana_result']=ana_result#概率分布及正态分布
 	contentVO['ana_describe']=ana_describe#统计数据的描述
 	contentVO['base_result']=base_result#该炉次的相关信息
-	print('contentVO',contentVO)
+	# print('contentVO',contentVO)
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
 	
 #进行五数分析法
@@ -552,295 +553,6 @@ def vaild(lis,ivalue_valid,data):
             data.append(shub)
     return data 
 
-#数据清洗+计算概率分布（画概率直方图）
-def num_describe(scrapy_records,bookno):
-	print(scrapy_records[1:5])
-	ivalue_i=[]
-	for n in range(len(scrapy_records)):
-		ivalue = scrapy_records[n].get(bookno,None)
-		if ivalue !=None and ivalue !=0:
-			 ivalue=ivalue
-			 ivalue_b=str(ivalue)
-			 ivalue_valid=ivalue_num(ivalue_b)#小数位数
-			 ivalue_i.append(ivalue_valid)
-			 ivalue_i.sort(reverse=True)
-	ivalue_valid=ivalue_i[0]#取所有有效位数的最大个数
-	print(ivalue_valid)		
-	for i in range(len(scrapy_records)):
-		value = scrapy_records[i].get(bookno,None)
-		if value != None :
-			scrapy_records[i][bookno] = float(value)			
-	frame=DataFrame(scrapy_records)	
-	df=frame.sort_values(by=bookno)
-	dfr=df[df>0].dropna(how='any')
-	#print(dfr['1622324'])
-	#print(dfr[bookno].dtype)
-	cleanbook=Wushu(dfr[bookno])
-	minbook=cleanbook["minbook"]
-	maxbook=cleanbook["maxbook"]	
-	if(minbook==maxbook):#不符合正态分布规律
-		print("no")
-		clean=dfr[bookno]		
-	else:
-		print("yes")
-		clean=cleanbook["result"]				
-	print("minbook")
-	print(minbook)
-	print("maxbook")
-	print(maxbook)
-	print(type(clean))
-	if clean is not None:
-		if(clean.max==clean.min()):
-			bc=1
-		else:	
-			bc=(clean.max()-clean.min())/7
-		bcq=math.ceil(bc*1000)/1000
-		print(bcq)
-		try:
-			section=pd.cut(clean,math.ceil((clean.max()-clean.min())/bcq))
-			end=pd.value_counts(section,sort=False)/clean.count()
-			describe=clean.describe()
-		except ValueError as e:
-		 	print(e)
-	numx=[ele for ele in end.index]
-	#numy=[ele for ele in end]
-	desx=[ele for ele in describe.index]
-	desy=[ele for ele in describe]
-	print(numx)
-	print(describe)
-	#contentVO={
-		#'title':'测试',
-		#'state':'success'
-	#}
-	s1=pd.Series(numx)
-	d1=getA(s1)
-	d2=getB(s1)
-	d1_data=[]
-	d2_data=[]
-	#d3_data=[]
-	d4_data=[]
-	d1_valid=vaild(d1,ivalue_valid,d1_data)
-	for i in range(len(d1_valid)):
-		if d1_valid[i]<0:
-			d1_valid[i]=0
-	d2_valid=vaild(d2,ivalue_valid,d2_data)
-	numx1=list(set(d1_valid).union(set(d2_valid)))
-	numx2=sorted(numx1)
-	# print("numx2:")
-	# print(numx2)
-	sections=[]
-	numx3=union_section(numx2,sections)
-	cut1=pd.cut(clean,numx2)
-	end1=pd.value_counts(cut1,sort=False)/clean.count()
-	numy=[ele for ele in end1]
-	# print("end1:")
-	# print(end1)
-	#numy1=vaild(numy,ivalue_valid,d3_data)
-	numy1=["%.6f"%(n) for n in numy]
-	desy1=vaild(desy,ivalue_valid,d4_data)
-	print("x轴:")
-	print(numx3)
-	print("y轴:")
-	print(numy1)
-	ana_result={}
-	ana_result['scope']=numx3
-	#print(ana_result['scope'])
-	ana_result['num']=numy1
-	#contentVO['result']=ana_result
-	ana_describe={}
-	ana_describe['scopeb']=desx
-	ana_describe['numb']=desy1
-	#contentVO['describe']=ana_describe
-	return ana_result,ana_describe
-
-#仅进行数据清洗
-from scipy.stats import norm
-def data_clean(scrapy_records,bookno):
-	#进行上下限筛查
-	#判断该字段是否进行五数清洗
-	print("data_clean:"+bookno);
-	if bookno=='"AS"':
-		bookno=bookno.split('"')[1]
-	for i in range(len(scrapy_records)):
-		value = scrapy_records[i].get(bookno,None)
-		if value != None :
-			scrapy_records[i][bookno] = float(value)
-	frame=DataFrame(scrapy_records)	#可能有多列数据
-	frame_formal=frame[['HEAT_NO',bookno]]
-	#print(frame[bookno])
-	df=frame.sort_values(by=bookno)
-	dfr=df[df>0].dropna(how='any')
-	#print(dfr[bookno].dtype)
-	clean=Wushu(dfr[bookno])
-	if bookno=="NB":
-		print(clean)
-	#print("clean",clean)
-	#平均值/期望值
-	dataclean_result={}
-	avg_value=np.mean(clean)
-	print("期望值",avg_value)
-	#标准差
-	std_value=np.std(clean)
-	print("标准差",std_value)
-	#方差
-	var_value=np.var(clean)
-	print("方差",var_value)
-	#normx,normy=Norm_dist(avg_value,var_value)
-	print("min",clean.min())
-	print("max",clean.max())
-	dataclean_result['clean_min']=clean.min()
-	dataclean_result['clean_max']=clean.max()
-	dataclean_result['avg_value']=avg_value#期望值
-	dataclean_result['std_value']=std_value#标准差
-
-	return dataclean_result
-
-
-#影响因素追溯
-from . import zhuanlu
-def max_influence(request):
-	print("Enter max_influence")
-	heat_no=request.POST.get("heat_no");
-	field=request.POST.get("field");
-	offset_value=request.POST.get("offset_value");#炉次字段的偏离程度，
-	print(field)
-	#将待匹配的字段名设置为参数
-	#field='MIRON_WGT'
-	result=[]
-
-	#从数据库读取相关性系数文件
-	sqlVO={}
-	sqlVO["db_name"]="l2own"
-	sqlVO["sql"]="SELECT * FROM PRO_BOF_HIS_RELATION_COF where OUTPUTFIELD='"+field +"' order by abs(COF) desc"#按照相关性系数的绝对值排序
-	print(sqlVO["sql"])
-	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-	print(scrapy_records)
-	length_result1=len(scrapy_records)
-
-	xasis_fieldname=[]#字段英文名字数组
-	correlation_coefficient=[]#字段相关性系数值数组
-	str_sql=''
-	for i in range(length_result1):
-		xasis_fieldname.append(scrapy_records[i].get('MIDDLEFIELD', None).upper())
-		correlation_coefficient.append(scrapy_records[i].get('COF', None))
-		str_sql=str_sql+','+scrapy_records[i].get('MIDDLEFIELD', None)
-	# print(len(scrapy_records))
-	# print(xasis_fieldname)
-	# print(regression_coefficient)
-
-
-	# #从csv文件读取回归系数文件
-	# with open('data_import/regression_all_EN1.csv','r') as csvfile:
-	# # with open('data_import/test.csv','r') as csvfile:
-	#     reader = csv.reader(csvfile)
-	#     rows= [row for row in reader]
-	# aa = np.array(rows)
-	# aa = sorted(aa, key=lambda d:abs(float(d[2])),reverse=True)
-	# for aaa in aa:
-	# 	if(aaa[0]==field):
-	# 		result.append(aaa)
- 
-	# result1 = np.array(result)#转变为numpy数组格式
-	# length_result1=len(result1)
-	# print("长度"+str(length_result1))
-	# print(result1)#根据回归系数大小排序结果
-	# print("------------------")
-	# xasis_fieldname=[]#字段英文名字数组
-	# regression_coefficient=[]#字段回归系数值数组
-	# str_sql=''
-	# for i in range(length_result1):
-	# 	xasis_fieldname.append(result1[i][1])
-	# 	regression_coefficient.append(result1[i][2])
-	# 	str_sql=str_sql+','+result1[i][1]
-	# print(str_sql)
-
-	sqlVO={}
-	sqlVO["db_name"]="l2own"
-	# sqlVO["sql"]="SELECT HEAT_NO,nvl("+xasis_fieldname[0]+",0) as "+xasis_fieldname[0]+",nvl("+xasis_fieldname[1]+",0) as "+xasis_fieldname[1]+",nvl("+xasis_fieldname[2]+",0) as "+xasis_fieldname[2]+",nvl("+xasis_fieldname[3]+",0) as "+xasis_fieldname[3]+",nvl("+xasis_fieldname[4]+",0) as "+xasis_fieldname[4]+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS where heat_no='"+prime_cost+"'";
-	sqlVO["sql"]="SELECT HEAT_NO" +str_sql+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS where heat_no='"+heat_no+"'";
-	print(sqlVO["sql"])
-	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-	#将查询所得值全部转变为float格式（动态，适用于不同个数的xasis_fieldname长度）
-	yaxis=[]#各相关性字段的实际值
-	for i in range(length_result1):
-		value = scrapy_records[0].get(xasis_fieldname[i],None)
-		if value != None :
-			scrapy_records[0][xasis_fieldname[i]] = Decimal(value)
-		else:
-			scrapy_records[0][xasis_fieldname[i]] = 0#将空值None暂时以0填充
-		yaxis.append(value)
-	# frame=DataFrame(scrapy_records)
-	# print("frame",frame)
-	# for i in range(length_result1):
-	# 	yaxis.append(frame[xasis_fieldname[i]][0])
-	# yaxis=[frame[xasis_fieldname[0]][0],frame[xasis_fieldname[1]][0],frame[xasis_fieldname[2]][0],frame[xasis_fieldname[3]][0],frame[xasis_fieldname[4]][0]]
-	print("yaxis",yaxis)
-	contentVO={
-		'title':'测试',
-		'state':'success'
-	}
-	offset_degree=offset(xasis_fieldname,yaxis,'')
-	print(xasis_fieldname)
-	print("偏离程度")
-	print(offset_degree)
-	xasis_fieldname_result=[]#字段英文名字数组
-	correlation_coefficient_result=[]#字段回归系数值数组
-	offset_degree_result=[]#偏离程度值
-	#即字段偏离高，则正相关应对应偏高，负相关应对应偏低
-
-	j=0#标志位，表示当前筛选后的有效字段个数
-	if float(offset_value[0:-1])>=0:#读取隐藏域的值，由于隐藏域的偏离表示为百分比，例如12.6%。因此截取12.6来判断其正负
-		for i in range(length_result1):
-			if j>=8:#取筛选后相关性最大的八个因素字段
-				break
-			if offset_degree[i]==None or xasis_fieldname[i]=='NB':#由于数据清洗的问题，暂且将NB字段如此处理，因为NB字段的所有数据均相同，导致数据清洗时将所有数据都清除了
-				continue
-			if float(correlation_coefficient[i]) * float(offset_degree[i]) >=0:
-				j+=1
-				xasis_fieldname_result.append(xasis_fieldname[i])
-				correlation_coefficient_result.append(correlation_coefficient[i])
-				offset_degree_result.append(offset_degree[i])
-	else:
-		for i in range(length_result1):
-			if j>=8:
-				break
-			if offset_degree[i]==None or xasis_fieldname[i]=='NB':
-				continue
-			if float(correlation_coefficient[i]) * float(offset_degree[i]) <=0:
-				j+=1
-				xasis_fieldname_result.append(xasis_fieldname[i])
-				correlation_coefficient_result.append(correlation_coefficient[i])
-				offset_degree_result.append(offset_degree[i])
-
-	#正负相关筛选后的相关字段个数
-	print('正负相关筛选后的相关字段个数',len(xasis_fieldname_result))
-	#计算回归系数
-	regression_coefficient=batchprocess.regression(field,xasis_fieldname_result,'null')
-
-	contentVO['xasis_fieldname']=xasis_fieldname_result#回归系数因素英文字段名
-	contentVO['correlation_coefficient']=correlation_coefficient_result#字段相关性系数值
-	contentVO['regression_coefficient']=regression_coefficient#字段回归系数值
-	contentVO['offset_result']=offset_degree_result#回归系数因素字段偏离值
-	contentVO['offset_number']=len(xasis_fieldname_result)#回归系数最大因素所取字段个数
-	print("字段英文名字")
-	print(xasis_fieldname_result)
-	print("相关性系数")
-	print(correlation_coefficient_result)
-	print("回归系数")
-	print(regression_coefficient)
-	print("偏离程度")
-	print(offset_degree_result)
-	
-	#查询转炉工序字段名中英文对照
-	ana_result={}
-	ana_result=zhuanlu.PRO_BOF_HIS_ALLFIELDS
-	En_to_Ch_result=[]
-	for i in range(len(xasis_fieldname_result)):
-		En_to_Ch_result.append(ana_result[xasis_fieldname_result[i]])
-	print("字段中文名字")
-	print(En_to_Ch_result)
-	contentVO['En_to_Ch_result']=En_to_Ch_result#回归系数最大因素中文字段名字
-	return HttpResponse(json.dumps(contentVO),content_type='application/json')
 	
 #计算单炉次字段值
 def single_heat(heat_no,fieldname):
@@ -905,17 +617,17 @@ def getGrape(request):
 
 
 
-#更新数据库转炉表结构期望等参数：updatevalue+Calculation_Parameters-----------------------------------------------------------------------------------------------------------------
+#更新数据库转炉表结构总期望等参数：updatevalue+Calculation_Parameters-----------------------------------------------------------------------------------------------------------------
 import cx_Oracle
 #定期更新数据库转炉字段统计值
 def updatevalue(request):
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	sqlVO["sql"]="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
+	sqlVO["sql"]="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
 	print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	print(len(scrapy_records))
-	tns=cx_Oracle.makedsn('202.204.54.75',1521,'orcl')
+	tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
 	db=cx_Oracle.connect('qg_user','123456',tns)
 	cur = db.cursor()#创建cursor
 	# sql_str="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
@@ -928,7 +640,7 @@ def updatevalue(request):
 		if rs["IF_ANALYSE"] != '1':
 			continue
 		#计算参数
-		dataclean_result=Calculation_Parameters(rs["DATA_ITEM_EN"],rs["IF_FIVENUMBERSUMMARY"]);
+		dataclean_result=Calculation_Parameters(rs["DATA_ITEM_EN"],rs["IF_FIVENUMBERSUMMARY"],rs["NUMERICAL_LOWER_BOUND"],rs["NUMERICAL_UPPER_BOUND"]);
 
 		if dataclean_result["IF_ANALYSE_TEMP"] == 0:
 			continue
@@ -959,14 +671,14 @@ def updatevalue(request):
 
 #计算极值、期望和标准差
 from scipy.stats import norm
-def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY):
+def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND):
 	# print("enter Calculation_Parameters!")
 	#对字段AS的特殊情况进行处理
 	if fieldname=='AS':
 		fieldname='"AS"'
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	sqlVO["sql"]="SELECT HEAT_NO,"+fieldname+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS"
+	sqlVO["sql"]="SELECT HEAT_NO,"+fieldname+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS where "+fieldname+'>='+str(NUMERICAL_LOWER_BOUND) +' and '+fieldname+'<='+str(NUMERICAL_UPPER_BOUND)
 	print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	#print(fieldname)
@@ -994,15 +706,14 @@ def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY):
 	#print(frame[fieldname])
 	#字段NB的所有数据都相同，因此列为特殊情况，不对其进行清洗处理
 	df=frame.sort_values(by=fieldname)
-	dfr=df[df>0].dropna(how='any')
+	# dfr=df[df>0].dropna(how='any')#有上下限约束后不再需要非0清洗
 	#print(dfr[fieldname].dtype)
 	if IF_FIVENUMBERSUMMARY=='1':#是否进行五数分析
 		print("进行五值分析:",fieldname)
-		clean=Wushu(dfr[fieldname])["result"]
+		clean=Wushu(df[fieldname])["result"]
 	else:
 		print("不进行五值分析:",fieldname)
-		clean=dfr[fieldname]
-
+		clean=df[fieldname]
 
 	if clean.count()<100:#如果清洗后的数据量少于100条，则将是否分析的临时字段设为0
 		print ("%s字段数据量为%d,不进行统计分析！"%(fieldname,clean.count()))
@@ -1033,7 +744,7 @@ def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY):
 	return dataclean_result
 
 def set_IF_ANALYSE_TEMP(fieldname):
-	tns=cx_Oracle.makedsn('202.204.54.75',1521,'orcl')
+	tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
 	db=cx_Oracle.connect('qg_user','123456',tns)
 	cur = db.cursor()#创建cursor
 
@@ -1049,15 +760,14 @@ def set_IF_ANALYSE_TEMP(fieldname):
 
 
 
-#成本追溯（非暴力，在界面上输出）-----------------------------------------
+#单炉次成本追溯（非暴力，在界面上输出）-----------------------------------------
 #界面上追溯时程序入口
-def regression_analyse(request):
-	print("regression_analyse")
-	prime_cost = str(request.POST.get("heat_no"));
-	str_select = str(request.POST.get("str_select"));
+def singlefurnace_regression_analyse(request):
+	print("singlefurnace_regression_analyse")
+
 	result = json.loads(request.POST.get("result"));
 
-	str_cause=regression_analyse_to(prime_cost,result)
+	str_cause=regression_analyse_to(result)
 
 	contentVO={
 		'title':'测试',
@@ -1068,36 +778,24 @@ def regression_analyse(request):
 
 
 
+def regression_analyse_to(result):  
+	prime_cost = result['heat_no'];
+	str_select = result['str_select'];#筛选条件 
 
-
-def regression_analyse_to(prime_cost,result):     
 	n=0#n用来指示当前问题字段的个数
-	str_cause='本炉次为'+str(prime_cost)+'，问题字段因素分析如下：\n'
+	str_cause='本炉次为'+str(prime_cost)+'，问题字段因素分析如下：\n'#存放分析结果
 	field_classification=['raw','material','product','alloy']
 	for attribute in field_classification:
 	# print('结果：：：：：',result)
 	# print('result的类型',type(result))
-	# print('才才才才才才才才才',result['raw']['heat_no']);#分类
-		print('wwww',result[attribute]['heat_no'])
-		str_select=result[attribute]['str_select']#筛选条件
-		xasis_fieldname_ch=result[attribute]['xname']#中文名
-		xasis_fieldname_en = result[attribute]['xEnglishname']#英文名
-		danwei = result[attribute]['danwei']#单位
-		yaxis_single = result[attribute]['yvalue']#实际值
-		offset_result_nopercent = result[attribute]['offset_result_nopercent']#不带百分号偏离程度（会有none）
-		qualitative_offset_result = result[attribute]['qualitative_offset_result']#各字段的偏离程度定性判断结果
-		# ana_result={}
-		# ana_result['heat_no']=heat_no#炉次号
-		# ana_result['str_select']=str_select#筛选条件
-		# ana_result['xname']=xasis_fieldname_ch#字段中文名字
-		# ana_result['xEnglishname']=xasis_fieldname#字段英文名字
-		# ana_result['danwei']=danwei#字段的数值单位
-		# ana_result['yvalue']=yaxis#该炉次字段的实际值
+		# print('wwww',result['heat_no'])
 
-		# ana_result['attribute']=field_classification[k]#分类
-		# ana_result['offset_result_nopercent']=offset_result#各字段的偏离程度值（不带百分比）
-		# ana_result['offset_result']=offset_resultlist#各字段的偏离程度值（带百分比）
-		# ana_result['qualitative_offset_result']=qualitative_offset_result#各字段的偏离程度定性判断结果
+		xasis_fieldname_ch=result['result'][attribute]['xname']#中文名
+		xasis_fieldname_en = result['result'][attribute]['xEnglishname']#英文名
+		danwei = result['result'][attribute]['danwei']#单位
+		yaxis_single = result['result'][attribute]['yvalue']#实际值
+		offset_result_nopercent = result['result'][attribute]['offset_result_nopercent']#不带百分号偏离程度（会有none）
+		qualitative_offset_result = result['result'][attribute]['qualitative_offset_result']#各字段的偏离程度定性判断结果
 
 		for i in range(len(xasis_fieldname_en)):
 			# print("进行%s的追溯"%(xasis_fieldname_en[i]))
@@ -1109,7 +807,7 @@ def regression_analyse_to(prime_cost,result):
 			field=xasis_fieldname_en[i];
 			single_value=yaxis_single[i];
 			offset_value=offset_result_nopercent[i];
-			offset_value_abs="%.2f%%"%(abs(float(offset_result_nopercent[i]))*100)
+			offset_value_abs="%.2f%%"%(abs(float(offset_value))*100)
 			qualitative_offset_result_single=qualitative_offset_result[i];
 
 			sql = "select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from QG_USER.PRO_BOF_HIS_ALLSTRUCTURE WHERE  DATA_ITEM_EN = '"+field+"'"
@@ -1133,7 +831,8 @@ def regression_analyse_to(prime_cost,result):
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。\n'      
 				continue
 
-			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value);		
+			#中文名、偏离程度定性描述、带百分号的偏离程度绝对值、回归系数
+			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value,str_select);		
 			if 	En_to_Ch_result_score==None:
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
 
@@ -1147,11 +846,11 @@ def regression_analyse_to(prime_cost,result):
 				str_cause=str_cause+'\n'
 	if n==0:
 		str_cause='本炉次为'+str(prime_cost)+'，无当前历史条件下的追溯结果：\n'
-	print('追溯结果：',str_cause)
+	# print('追溯结果：',str_cause)
 	return 	str_cause		
 
 from . import zhuanlu
-def  analy_cof(prime_cost,field,single_value,offset_value):
+def  analy_cof(prime_cost,field,single_value,offset_value,str_select):
 	#从数据库读取相关字段并按照相关系数绝对值由大到小排序
 	print('进行%s炉次下的%s字段的追溯'%(prime_cost,field))
 	sqlVO={}
@@ -1191,19 +890,19 @@ def  analy_cof(prime_cost,field,single_value,offset_value):
 	# print("frame",frame)	
 	print("yaxis",yaxis)
 
-	offset_degree=offset(xasis_fieldname,yaxis,'')
-	print("字段名字：")
-	print(xasis_fieldname)
-	print("相关性：")
-	print(correlation_coefficient)
-	print("偏离程度")
-	print(offset_degree)
+	offset_degree=offset(xasis_fieldname,yaxis,str_select)
+	# print("字段名字：")
+	# print(xasis_fieldname)
+	# print("相关性：")
+	# print(correlation_coefficient)
+	# print("偏离程度")
+	# print(offset_degree)
 	xasis_fieldname_result=[]#字段英文名字数组
 	correlation_coefficient_result=[]#字段回归系数值数组
 	offset_degree_result=[]#偏离程度值
-	#即字段偏离高，则正相关应对应偏高，负相关应对应偏低
-
+	
 	j=0#标志位，表示当前筛选后的有效字段个数
+	#字段偏离高，则正相关应对应偏高，负相关应对应偏低
 	if float(offset_value)>=0:
 		for i in range(length_result1):
 			if j>=8:#取筛选后相关性最大的八个因素字段
@@ -1248,15 +947,14 @@ def  analy_cof(prime_cost,field,single_value,offset_value):
 		En_to_Ch_result.append(ana_result[xasis_fieldname_result[i]])
 	# print("字段中文名字")
 	# print(En_to_Ch_result)
-
-	print("8个字段英文名字：")
-	print(xasis_fieldname_result)
-	print("相关性系数")
-	print(correlation_coefficient_result)
-	print("回归系数")
-	print(regression_coefficient[0])
-	print("偏离程度")
-	print(offset_degree_result)
+	# print("8个字段英文名字：")
+	# print(xasis_fieldname_result)
+	# print("相关性系数")
+	# print(correlation_coefficient_result)
+	# print("回归系数")
+	# print(regression_coefficient[0])
+	# print("偏离程度")
+	# print(offset_degree_result)
 
 	#zip压缩:中文名、英文名、偏离程度、回归系数;注：python3之后zip函数返回的是迭代值，需要list强转
 	L_zip=list(zip(En_to_Ch_result,xasis_fieldname_result,offset_degree_result,regression_coefficient[0],correlation_coefficient_result))
@@ -1303,322 +1001,13 @@ def  analy_cof(prime_cost,field,single_value,offset_value):
 	pos_float=[ float(n) for n in list(offset_degree_result_max)]
 	offset_result_nature=qualitative_offset(pos_float)
 
-
-
 	print('分析字段：',field)
-	# print('分析字段偏离程度定性判断')
-	# print(qualitative_offset_result[0])
 	# print('分析字段偏离程度')
 	# print(offset_value_single[0])
 	# print('按操作排序后回归系数中文名')
 	# print(En_to_Ch_result_score)
-	# print("简单定性判断")
+	# print("分析字段偏离程度定性判断")
 	# print(offset_result_nature)
 	# print('按操作排序后字段偏离程度')
 	# print(offset_value_single_cof)
 	return En_to_Ch_result_max,offset_result_nature,offset_degree_result_max_final,regression_coefficient_max
-
-
-
-# def regression_analyse(request):
-# 	print("regression_analyse")
-# 	prime_cost = str(request.POST.get("heat_no"));
-
-# 	str_cause=regression_analyse_to(prime_cost)
-
-# 	contentVO={
-# 		'title':'测试',
-# 		'state':'success',
-# 		'str_cause':str_cause
-# 	}				
-# 	return HttpResponse(json.dumps(contentVO),content_type='application/json')	
-
-# def regression_analyse_to(prime_cost):     
-
-# 	field_classification=['raw','material','product','alloy']
-# 	# for k in range(2,len(field_classification)):
-# 	n=0#n用来指示当前问题字段的个数
-# 	str_cause='本炉次为'+str(prime_cost)+'，问题字段因素分析如下：\n'
-# 	for k in range(1,4):
-# 		classify='【'+field_classification[k]+'】\n'
-
-# 		if field_classification[k]=='raw':
-# 			#原料
-# 			xasis_fieldname_ch=['铁水重量','生铁','废钢总和','大渣钢','自产废钢','重型废钢','中型废钢']
-# 			xasis_fieldname_en=['MIRON_WGT','COLDPIGWGT','SCRAPWGT_COUNT','SCRAP_96053101','SCRAP_96052200','SCRAP_16010101','SCRAP_16020101']
-# 			danwei=['Kg','Kg','Kg','Kg','Kg','Kg','Kg']
-# 		elif field_classification[k]=='material':
-# 			#物料
-# 			xasis_fieldname_ch=['总吹氧消耗','氮气耗量','1#烧结矿','石灰石_40-70mm','萤石_FL80','增碳剂','低氮增碳剂','石灰','轻烧白云石']
-# 			xasis_fieldname_en=['SUM_BO_CSM','N2CONSUME','L96020400','L12010302','L12010601','L12020201','L12020301','L96040100','L96040200']
-# 			danwei=['NM3','NM3','Kg','Kg','Kg','Kg','Kg','Kg','Kg']
-# 		elif field_classification[k]=='product':
-# 			#产品
-# 			xasis_fieldname_ch=['出钢量','转炉煤气','钢渣']
-# 			xasis_fieldname_en=['STEELWGT','LDG_STEELWGT','STEEL_SLAG']
-# 			danwei=['Kg','NM3','Kg']
-# 		else:
-# 			#合金
-# 			xasis_fieldname_ch=['硅铁_Si72-80%、AL≤2%(粒度10-60mm)','微铝硅铁_Si 72-80%、AL≤0.1%、Ti≤0.1%','硅锰合金_Mn 65-72%、Si 17-20%','高硅硅锰_Mn ≥60%、Si ≥27%','中碳铬铁']
-# 			xasis_fieldname_en=['L13010101','L13010301','L13020101','L13020201','L13040400']
-# 			danwei=['Kg','Kg','Kg','Kg','Kg']
-
-# 		sqlVO={}
-# 		sqlVO["db_name"]="l2own"
-# 		# sqlVO["sql"]="SELECT HEAT_NO,nvl(C,0) as C,nvl(SI,0) as SI ,nvl(MN,0) as MN,nvl(P,0) as P ,nvl(S,0) as S, nvl(Fe,0) as Fe, nvl(STEELWGT,0) as STEELWGT,nvl(FINAL_TEMP_VALUE,0)as FINAL_TEMP_VALUE FROM qg_user.PRO_BOF_HIS_ALLFIELDS where heat_no='"+prime_cost+"'";
-# 		# sqlVO["sql"] = "SELECT nvl(" + ",0) ,nvl(".join(xaxis)  + ",0) from QG_USER.PRO_BOF_HIS_ALLFIELDS where heat_no= '"+prime_cost+"'"
-# 		sqlVO["sql"] = "SELECT " + ",".join(xasis_fieldname_en) + " from QG_USER.PRO_BOF_HIS_ALLFIELDS where heat_no= '"+prime_cost+"'"
-# 		scrapy_records_single=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-# 		print('单炉次数据库查询结果：',len(scrapy_records_single))
-# 		print(scrapy_records_single)
-# 		if len(scrapy_records_single) == 0:
-# 			return None
-# 		# xasis_fieldname_single=['C','SI','MN','P','S','Fe','STEELWGT','FINAL_TEMP_VALUE']
-# 		# xaxis=['C含量','SI含量','MN含量','P含量','S含量','Fe含量','重量','温度']
-# 		# xasis_fieldname_single=['C','SI']
-# 		# xaxis=['C含量','SI含量']
-# 		yaxis_single=[]
-
-# 		for i in range(len(xasis_fieldname_en)):
-# 			value = scrapy_records_single[0].get(xasis_fieldname_en[i],None)
-# 			print(value)
-# 			if value != None :
-# 				scrapy_records_single[0][xasis_fieldname_en[i]] = float(value)
-# 			else:
-# 				value = 0
-# 			yaxis_single.append(float(value))#由于在数据库查询时已经将空值设为了0，因此正常情况不会出现字段空值的情况
-
-# 		# frame=DataFrame(scrapy_records_single)
-
-# 		# yaxis_single=[frame.C[0],frame.SI[0],frame.MN[0],frame.P[0],frame.S[0],frame.FINAL_TEMP_VALUE[0]]
-
-# 		print('单炉次成本分析字段')
-# 		print(xasis_fieldname_en)
-# 		print("单炉次成本分析字段实际值")
-# 		print(yaxis_single)
-		
-# 		#计算单炉次质量分析字段偏离程度
-# 		offset_result_single=offset(xasis_fieldname_en,yaxis_single,'')
-# 		offset_value_single=["%.2f%%"%(n*100) for n in list(offset_result_single)]
-# 		offset_value_single_abs=["%.2f%%"%(abs(float(n))*100) for n in list(offset_result_single)]
-# 		print('单炉次成本分析字段偏离度')
-# 		print(offset_value_single)
-
-# 		#分析字段偏离程度定性判断
-# 		qualitative_offset_result=qualitative_offset(offset_result_single)
-# 		print('单炉次成本分析字段偏离度定向分析')
-# 		print(qualitative_offset_result)
-# 		#写入word
-
-# 		for i in range(len(xasis_fieldname_en)):
-# 			print("进行%s的追溯"%(xasis_fieldname_en[i]))
-# 			xaxis_chinese=xasis_fieldname_ch[i];
-# 			field=xasis_fieldname_en[i];
-# 			single_value=yaxis_single[i];
-# 			offset_value=offset_value_single[i];
-# 			offset_value_abs=offset_value_single_abs[i]
-# 			qualitative_offset_result_single=qualitative_offset_result[i];
-
-# 			sql = "select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from QG_USER.PRO_BOF_HIS_ALLSTRUCTURE WHERE  DATA_ITEM_EN = '"+field+"'"
-# 			sqlVO["sql"] = sql
-# 			scrapy_records = models.BaseManage().direct_select_query_sqlVO(sqlVO)
-# 			NUMERICAL_LOWER_BOUND=scrapy_records[0].get('NUMERICAL_LOWER_BOUND',None)#下限
-# 			NUMERICAL_UPPER_BOUND=scrapy_records[0].get('NUMERICAL_UPPER_BOUND',None)#上限
-# 			# if single_value==0:#实际值为0的字段在暴力追溯中暂时不分析，在网页中根据上下限进行处理
-# 			# 	# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+'数据异常！\n' 	
-# 			# 	continue
-			
-# 			if (field_classification[k]== 'material' or field_classification[k]== 'alloy' ) and  offset_result_single[i]<0:
-# 				continue
-# 			if single_value<float(NUMERICAL_LOWER_BOUND) or single_value>float(NUMERICAL_UPPER_BOUND):#实际值在上下限范围之外，表示数据异常；实际值在上下限之间，但在最大最小值之外，在计算偏离程度时（offeset()）按照最大最小值计算
-# 				str_cause=str_cause+'【'+str(n+1)+'】'+xaxis_chinese+'数据异常！\n' 
-# 				n=n+1
-# 				continue
-# 			elif abs(float(offset_result_single[i]))<=0.2:#偏离度小于20%的设定为正常
-# 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。\n'      
-# 				continue
-
-# 			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value);		
-# 			if 	En_to_Ch_result_score==None:
-# 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
-
-# 				continue
-# 			else:
-# 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。通过数据相关性分析发现，导致该问题的原因是:\n'      
-# 				str_cause= str_cause+'【'+str(n+1)+'】'+xaxis_chinese+qualitative_offset_result_single+offset_value_abs+'：'      
-# 				n=n+1
-# 				for i in range(len(En_to_Ch_result_score)):
-# 					str_cause=str_cause+'[原因'+str(i+1)+']'+En_to_Ch_result_score[i]+offset_result_nature[i]+offset_value_single_cof[i]+'；'
-# 				str_cause=str_cause+'\n'
-
-# 	print('追溯结果：',str_cause)
-# 	return 	str_cause		
-
-# from . import zhuanlu
-# def  analy_cof(prime_cost,field,single_value,offset_value):
-# 	#从数据库读取相关字段并按照相关系数绝对值由大到小排序
-# 	print('进行%s炉次下的%s字段的追溯'%(prime_cost,field))
-# 	sqlVO={}
-# 	sqlVO["db_name"]="l2own"
-# 	sqlVO["sql"]="SELECT * FROM pro_bof_his_relation_cof where OUTPUTFIELD='"+field +"'order by abs(COF) desc"
-# 	#print(sqlVO["sql"])
-# 	scrapy_records_relation=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-# 	#print(scrapy_records)
-# 	length_result1=len(scrapy_records_relation)
-# 	if length_result1==0:#即无相关性字段
-# 		return None,None,None,None
-
-
-# 	xasis_fieldname=[]#字段英文名字数组
-# 	correlation_coefficient=[]#字段相关系数值数组
-# 	str_sql=''
-# 	for i in range(length_result1):
-# 		xasis_fieldname.append(scrapy_records_relation[i].get('MIDDLEFIELD', None))
-# 		correlation_coefficient.append(scrapy_records_relation[i].get('COF', None))
-# 		str_sql=str_sql+','+scrapy_records_relation[i].get('MIDDLEFIELD', None)
-	
-# 	#取相关字段实际值
-# 	sqlVO={}
-# 	sqlVO["db_name"]="l2own"
-# 	sqlVO["sql"]="SELECT HEAT_NO" +str_sql+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS where HEAT_NO='"+prime_cost+"'";
-# 	print(sqlVO["sql"])
-# 	scrapy_records_actual=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-# 	yaxis=[]#各相关性字段实际值
-# 	for i in range(length_result1):
-# 		value = scrapy_records_actual[0].get(xasis_fieldname[i],None)
-# 		if value != None :
-# 			scrapy_records_actual[0][xasis_fieldname[i]] = Decimal(value)
-# 		else:
-# 			value = 0#将空值None暂时以0填充
-# 		yaxis.append(value)
-# 	# frame=DataFrame(scrapy_records_actual)
-# 	# print("frame",frame)	
-# 	print("yaxis",yaxis)
-
-# 	offset_degree=offset(xasis_fieldname,yaxis,'')
-# 	print("字段名字：")
-# 	print(xasis_fieldname)
-# 	print("相关性：")
-# 	print(correlation_coefficient)
-# 	print("偏离程度")
-# 	print(offset_degree)
-# 	xasis_fieldname_result=[]#字段英文名字数组
-# 	correlation_coefficient_result=[]#字段回归系数值数组
-# 	offset_degree_result=[]#偏离程度值
-# 	#即字段偏离高，则正相关应对应偏高，负相关应对应偏低
-
-# 	j=0#标志位，表示当前筛选后的有效字段个数
-# 	if float(offset_value[0:-1])>=0:
-# 		for i in range(length_result1):
-# 			if j>=8:#取筛选后相关性最大的八个因素字段
-# 				break
-# 			if offset_degree[i]==None  or abs(offset_degree[i])<=0.2 or yaxis[i]==0 :#由于数据清洗的问题，暂且将NB字段如此处理，因为NB字段的所有数据均相同，导致数据清洗时将所有数据都清除了
-# 				continue
-# 			if float(correlation_coefficient[i]) * float(offset_degree[i]) >=0:
-# 				j+=1
-# 				xasis_fieldname_result.append(xasis_fieldname[i])
-# 				correlation_coefficient_result.append(correlation_coefficient[i])
-# 				offset_degree_result.append(offset_degree[i])
-# 	else:
-# 		for i in range(length_result1):
-# 			if j>=8:
-# 				break
-# 			if offset_degree[i]==None  or abs(offset_degree[i])<=0.2 or yaxis[i]==0:
-# 				continue
-# 			if float(correlation_coefficient[i]) * float(offset_degree[i]) <=0:
-# 				j+=1
-# 				xasis_fieldname_result.append(xasis_fieldname[i])
-# 				correlation_coefficient_result.append(correlation_coefficient[i])
-# 				offset_degree_result.append(offset_degree[i])
-	
-# 	#正负相关筛选后的相关字段个数
-# 	print('正负相关筛选后的相关字段个数',len(xasis_fieldname_result))
-# 	print("8个字段英文名字：")
-# 	print(xasis_fieldname_result)
-
-# 	if len(xasis_fieldname_result) == 0:
-# 		return None,None,None,None
-
-# 	#计算回归系数:regression_coefficient[0]表示各回归值，regression_coefficient[1]表示截距;1表示在regression中进行标准化，0表示不进行标准化
-# 	regression_coefficient=batchprocess.regression(field,xasis_fieldname_result,1)
-# 	if regression_coefficient== False:
-# 		return None,None,None,None
-
-# 	#查询转炉工序字段名中英文对照
-# 	ana_result={}
-# 	ana_result=zhuanlu.PRO_BOF_HIS_ALLFIELDS
-# 	En_to_Ch_result=[]
-# 	for i in range(len(xasis_fieldname_result)):
-# 		En_to_Ch_result.append(ana_result[xasis_fieldname_result[i]])
-# 	# print("字段中文名字")
-# 	# print(En_to_Ch_result)
-
-# 	print("8个字段英文名字：")
-# 	print(xasis_fieldname_result)
-# 	print("相关性系数")
-# 	print(correlation_coefficient_result)
-# 	print("回归系数")
-# 	print(regression_coefficient[0])
-# 	print("偏离程度")
-# 	print(offset_degree_result)
-
-# 	#zip压缩:中文名、英文名、偏离程度、回归系数;注：python3之后zip函数返回的是迭代值，需要list强转
-# 	L_zip=list(zip(En_to_Ch_result,xasis_fieldname_result,offset_degree_result,regression_coefficient[0],correlation_coefficient_result))
-# 	print('L_zip:',list(L_zip))
-# 	#按照回归系数进行排序(从大到小)
-# 	L_zip.sort(key=lambda x:x[3],reverse=True)
-# 	print('按照回归系数排序后的字段：',L_zip)
-# 	#取回归系数前三的字段
-# 	L_zip=L_zip[0:2]
-# 	print('取前三个字段时的实际字段个数：',len(L_zip))
-# 	#解压缩
-# 	L_unzip=list(zip(*L_zip))
-# 	En_to_Ch_result_max=L_unzip[0]#中文名
-# 	xasis_fieldname_result_max=L_unzip[1]#英文名
-# 	offset_degree_result_max=L_unzip[2]#偏离程度
-# 	regression_coefficient_max=L_unzip[3]#回归系数（权重）
-
-# 	# '''
-# 	#判断字段的顺序（对筛选后的三个字段再根据字段再表结构中的顺序进行排序）
-# 	ana_result_score={}
-# 	ana_result_score=zhuanlu.PRO_BOF_HIS_ALLFIELDS_SCORE
-# 	En_to_Ch_result_score=[]
-# 	for i in range(len(xasis_fieldname_result_max)):
-# 		En_to_Ch_result_score.append(ana_result_score[xasis_fieldname_result_max[i]][1])
-# 	# print('表结构中字段的顺序',En_to_Ch_result_score)
-
-# 	#zip压缩：中文名、英文名、偏离程度、字段顺序编号
-# 	L_zip = list(zip(En_to_Ch_result_max,xasis_fieldname_result_max,offset_degree_result_max,En_to_Ch_result_score,regression_coefficient_max))
-# 	#按照字段顺序进行排序（从小到大）
-# 	L_zip.sort(key=lambda x:x[3])
-# 	print('追溯结果的三个字段',L_zip)
-# 	#解压缩
-# 	L_unzip=list(zip(*L_zip))
-
-# 	En_to_Ch_result_max=L_unzip[0]#中文名
-# 	xasis_fieldname_result_max=L_unzip[1]#英文名
-# 	offset_degree_result_max=L_unzip[2]#偏离程度
-# 	En_to_Ch_result_score_max=L_unzip[3]#字段序号
-# 	regression_coefficient_max=L_unzip[4]#回归系数（权重）
-# 	# '''
-
-# 	offset_degree_result_max_final=["%.2f%%"%(abs(float(n))*100) for n in list(offset_degree_result_max)]#将偏离程度值转化为保留两位小数的百分数
-# 	#简单定性判断偏离程度（偏高、偏低）
-# 	pos_float=[ float(n) for n in list(offset_degree_result_max)]
-# 	offset_result_nature=qualitative_offset(pos_float)
-
-
-
-# 	print('分析字段：',field)
-# 	# print('分析字段偏离程度定性判断')
-# 	# print(qualitative_offset_result[0])
-# 	# print('分析字段偏离程度')
-# 	# print(offset_value_single[0])
-# 	# print('按操作排序后回归系数中文名')
-# 	# print(En_to_Ch_result_score)
-# 	# print("简单定性判断")
-# 	# print(offset_result_nature)
-# 	# print('按操作排序后字段偏离程度')
-# 	# print(offset_value_single_cof)
-# 	return En_to_Ch_result_max,offset_result_nature,offset_degree_result_max_final,regression_coefficient_max
-

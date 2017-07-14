@@ -6,8 +6,12 @@
 
 <table>
 	<tr>
-		<td>更新数据库转炉字段统计值: </td>
-		<td><button onclick='updatevalue()'>更新数据库转炉字段统计值</button></td>
+		<td>更新数据库转炉字段全部数据统计值(每月更新): </td>
+		<td><button onclick='updatevalue()'>每月更新统计值</button></td>
+	</tr>
+	<tr>
+		<td>更新数据库转炉字段本月及上月数据统计值(每日更新): </td>
+		<td><button onclick='daily_updatevalue()'>每日更新统计值</button></td>
 	</tr>
 	<tr>
 		<td>相关性分析</td>
@@ -45,14 +49,29 @@
 	     })
 	    }
 
-    //定期更新数据库中表结构表中的期望等参数值(现已单独成文件，不放在整体程序中)
+    //定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
     function updatevalue(){
         $.ajax({
         type: "post",
         url:  "/updatevalue",
         data: {},
         error: function() {
-            alert("更新转炉参数发生错误！");
+            alert("每月更新转炉全部数据的参数发生错误！");
+        },
+        success: function(data) {
+            alert(data.state);
+        }
+     })
+    }
+
+    //定期更新数据库中表结构表中的期望等参数值（本月及上月数据），每日更新
+    function daily_updatevalue(){
+        $.ajax({
+        type: "post",
+        url:  "/daily_updatevalue",
+        data: {},
+        error: function() {
+            alert("每日更新转炉本月及上月的数据统计参数发生错误！");
         },
         success: function(data) {
             alert(data.state);

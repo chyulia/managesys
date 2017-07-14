@@ -2,8 +2,8 @@
 from collections import OrderedDict
 PRO_BOF_HIS_ALLFIELDS_S=OrderedDict([
 
-								('FURNACESEQ','炉龄'),
-								('SPRAYGUNSEQ','枪龄'),
+								# ('FURNACESEQ','炉龄'),
+								# ('SPRAYGUNSEQ','枪龄'),
 								('MIRON_WGT','铁水重量'),
 								('MIRON_TEMP','铁水温度'),
 								('MIRON_C','铁水C含量'),

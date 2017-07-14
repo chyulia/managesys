@@ -4,237 +4,273 @@
 <script type="text/javascript" src="/static/data_import/libs/echarts/echarts.js"></script>
 {% endblock pagejs %}
 {% block content %}
-<h5><a href='/ha'>转炉数据统计分析</a></h5>
-<h5><a href='/w_fluc_quality'>转炉多炉次质量回溯</a></h5>
-<h2>转炉单炉次质量分析回溯</h2>
-<div>
-    <!-- 隐藏域 -->
-    <input type="hidden" name="hidden_inform1" id='hidden_inform1'> 
-    <input type="hidden" name="hidden_inform2" id='hidden_inform2'> 
-    <input type="hidden" name="hidden_inform3" id='hidden_inform3'> 
-    <input type="hidden" name="hidden_inform4" id='hidden_inform4'>
-    <input type="hidden" name="hidden_inform5" id='hidden_inform5'>
-    <p>请输入要选择的炉次号，例如：1634230</p>
-    炉次号：<input type="text" name="prime_analyse" value="1634230" id="prime_analyse">
-    钢种：<select name="SPECIFICATION" id="SPECIFICATION" class="SPECIFICATION_name">
-            <option value='all' selected = "selected">所有钢种</option>
-            <option value='native'>本钢种</option>
 
-        </select>
-    班别：<select name="OPERATECREW" id="OPERATECREW" class="OPERATECREW_name">
-        <option value='all' selected = "selected">所有班别</option>
-        <option value='native'>本班别</option>
-        <option value='A'>甲班</option>
-        <option value='B'>乙班</option>
-        <option value='C'>丙班</option>
-    </select>
-    起始时间：<input id="datepicker-example7-start" type="text">
-    终止时间：<input id="datepicker-example7-end" type="text">
-           
-        
-    <button onclick='cost()' id='click2'>钢水分析</button>
-   <!--  <button onclick='violent_ananlyse()' id='click1'>暴力求解</button> -->
+<h2>青钢转炉数据分析-转炉-质量-单炉次</h2>
+<!-- <h7><a href='/fluctuation'>To波动率分析页面  </a><a href='/test'>  To时间插件测试</a></h7> -->
+<div style="width:1500px">
+    <div style="width:1000px">
+
+        <!-- 隐藏域 -->
+        <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
+        <input type="hidden" name="hidden_inform2" id='hidden_inform2'>
+        <input type="hidden" name="hidden_inform3" id='hidden_inform3'>
+        <input type="hidden" name="hidden_inform4" id='hidden_inform4'>
+
+        <!-- <p><strong>单炉次质量相关字段分析</strong></p> -->
+        <p>请输入炉次号，例如：1634230，并选择筛选条件。</p>
+        <label>炉次号：</label><input type="text" name="prime_analyse" value="1634230" id="prime_analyse">
+        <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="SPECIFICATION_name">
+                <option value='all' selected = "selected">所有钢种</option>
+                <option value='native'>本钢种</option>
+
+            </select>
+        <label>班别：</label><select name="OPERATECREW" id="OPERATECREW" class="OPERATECREW_name">
+                <option value='all' selected = "selected">所有班别</option>
+                <option value='native'>本班别</option>
+                <option value='A'>甲班</option>
+                <option value='B'>乙班</option>
+                <option value='C'>丙班</option>
+            </select>
+    </div>
+    <div style="margin-top:5px">
+        <label>对比时间：</label>
+            <input id="datepicker-example7-start" type="text">
+            至 <input id="datepicker-example7-end" type="text">
+            快捷选项：<button id="thisMonth" onclick="months(this,1,0)" > 近一月 </button>
+                    <button id="this3Month" onclick="months(this,3,0)" > 近三月 </button>
+                    <button id="this6Month" onclick="months(this,6,0)" > 近半年 </button>
+                    <button id="this1Year" onclick="months(this,12,0)" > 近一年 </button>
+                    <button id="allData" onclick="months(this,'all',1)" > 全部数据 </button>
+
+
+    </div>
+    <button onclick="qualityfields()" id='click2' style="width:150px;height:26px;margin-top:5px">质量字段分析</button>
 </div>
 
-<div style="width:1040px">
-
-<div id="main1"  style="float:left;width:1040px;height:350px"></div>
-
-<div id='main3' style="float:left;width: 1000px;height:20px"></div>
-<div id='cause_area' style="float:left;width:400px;height:300px">
-   <!--table用来放置因素追溯的分析结果-->
-    <p><strong>异常字段追溯结果：</strong></p>
-    <textarea id="cause_txt" style="float:left;width: 400px;height:150px;"></textarea>
+<div style="width:1550px">
+    <div id="loadingarea" style="float:middle;width:1000px;height:30px"></div>
+    <div id="main1" style="float:left;width:1400px;height:300px"></div>
+    <div id='cause_area' style="float:left;width:700px;height:250px;margin-top:5px">
+        <p><strong>转炉工序单炉次字段质量追溯结果：</strong></p>
+        <textarea id="cause_txt" style="width: 700px;height:250px;"></textarea>
+    </div>
+    <div style="float:right;width:800px;height:350px">
+        <div id="main5" style="float:left;width:700px;height:300px"></div>
+        <div id='coloum_div' style="width:700px;height:50px">
+            <!-- 改变柱状个数 -->
+            <lebel >请选择分布区间数：</lebel>
+            <select name='change_column' id='change_column' onChange="change_column()">
+                <option value='5'>5 </option>
+                <option value='7'>7 </option>
+                <option value='9' selected="selected">9 </option>
+                <option value='21'>21 </option>
+          </select>
+        </div>
+    </div>
 </div>
 
-
-<div id="main2"  style="float:right;width:400px;height:300px"></div>
-<div id='coloum_div' style="float:right;width:300px;height:50px">
-    <!-- 改变柱状个数 -->
-    <lebel>选择直方图柱状数目：</lebel>
-    <select name='change_column' id='change_column' onChange="change_column()">
-        <option value='7'>7</option> 
-        <option value='14'>14</option> 
-        <option value='21'>21 </option> 
-        <option value='50' selected="selected">50 </option> 
-  </select> 
-</div>
-</div>
-
-</div>
-
-
-<p></p>
-<!-- <div>
-    <table id='txt' style="width: 900px;height:350px;border:45px;">
-    </table>
-</div> -->
 
 <!-- <button onclick='updatevalue()' id='updatevalue'>定期更新数据库转炉字段统计值</button> -->
-
-<script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
-<script type="text/javascript" src="/static/data_import/js/loadParam.js"></script>
+<!-- <link href="/static/data_import/bootstrap.min.css" rel="stylesheet"> -->
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />
+<link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script>
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-<script type="text/javascript"> 
-     //改变概率直方分布的柱状个数
+
+<script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
+<script type="text/javascript">
+
+    function months(obj,month1,month2){//调用插件接口
+        //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
+        //hidden_inform隐藏域用于在进行追溯时直接从页面读取信息
+        if (month1=='all'){
+            $('#datepicker-example7-start').val('2016-01-01');
+            $('#datepicker-example7-end').val(moment().format('YYYY-MM-DD'));    
+
+            }
+        else{
+            $('#datepicker-example7-start').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
+            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD')); 
+            }
+        }
+
+
+    //改变概率直方分布的柱状个数
     function change_column(){
         var fieldname_english = $("#hidden_inform1").val();
         var fieldname_chinese = $("#hidden_inform2").val();
         var actual_value = $("#hidden_inform3").val();
         var offset_value = $("#hidden_inform4").val();
-        var qualitative_offset_result= $("#hidden_inform5").val();
-        probability_distribution(fieldname_chinese,fieldname_english,offset_value,actual_value,qualitative_offset_result);
+        probability_normal(fieldname_chinese,fieldname_english,offset_value,actual_value);
 
     }
-    //暴力求解
-    function violent_ananlyse(){
-        var prime_analyse = $("#prime_analyse").val();
+    //质量分析（钢水含量分析）
+    function qualityfields(){
+        var heat_no = $("#prime_analyse").val();
+        var SPECIFICATION = $("#SPECIFICATION").val();
+        var OPERATECREW = $("#OPERATECREW").val();
+        var starttime = $('#datepicker-example7-start').val();
+        var endtime = $('#datepicker-example7-end').val();
+        console.log(heat_no)
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
         $.ajax({
             type: "post",
-            url:  "/violent_ananlyse",
-            data: {'prime_cost':prime_analyse},
+            url:  "/qualityfields",
+            data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
                 alert("错误！！");
             },
             success: function(data) {
+                //alert(data.result);
+                //alert(data.result.xname)
                 //alert(data.result.yvalue)
                 // alert(data.result.offset_result[0]);
-            }
-        })
-
-    };
-    //自动加载钢种
-    function loadGrape(){ 
-        $.ajax({
-        type: "POST",
-        dataType:"json",
-        url: "/paihao_getGrape" ,
-        data: {'greet':'hello'},
-        success: function(data){
-            //alert(data.result);
-            //alert(data.result.length);
-            pnames=data.result;
-            $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
-            for(var pname in pnames){
-                console.log(pnames[pname]) 
-                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
-            }
-        },
-        error: function () {
-            alert("error");
-            }
-         });
-        };
-
-      //初始化时间控件
-    $(document).ready(function() {
-        //$('#datepicker-example5').Zebra_DatePicker({
-            //direction: ['2012-08-01', '2012-08-12']
-            //});
-            //计算波动率的时间范围
-            $('#datepicker-example7-start').Zebra_DatePicker({
-                direction: ['2016-01-01', '2016-07-12'],
-                pair: $('#datepicker-example7-end')
-            });
-            $('#datepicker-example7-end').Zebra_DatePicker({
-                direction: 1
-            });
-            
-            //设置默认时间
-            $('#datepicker-example7-start').val();
-            $('#datepicker-example7-end').val();
-        });
- 
-    //质量含量
-    function cost(){
-        var prime_analyse = $("#prime_analyse").val();
-        var SPECIFICATION = $("#SPECIFICATION").val();//钢种,不用转化为大写
-        var OPERATECREW = $("#OPERATECREW").val();//班别
-        var time1 = $('#datepicker-example7-start').val();//计算波动率的时间范围起始时间
-        var time2 = $('#datepicker-example7-end').val();//计算波动率的时间范围终止时间
-        console.log(prime_analyse)
-        $.ajax({
-            type: "post",
-            url:  "/m_quality",
-            data: {'prime_cost':prime_analyse,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'time1':time1,'time2':time2},
-            error: function() {
-                alert("所选炉次号不在所选筛选条件中！");
-            },
-            success: function(data) {
-
+                // $("#offset").val(data.result.offset_result[0]);
                 if (data.state=='error'){
-                        // alert('当前筛选条件无可分析数据！')
-                        $("#main1").empty();
-                        $("#main1").append("\n\n\n\n注：当前"+heat_no+"炉次不存在！");
-                        $("#main2").empty();
-                        $("#main3").empty();
-
-                    }else{
-
-                    $("#offset").val(data.result.offset_result[0]);
-                    $("#main2").hide();
+                    // alert('当前筛选条件无可分析数据！')
+                    $("#main1").empty();
+                    $("#main1").append("\n\n\n\n注：当前"+heat_no+"炉次不存在！");
+                    // $("#cause_area").hide();
+                    $("#main5").empty();
                     $("#coloum_div").hide();
-                    drawBarChart_cost(data.result);
-                    if (data.normal=='true'){
-                        $("#main3").empty();
-                        $("#cause_area").hide();
-                    }else{retrospectfactor_all(data.result.str_select);}
-                    }
-                    
-               }
+                    $('#loadingarea').hide();
 
-                //炉次号、单炉次分析字段中文名、单炉次分析字段英文名、单炉次质量分析字段实际值、单炉次质量分析字段偏离度、单炉次质量分析字段偏离度定向分析
-            
+                }else{
+                drawBarChart_quality(data.result);
+
+                $("#main5").empty();
+                // $('#loadingarea').hide();
+               quality_singlefurnace_regression_analyse(data.result);
+                // alert(data.result.raw.heat_no);
+                // alert(data.result.raw.str_select);
+                }
+
+            }
         })
-    }; 
-
-
-     //回归系数因素追溯及其偏离程度
-    function retrospectfactor_all(result){
-        var prime_analyse = $("#prime_analyse").val();
-        var  str_select = result;
-        //alert(prime_analyse)
-
-        var txt = echarts.init(document.getElementById('main3'));
-        $("#cause_txt").empty();//清除文本框内容
-        txt.showLoading({
-                    text: "追溯结果正在努力计算中...可能需要耗费一定时间..."
+    };
+    function quality_singlefurnace_regression_analyse(result){
+         // var heat_no = $("#prime_analyse").val();
+         // var str_select = result.str_select;
+        var json_result = JSON.stringify(result);
+         // alert(json_result);
+         // alert(result);
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        myChart_loading.showLoading({
+             text: "质量字段正在追溯中...请勿执行其它操作！"
                 });
-        $.ajax({
+
+          $.ajax({
             type: "post",
-            url:  "/retrospectfactor_all",
-            data: {'prime_cost':prime_analyse,'str_select':str_select},
+            url:  "/quality_singlefurnace_regression_analyse",
+            data: {'result':json_result},
             error: function() {
                 alert("错误！！");
             },
             success: function(data) {
-                console.log(data)
-                $("#main3").empty()
-                
-                $("#cause_txt").append(data.str_all);
+                // alert(data.str_cause);
+                $("#cause_txt").empty();
+                $("#cause_txt").append(data.str_cause);
                 $("#cause_area").show();
+                $('#loadingarea').hide();
+            }
+        })
 
-               
+
+    }
+
+    //回归系数因素追溯及其偏离程度
+    function retrospectfactor(fieldname_english,fieldname_chinese,offset_value){
+        var heat_no = $("#prime_analyse").val();
+        // console.log(prime_analyse)
+        $.ajax({
+            type: "post",
+            url:  "/max_influence",
+            data: {'field':fieldname_english,'offset_value':offset_value,'heat_no':heat_no,'str_select':str_select},
+            error: function() {
+                alert("错误！！");
+            },
+            success: function(data) {
+
+                $("#cause_txt").empty();//清除文本框内容
+                // $("#cause_txt").append('单炉次'+field+'字段因素追溯的分析结果:\n');
+                $("#cause_txt").append('经分析，'+heat_no+'炉次下的'+fieldname_chinese+'('+fieldname_english+')字段，偏离程度为'+offset_value+'。通过数据相关性分析发现，导致该问题的原因是:\n');
+
+                for (var i=0;i<data.offset_number;i++){
+
+                    if (i < 5){
+                        $("#cause_txt").append('     No.'+(i+1)+' 相关字段为: '+data.En_to_Ch_result[i]+'('+data.xasis_fieldname[i]+")，其偏离程度为："+data.offset_result[i]+'，权重系数为：'+data.regression_coefficient[i]+"。\n");
+                    }
+
                 }
+                $("#cause_area").show();//此时将隐藏的显示追溯结果的文本区域显示出来
+                // alert(content);
+
+
+            }
         })
     };
 
 
 
-    // 条形图（含量）
-    function drawBarChart_cost(result){
+    //正态分布+概率分布
+    function probability_normal(fieldname_chinese,fieldname_english,offset_value,actual_value,str_select){
+        var heat_no = $("#prime_analyse").val();//炉次号
+        //var field2 = $("#field2").val();//字段
+        //var field2 = $("#bookno1").find("option:selected").val();
+        var fieldname_english=fieldname_english;//字段英文名
+        var fieldname_chinese=fieldname_chinese;//字段中文名
+        var coloum_number = $("#change_column").val();//定义概率正方分布的柱状图个数
+        console.log(heat_no,fieldname_english,fieldname_chinese);
+            $.ajax({
+            type: "post",
+            url:  "/probability_distribution",
+            data: {'heat_no':heat_no,'fieldname_english':fieldname_english,'fieldname_chinese':fieldname_chinese,'offset_value':offset_value,'actual_value':actual_value,'coloum_number':coloum_number,'str_select':str_select},
+            error: function() {
+                alert("404");
+            },
+            success: function(data) {
+                // alert("enter probability_normal");
+                //概率分布
+                // alert(data.ana_result['scope']);
+                // alert(data.ana_result['num']);
+                //正态分布
+                // alert(data.normal_result['normx']);
+                // alert(data.normal_result['normy']);
+                // alert(data.state);
+                if(data.state=='error'){
+                    // alert('数据量过少，无法形成统计分布图！');
+                    $("#coloum_div").hide();
+                    $('#main5').empty();
+                    $('#main5').append('数据量过少，无法形成统计分布图！');
+
+                }else{
+                    probability_normal_picture(data);
+                    $("#coloum_div").show();
+                }
+            }
+        })
+
+    };
+
+ // 条形图（含量）
+    function drawBarChart_quality(result){
         var myChart = echarts.init(document.getElementById('main1'));
-        var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#e02222', '#2367d9','#f39646','#e02222','#d14ab1'];
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#e02222', '#2367d9','#f39646','#e02222'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
             // 指定图表的配置项和数据
-        var barWidth_value=64;
-        var barGap_value='100%';
-        var barCategoryGap_value='60%';
-    
             var option = {
                 color:colors,
                 title: {
-                    text: '炉次号'+result.heat_no+'的'+result.attribute+'组成',
+                    text: '炉次号'+result.heat_no+'的钢水含量组成',
                     x:'center'
                 },
                 tooltip: {
@@ -271,7 +307,7 @@
                     min: 0,
                     max: 0.9905,
                     position: 'left',
-                    offset:0,
+                    offset:-40,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -288,7 +324,7 @@
                     min: 0,
                     max: 0.4200,
                     position: 'left',
-                    offset: -128,
+                    offset: -200,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -306,7 +342,7 @@
                     max: 0.8970,
                     position: 'left',
                     splitLine:{show: false},//去除网格线
-                    offset: -256,
+                    offset: -360,
                     axisLine: {
                         lineStyle: {
                             color: colors[2]
@@ -322,7 +358,7 @@
                     min: 0,
                     max: 0.0180,
                     position: 'left',
-                    offset: -384,
+                    offset: -520,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -336,7 +372,7 @@
                     min: 0,
                     max: 0.0180,
                     position: 'left',
-                    offset: -512,
+                    offset: -680,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -350,7 +386,7 @@
                     min: 0,
                     max: 113000,
                     position: 'left',
-                    offset: -640,
+                    offset: -840,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -364,7 +400,7 @@
                     min: 1000,
                     max: 2000,
                     position: 'left',
-                    offset: -768,
+                    offset: -1000,
                     splitLine:{show: false},//去除网格线
                     axisLine: {
                         lineStyle: {
@@ -372,12 +408,11 @@
                         }
                     },
                 },
-               
                 ],
                 series: [{
                     name: 'C',
                     type: 'bar',
-                    barWidth : barWidth_value,//柱条（K线蜡烛）宽度
+                    barWidth : 80,//柱条（K线蜡烛）宽度
                     barGap: '100%',//柱间距离，默认为柱形宽度的30%，可设固定值
                     barCategoryGap:'60%',//类目间柱形距离，默认为类目间距的20%，可设固定值
                     barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
@@ -393,7 +428,7 @@
                 {
                     name:'SI',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -410,7 +445,7 @@
                 {
                     name:'MN',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -427,7 +462,7 @@
                 {
                     name:'P',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -444,7 +479,7 @@
                 {
                     name:'S',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -461,7 +496,7 @@
                 {
                     name:'重量',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -478,7 +513,7 @@
                 {
                     name:'温度',
                     type:'bar',
-                    barWidth : barWidth_value,
+                    barWidth : 80,
                     barGap: '100%',
                     barCategoryGap:'60%',
                     barMinHeight:10,
@@ -492,8 +527,6 @@
                         }
                     }
                 },
-
-       
                 ]
             };
 
@@ -504,74 +537,29 @@
                 //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
                 fieldname_chinese=result.xname[params.seriesIndex];
                 fieldname_english=result.xEnglishname[params.seriesIndex];
-                str_select=result.str_select;
-                probability_distribution(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value,result.qualitative_offset_result[params.seriesIndex],str_select);
+                probability_normal(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value,result.str_select);
+
                 $("#hidden_inform1").val(fieldname_english);//字段英文名
                 $("#hidden_inform2").val(fieldname_chinese);//字段中文名
                 $("#hidden_inform3").val(params.value);//实际值
                 $("#hidden_inform4").val(result.offset_result[params.seriesIndex]);//偏离程度
-                $("#hidden_inform5").val(result.qualitative_offset_result[params.seriesIndex]);//偏离程度定性判断
-            }
+                            }
             console.log(params);
-            console.log(result.qualitative_offset_result[params.seriesIndex])
             });
 
             myChart.setOption(option);
             // 使用刚指定的配置项和数据显示图表。
     };
-    
-    //正态分布+概率分布
-    function probability_distribution(fieldname_chinese,fieldname_english,offset_value,actual_value,qualitative_offset_result,str_select){
-        // alert(qualitative_offset_result);
-        var field1 = $("#prime_analyse").val();//炉次号
-        //var field2 = $("#field2").val();//字段
-        //var field2 = $("#bookno1").find("option:selected").val();
-        var fieldname_english=fieldname_english;//字段英文名
-        var fieldname_chinese=fieldname_chinese;//字段中文名
-        var coloum_number = $("#change_column").val();//柱状图个数
-        console.log(field1,fieldname_english,fieldname_chinese,coloum_number);
 
-        var myChart_main2 = echarts.init(document.getElementById('main2'));
-        myChart_main2.showLoading({
-                    text: "图表数据正在努力加载..."
-                });
-            $.ajax({
-            type: "post",
-            url:  "/probability_distribution",
-            data: {'heat_no':field1,'fieldname_english':fieldname_english,'fieldname_chinese':fieldname_chinese,'offset_value':offset_value,'actual_value':actual_value,'coloum_number':coloum_number,'qualitative_offset_result':qualitative_offset_result,'str_select':str_select},
-            error: function() {
-                alert("404");
-            },
-            success: function(data) {
-
-
-                if(data.state=='error'){
-                    // alert('数据量过少，无法形成统计分布图！');
-                    $("#coloum_div").hide();
-                    $('#main2').empty();
-                    $('#main2').append('数据量过少，无法形成统计分布图！');
-
-                }else{
-                    probability_distribution_picture(data);
-                    $("#coloum_div").show();
-                    $("#main2").show();
-                }
-
-
-            }
-        })
-
-    }; 
 
     //正态分布+概率分布画图
-    function probability_distribution_picture(result){
-        // alert(result.qualitative_offset_result);
-        var myChart = echarts.init(document.getElementById('main2'));
+    function probability_normal_picture(result){
+        var myChart = echarts.init(document.getElementById('main5'));
         //var bookname=document.getElementById('bookno1')
             // 指定图表的配置项和数据
             var option = {
                 title: {
-                    text: result.normal_result.fieldname_chinese+'('+result.normal_result.fieldname+')的概率(bar)及正态(line)分布',
+                    text: result.base_result.fieldname_chinese+'('+result.base_result.fieldname+')的概率(bar)及正态(line)分布',
                     x:'center'
                 },
                 tooltip: {
@@ -583,13 +571,22 @@
                 legend: {
                     data:['']
                 },
+                toolbox: {
+                    show : true,
+                    feature : {
+                        dataView : {show: true, readOnly: false},
+                        magicType : {show: true, type: ['line', 'bar']},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
                 xAxis: [
                     {
-                        data: result.normal_result.normx,
-                        axisLabel :{  
+                        data: result.ana_result.normx,
+                        axisLabel :{
                                 //interval:0,//横轴信息全部显示
-                                //rotate: 60//60度角倾斜显示  
-                            } 
+                                //rotate: 60//60度角倾斜显示
+                            }
                     },
                     {
                         type : 'category',
@@ -598,7 +595,8 @@
                         axisLabel: {show:true},
                         splitArea: {show:true},
                         splitLine: {show:true},
-                        data : result.ana_result.scope
+                        data : result.ana_result.scope,
+                        show:false,
                     }
                 ],
                 yAxis: [{
@@ -613,7 +611,7 @@
                     type: 'line',
                     xAxisIndex:0,
                     yAxisIndex:0,
-                    data: result.normal_result.normy,
+                    data: result.ana_result.normy,
                     // markPoint: {
                     //     itemStyle : {
                     //          normal: {
@@ -627,7 +625,7 @@
                     //     ]
                     // },
                     markLine: {
-                        name:'炉次号'+result.normal_result.fieldname+'的标线',
+                        name:'炉次号'+result.base_result.fieldname+'的标线',
                         itemStyle : {
                             normal: {
                                 color:'#1e90ff'
@@ -635,21 +633,21 @@
                         },
                         data:[
                                 [
-                                {name: '位置点偏离程度'+result.normal_result.offset_value, value:  result.normal_result.actual_value, xAxis: result.normal_result.match_value, yAxis: 0},
-                                {name: '标线1终点', xAxis: result.normal_result.match_value, yAxis: 'max'}
+                                {name: '位置点偏离程度'+result.base_result.offset_value, value:  result.base_result.actual_value, xAxis: result.base_result.match_value, yAxis: 0},
+                                {name: '标线1终点', xAxis: result.base_result.match_value, yAxis: 'max'}
                                 ],
                                 [{
                                     // 固定起点的 x 位置，用于模拟一条指向最大值的水平线
-                                    name: '位置点偏离程度'+result.normal_result.offset_value,
-                                    value: result.normal_result.offset_value,
+                                    name: '位置点偏离程度'+result.base_result.offset_value,
+                                    value: result.base_result.offset_value,
                                     yAxis: 'max',
-                                    xAxis: result.normal_result.match_value
-                                 }, 
+                                    xAxis: result.base_result.match_value
+                                 },
                                  {
                                     type: 'max'
                                 }],
-                               ] 
-                        
+                               ]
+
                     },
                     // itemStyle: {
                     //         normal: {
@@ -676,144 +674,62 @@
                 ]
 
             };
-        //$("#cause_area").show();
-
-        //点击条形图可调用retrospectfactor得到点击条形图对应字段的分析结果
-        // var ecConfig = echarts.config;
-        // myChart.on('click', function (params) {
-        //         offset_value=result.normal_result.offset_value;//读取偏离值
-        //         qualitative_offset_result=result.qualitative_offset_result;//读取定性判断
-        //         fieldname_english=result.normal_result.fieldname;//读取字段英文名字
-
-        //         retrospectfactor(fieldname_english,offset_value,qualitative_offset_result);
-            // }
-            //});
-
-        // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
-
-
-    };
-    //回归系数因素追溯及其偏离程度
-    function retrospectfactor(field,offset_value,qualitative_offset_result){
-        var prime_analyse = $("#prime_analyse").val();
-        $.ajax({
-            type: "post",
-            url:  "/q_max_influence",
-            data: {'field':field,'offset_value':offset_value,
-            'prime_analyse':prime_analyse,'qualitative_offset_result':qualitative_offset_result},
-            error: function() {
-                alert("错误！！");
-            },
-            success: function(data) {
-                $("#cause_txt").empty();//清除文本框内容
-                $("#cause_txt").append('本炉次'+prime_analyse+'的钢水'+fieldname_chinese+qualitative_offset_result+',偏离度为'+offset_value+'。通过数据相关性分析发现，导致该问题的原因是:\n');      
-                for (var i=0;i<data.offset_number;i++){
-                    if (i < 5){
-                        $("#cause_txt").append((i+1)+'、'+data.En_to_Ch_result_score[i]+data.offset_result_nature[i]+data.posNum[i]+'\n');
-                    }
-
-                }
-                $("#cause_area").show();
-                //alert(content);
-                }
-        })
-    };
-    // 正态分布画图
-    function drawBarChart_norm(result){
-        var myChart = echarts.init(document.getElementById('main2'));
-        //var bookname=document.getElementById('bookno1')
-            // 指定图表的配置项和数据
-            var option = {
-                title: {
-                    //text: bookno = bookname.options[bookname.selectedIndex].text+result.fieldname+'的正态分布'+result.singleheat+','+result.singleheat_value+','+result.normy[result.singleheat_index],
-                    text: bookno = result.fieldname_chinese+result.fieldname+'的正态分布',//+result.singleheat+','+result.singleheat_value+','+result.normy[result.singleheat_index],
-                    x:'center'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                        type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                     }
-                },
-                legend: {
-                    data:['']
-                },
-                xAxis: [
-                    {
-                        data: result.normx,
-                        axisLabel :{  
-                                //interval:0,//横轴信息全部显示
-                                //rotate: 60//60度角倾斜显示  
-                            } 
-                    },
-                    {
-                        type : 'category',
-                        axisLine: {show:false},
-                        axisTick: {show:false},
-                        axisLabel: {show:false},
-                        splitArea: {show:false},
-                        splitLine: {show:false},
-                        data : ['Line','Bar','Scatter','K','Map']
-                    }
-                ],
-                yAxis: {
-                    name:'密度'
-                },
-                series: [{
-                    name: '',
-                    type: 'bar',
-                    data: result.normy,
-                    markPoint: {
-                        itemStyle : {
-                             normal: {
-                                 color:'#1e90ff'
-                             }
-                         },
-                        data:[
-                                // {type : 'max', name: '最大值'},
-                                // {type : 'min', name: '最小值'},
-                                {name : '位置点'+'偏离程度'+result.offset_value, value : result.singleheat, xAxis: result.singleheat_value, yAxis: result.normy[result.singleheat_index]},
-                                
-                        ]
-                    },
-
-                },
-                  {
-                    name: '',
-                    type: 'line',
-                    data: result.normy
-                }
-                ]
-
-            };
 
         var ecConfig = echarts.config;
-        myChart.on('click', function (params) {
-            // if (typeof params.seriesIndex != 'undefined') {
-            if (params.componentType == 'markPoint') {
-                //mes += '  seriesIndex : ' + param.seriesIndex;
-                //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
-                offset_value=result.offset_value;//读取偏离值
-                fieldname_english=result.fieldname;//读取字段英文名字
-                retrospectfactor(fieldname_english,offset_value);
-            }
-            console.log(params);
-            });
 
-        // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
 
     }
 
-        
+    //自动加载钢种
+    function loadGrape(){
+        $.ajax({
+        type: "POST",
+        dataType:"json",
+        url: "/getGrape" ,
+        data: {'greet':'hello'},
+        success: function(data){
+            //alert(data.result);
+            //alert(data.result.length);
+            pnames=data.result;
+            $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
+            for(var pname in pnames){
+                console.log(pnames[pname])
+                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
+            }
+        },
+        error: function () {
+            alert("error");
+            }
+         });
+        };
+
     //初始化
     $(function(){
-            // loadOption_chen();
-            // loadGrape_chen();
+            loadOption_chen();
+            loadGrape();
             $("#coloum_div").hide();
             $("#cause_area").hide();
+
+            });
+
+ $(document).ready(function() {
+            //时间范围
+            $('#datepicker-example7-start').Zebra_DatePicker({
+                direction: ['2016-01-01', false],
+                pair: $('#datepicker-example7-end')
+            });
+            $('#datepicker-example7-end').Zebra_DatePicker({
+                direction: 1
+            });
            
-        })
+            //设置控件默认时间
+            $('#datepicker-example7-start').val('2016-01-01');
+            $('#datepicker-example7-end').val(moment().subtract('month', 0).format('YYYY-MM-DD'));
+           
+        });
+
+
+
 </script>
 {% endblock %}

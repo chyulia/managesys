@@ -3,22 +3,23 @@
 {% block content %}
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-<h5><a href='/product_quality'>单炉次质量回溯</a></h5>
-<h5><a href='/w_fluc_quality'>多炉次质量回溯</a></h5>
+<!-- <h5><a href='/product_quality'>单炉次质量回溯</a></h5>
+<h5><a href='/w_fluc_quality'>多炉次质量回溯</a></h5> -->
 <!-- <h5><a href='/one_product_quality'>质量回溯_新</a></h5> -->
 <h1>青钢转炉数据分析</h1>
-注：1,存在多条件筛选无数据的情况或数据极少清洗后数据为空的情况。<br>
-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-2,钢种为计划牌号,下拉框显示顺序按钢种数量由多到少。钢种中选项null，在数据库中SPECIFICATION='&nbsp',但依然存在676条数据。<br>
-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-3,字段下拉框顺序按表结构顺序。区间有效位数与相应数据库数据有效位数相同。不符合正太分布规律的字段没有进行五数概括法清洗例如副枪插入深度。<br>
-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-4,不能统计的字段例如时间点数据。
+注：<!--1,存在多条件筛选无数据的情况或数据极少清洗后数据为空的情况。<br>-->
+
+1,钢种为计划牌号,下拉框显示顺序按钢种数量由多到少。钢种中选项null，在数据库中SPECIFICATION='&nbsp;',但依然存在数据。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<!--3,字段下拉框顺序按表结构顺序。区间有效位数与相应数据库数据有效位数相同。不符合正太分布规律的字段没有进行五数概括法清洗例如副枪插入深度。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+2,不能统计的字段例如时间点数据。
 字段名:<select name="tableno" id="tableno" class="no_procedurename"></select><br>
-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+<!--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5,不进行统计的字段例如清洗后数据量太少。点击字段名可查看清洗后字段数据描述。
 字段名:<select name="littleno" id="littleno" class="little_procedurename"></select><br><br>
-<textarea id="littletxt" style="width: 900px;height:20px;border:0px;"></textarea><br><br><br>
+<textarea id="littletxt" style="width: 900px;height:20px;border:0px;"></textarea><br><br><br>-->
+<div style="margin-top:5px">
     钢种：<select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name"></select><br><br>
     <!--时间日期：<input name="select_date1" id="select_date1" type="datetime-local" value="2015-08-07T11:36:19">
     至<input name="select_date2" id="select_date2" type="datetime-local" value="2017-02-21T13:59:59"><br><br>-->
@@ -50,9 +51,8 @@
 <button onclick='zong_analy()' id='zong_analy'>统计分析</button>
 </div>
 
-<div id="main1" style="width: 1000px;height:500px"></div>
+<div id="main1" style="width: 700px;height:300px"></div>
 <div id="main2"style="width: 900px;height:40px;"><textarea id="txt" style="width: 900px;height:40px;border:0px;"></textarea></div>
-<script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>
 <script type="text/javascript">  
     $('#bookno').change(function(){
         zong_analy();
@@ -99,6 +99,52 @@
             }
         })
     }
+
+function drawBarChart(result){
+    var myChart = echarts.init(document.getElementById('main1'));
+        //alert(result.scope)
+       var option = {
+            title: {
+                text: '',
+                x:'center'
+            },
+            tooltip: {},
+            legend: {
+                data:['']
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            xAxis: {
+                data: result.scope
+            },
+            yAxis: {},
+            series: [{
+                name: '',
+                type: 'bar',
+                data: result.num,
+                // markPoint: {
+                //     data:[
+                //             {type : 'max', name: '最大值'},
+                //             {type : 'min', name: '最小值'},
+                //             //{name : '标记点', value : result.vvalue_y, xAxis: result.vvalue_x, yAxis:0.3}  
+                //     ]
+                // },
+            },
+            
+            ]
+
+        };
+
+    //使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+}
 
     $(function(){
              loadOption_ha();
