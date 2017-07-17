@@ -12,7 +12,7 @@ import csv
 from decimal import *
 from scipy.stats import norm
 from . import batchprocess
-
+from . import bof_config
 
 #总体波动率分析(fluctuation.html)将cost和produce合并
 import time
@@ -334,7 +334,8 @@ def fluc_qualityfields(request):
 #对分析字段偏离程度进行定性判断：
 def qualitative_offset(offset_result):
 	#偏离程度定性标准，例如-10%~10%为正常，10%~30%为偏高，30%以上为数据异常/极端数据
-	qualitative_standard=[0.05,0.1]
+	# qualitative_standard=[0.05,0.1]
+	qualitative_standard=bof_config.qualitative_standard_anafield
 	qualitative_offset_result=[]
 	for i in range(len(offset_result)):
 		if float(offset_result[i])<=0:
@@ -350,7 +351,8 @@ def qualitative_offset(offset_result):
 #追溯时对影响字段的定性判断
 def qualitative_offset1(offset_result):
 	#偏离程度定性标准，例如-10%~10%为正常，10%~30%为偏高，30%以上为数据异常/极端数据
-	qualitative_standard=[0.01,0.05,0.1]
+	# qualitative_standard=[0.01,0.05]
+	qualitative_standard=bof_config.qualitative_standard_influcfield
 	qualitative_offset_result=[]
 	for i in range(len(offset_result)):
 		if float(offset_result[i])<=0:
@@ -591,7 +593,7 @@ def multifurnace_regression_analyse_to(result):
 			# str_cause=str_cause+'【'+str(n+1)+'】'+singlefield_ch+'波动率降低，数值趋于稳定。\n'
 			# n=n+1
 			continue
-		elif singlefield_offset <=0.05:#偏离程度小于0.05，属于正常状态
+		elif singlefield_offset <=bof_config.fluc_doretrospect:#偏离程度小于0.05，属于正常状态
 			# str_cause=str_cause+'【'+str(n+1)+'】'+singlefield_ch+'波动率正常。\n'
 			# n=n+1
 			continue

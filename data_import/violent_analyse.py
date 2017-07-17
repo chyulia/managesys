@@ -7,7 +7,7 @@ from docx.shared import Inches
 from django.shortcuts import render
 from . import models
 from . import batchprocess
-from . import chyulia
+from . import bof_singlecost
 from django.shortcuts import render
 from django.http import HttpResponse,HttpResponseRedirect,StreamingHttpResponse
 import os
@@ -102,14 +102,14 @@ def violent_analyse_to(prime_cost,document,paragraph):
 		print(yaxis_single)
 		
 		#计算单炉次质量分析字段偏离程度
-		offset_result_single=chyulia.offset(xasis_fieldname_en,yaxis_single)
+		offset_result_single=bof_singlecost.offset(xasis_fieldname_en,yaxis_single,'')
 		offset_value_single=["%.2f%%"%(n*100) for n in list(offset_result_single)]
 		offset_value_single_abs=["%.2f%%"%(abs(float(n))*100) for n in list(offset_result_single)]
 		print('单炉次成本分析字段偏离度')
 		print(offset_value_single)
 
 		#分析字段偏离程度定性判断
-		qualitative_offset_result=chyulia.qualitative_offset(offset_result_single)
+		qualitative_offset_result=bof_singlecost.qualitative_offset(offset_result_single)
 		print('单炉次成本分析字段偏离度定向分析')
 		print(qualitative_offset_result)
 		#写入word
@@ -206,7 +206,7 @@ def  analy_cof(prime_cost,field,single_value,offset_value):
 	# print("frame",frame)	
 	print("yaxis",yaxis)
 
-	offset_degree=chyulia.offset(xasis_fieldname,yaxis,'')
+	offset_degree=bof_singlecost.offset(xasis_fieldname,yaxis,'')
 	print("字段名字：")
 	print(xasis_fieldname)
 	print("相关性：")

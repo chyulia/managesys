@@ -151,10 +151,10 @@
                     $('#loadingarea').hide();
 
                 }else{
-                drawBarChart_raw(data.heat_no,data.result);
-                drawBarChart_material(data.heat_no,data.result);
-                drawBarChart_product(data.heat_no,data.result);
-                drawBarChart_alloy(data.heat_no,data.result);
+                drawBarChart_raw(data.heat_no,data.str_select,data.result);
+                drawBarChart_material(data.heat_no,data.str_select,data.result);
+                drawBarChart_product(data.heat_no,data.str_select,data.result);
+                drawBarChart_alloy(data.heat_no,data.str_select,data.result);
                 $("#coloum_div").hide();
                 $("#main5").empty();
                 // $('#loadingarea').hide();
@@ -239,7 +239,7 @@
     };
 
     // 条形图（原料raw）(多Y轴)
-    function drawBarChart_raw(heat_no,result){
+    function drawBarChart_raw(heat_no,str_select,result){
         var myChart = echarts.init(document.getElementById('main1'));
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
         // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
@@ -533,7 +533,7 @@
                 //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
                 fieldname_chinese=result.raw.xname[params.seriesIndex];
                 fieldname_english=result.raw.xEnglishname[params.seriesIndex];
-                str_select=result.raw.str_select;
+                // str_select=result.raw.str_select;
                 probability_normal(fieldname_chinese,fieldname_english,result.raw.offset_result[params.seriesIndex],params.value,str_select);
                 $("#hidden_inform1").val(fieldname_english);//字段英文名
                 $("#hidden_inform2").val(fieldname_chinese);//字段中文名
@@ -548,7 +548,7 @@
     };
 
     // 条形图（物料material）(多Y轴)
-    function drawBarChart_material(heat_no,result){
+    function drawBarChart_material(heat_no,str_select,result){
         var myChart = echarts.init(document.getElementById('main2'));
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
         // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
@@ -910,7 +910,7 @@
                 //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
                 fieldname_chinese=result.material.xname[params.seriesIndex];
                 fieldname_english=result.material.xEnglishname[params.seriesIndex];
-                str_select=result.material.str_select;
+                // str_select=result.material.str_select;
                 probability_normal(fieldname_chinese,fieldname_english,result.material.offset_result[params.seriesIndex],params.value,str_select);
                 $("#hidden_inform1").val(fieldname_english);//字段英文名
                 $("#hidden_inform2").val(fieldname_chinese);//字段中文名
@@ -925,7 +925,7 @@
     };
 
     // 条形图（产品product）（多Y轴）
-    function drawBarChart_product(heat_no,result){
+    function drawBarChart_product(heat_no,str_select,result){
         var myChart = echarts.init(document.getElementById('main3'));
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
         // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
@@ -1080,7 +1080,7 @@
                 //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
                 fieldname_chinese=result.product.xname[params.seriesIndex];
                 fieldname_english=result.product.xEnglishname[params.seriesIndex];
-                str_select=result.product.str_select;
+                // str_select=result.product.str_select;
                 probability_normal(fieldname_chinese,fieldname_english,result.product.offset_result[params.seriesIndex],params.value,str_select);
                 $("#hidden_inform1").val(fieldname_english);//字段英文名
                 $("#hidden_inform2").val(fieldname_chinese);//字段中文名
@@ -1095,7 +1095,7 @@
     };
 
     // 条形图（合金alloy）(多Y轴)
-    function drawBarChart_alloy(heat_no,result){
+    function drawBarChart_alloy(heat_no,str_select,result){
         var myChart = echarts.init(document.getElementById('main4'));
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#5793f3', '#d14a61', '#675bba','#00c957'];
         // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
@@ -1320,7 +1320,7 @@
                 //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
                 fieldname_chinese=result.alloy.xname[params.seriesIndex];
                 fieldname_english=result.alloy.xEnglishname[params.seriesIndex];
-                str_select=result.alloy.str_select;
+                // str_select=result.alloy.str_select;
                 probability_normal(fieldname_chinese,fieldname_english,result.alloy.offset_result[params.seriesIndex],params.value,str_select);
                 $("#hidden_inform1").val(fieldname_english);//字段英文名
                 $("#hidden_inform2").val(fieldname_chinese);//字段中文名
@@ -1343,6 +1343,12 @@
         var fieldname_chinese=fieldname_chinese;//字段中文名
         var coloum_number = $("#change_column").val();//定义概率正方分布的柱状图个数
         console.log(heat_no,fieldname_english,fieldname_chinese);
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+                    text: "分布图正在加载中...请勿执行其它操作！"
+                });
+
             $.ajax({
             type: "post",
             url:  "/probability_normal",
@@ -1351,23 +1357,17 @@
                 alert("404");
             },
             success: function(data) {
-                // alert("enter probability_normal");
-                //概率分布
-                // alert(data.ana_result['scope']);
-                // alert(data.ana_result['num']);
-                //正态分布
-                // alert(data.normal_result['normx']);
-                // alert(data.normal_result['normy']);
-                // alert(data.state);
                 if(data.state=='error'){
                     // alert('数据量过少，无法形成统计分布图！');
                     $("#coloum_div").hide();
                     $('#main5').empty();
                     $('#main5').append('数据量过少，无法形成统计分布图！');
+                    $('#loadingarea').hide();
 
                 }else{
                     probability_normal_picture(data);
                     $("#coloum_div").show();
+                    $('#loadingarea').hide();
                 }
             }
         })
@@ -1515,7 +1515,7 @@
     }
 
     //自动加载钢种
-    function loadGrape_chen(){
+    function loadGrape(){
         $.ajax({
         type: "POST",
         dataType:"json",
@@ -1539,10 +1539,11 @@
 
     //初始化
     $(function(){
-            loadOption_chen();
-            loadGrape_chen();
+            // loadOption_chen();//自动加载字段
+            loadGrape();//自动加载钢种
             $("#coloum_div").hide();
             $("#cause_area").hide();
+            cost_produce();//打开页面自动执行函数
 
             });
 

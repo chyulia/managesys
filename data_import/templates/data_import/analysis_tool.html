@@ -3,7 +3,7 @@
 {% block content %}
 
 <h2>青钢数据分析工具</h2>
-
+<div id="loadingarea" style="float:middle;width:800px;height:30px"></div>
 <table>
 	<tr>
 		<td>更新数据库转炉字段全部数据统计值(每月更新): </td>
@@ -36,6 +36,12 @@
 
 <script type="text/javascript">
 	function violent_analyse(){
+		var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
 	        $.ajax({
 	        type: "post",
 	        url:  "/violent_analyse",
@@ -44,6 +50,7 @@
 	            alert("暴力追溯发生错误！");
 	        },
 	        success: function(data) {
+	        	$('#loadingarea').hide();
 	            alert("暴力追溯完成！");
 	        }
 	     })
@@ -51,6 +58,12 @@
 
     //定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
     function updatevalue(){
+    	var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
         $.ajax({
         type: "post",
         url:  "/updatevalue",
@@ -59,6 +72,7 @@
             alert("每月更新转炉全部数据的参数发生错误！");
         },
         success: function(data) {
+        	$('#loadingarea').hide();
             alert(data.state);
         }
      })
@@ -66,6 +80,12 @@
 
     //定期更新数据库中表结构表中的期望等参数值（本月及上月数据），每日更新
     function daily_updatevalue(){
+    	var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
         $.ajax({
         type: "post",
         url:  "/daily_updatevalue",
@@ -74,6 +94,7 @@
             alert("每日更新转炉本月及上月的数据统计参数发生错误！");
         },
         success: function(data) {
+        	$('#loadingarea').hide();
             alert(data.state);
         }
      })

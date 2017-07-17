@@ -10,7 +10,9 @@
 <!-- <p><strong>1.请选择要进行波动率计算的各项参数</strong></p> -->
 <!-- <form action="javascript:void(0)" method="post"> -->
     <div style="margin-top:5px">
-        <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name"></select>
+        <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name">
+            <option value='blank' selected = "selected"></option>
+        </select>
        <label> 班次：</label><select name="OPERATESHIFT" id="OPERATESHIFT" class="OPERATESHIFT_name">
             <option value='blank' selected = "selected"></option>
             <option value=1>白班</option>
@@ -230,29 +232,6 @@
         });
 
 
-    //自动加载钢种
-    function loadGrape_chen(){ 
-        $.ajax({
-        type: "POST",
-        dataType:"json",
-        url: "/getGrape" ,
-        data: {'greet':'hello'},
-        success: function(data){
-            //alert(data.result);
-            //alert(data.result.length);
-            pnames=data.result;
-            $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
-            for(var pname in pnames){
-                console.log(pnames[pname]) 
-                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
-            }
-        },
-        error: function () {
-            alert("error");
-            }
-         });
-        };
-
 
     function drawBarChart_fluc(result,classification_index,area){
         var myChart = echarts.init(document.getElementById(area));
@@ -434,12 +413,34 @@
 
 
 
+    //自动加载钢种
+    function loadGrape(){ 
+        $.ajax({
+        type: "POST",
+        dataType:"json",
+        url: "/getGrape" ,
+        data: {'greet':'hello'},
+        success: function(data){
+            pnames=data.result;
+            // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
+            for(var pname in pnames){
+                console.log(pnames[pname]) 
+                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
+            }
+        },
+        error: function () {
+            alert("error");
+            }
+         });
+        };
+
 
     //初始化
     $(function(){
-            loadOption_chen();
-            loadGrape_chen();    
+            // loadOption_chen();//自动加载字段
+            loadGrape(); //自动加载钢种   
             $("#cause_area").hide();
+            fluc_cost_produce();//打开页面自动执行函数
         })
 
 

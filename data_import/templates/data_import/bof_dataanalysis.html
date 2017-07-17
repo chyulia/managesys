@@ -3,9 +3,6 @@
 {% block content %}
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-<!-- <h5><a href='/product_quality'>单炉次质量回溯</a></h5>
-<h5><a href='/w_fluc_quality'>多炉次质量回溯</a></h5> -->
-<!-- <h5><a href='/one_product_quality'>质量回溯_新</a></h5> -->
 <h1>青钢转炉数据分析</h1>
 注：<!--1,存在多条件筛选无数据的情况或数据极少清洗后数据为空的情况。<br>-->
 
@@ -50,7 +47,7 @@
 <!--<button onclick='num()'>分析结果绘图</button>-->
 <button onclick='zong_analy()' id='zong_analy'>统计分析</button>
 </div>
-
+<div id="loadingarea" style="float:middle;width:800px;height:30px"></div>
 <div id="main1" style="width: 700px;height:300px"></div>
 <div id="main2"style="width: 900px;height:40px;"><textarea id="txt" style="width: 900px;height:40px;border:0px;"></textarea></div>
 <script type="text/javascript">  
@@ -72,6 +69,12 @@
     function num(){
         var bookno = $("#bookno").find("option:selected").val();
         console.log(bookno)
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
+
         $.ajax({
             type: "post",
             url:  "/num",
@@ -95,6 +98,7 @@
                     txt.append(n);
                     txt.append("   ")
                 };
+                $('#loadingarea').hide();
                 
             }
         })
@@ -163,6 +167,11 @@ function drawBarChart(result){
         var time2 = $('#datepicker-example7-end').val();
         //alert("gk_no:"+gk_no+"\nOPERATESHIFT:"+OPERATESHIFT+"\nOPERATECREW:"+OPERATECREW+"\nstation:"+station+"\nbookno:"+bookno);
         //alert("sql_start:"+time1+"sql_end"+time2);
+        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        $('#loadingarea').show();
+        myChart_loading.showLoading({
+             text: "图表数据正在努力加载...请勿执行其它操作！"
+                });
         $.ajax({
             type: "post",
             url:  "/zong_analy_ha",
@@ -187,6 +196,7 @@ function drawBarChart(result){
                     txt.append(n);
                     txt.append("   ")
                 };
+                $('#loadingarea').hide();
             }
          })
     }

@@ -12,6 +12,8 @@ import csv
 from decimal import *
 from . import batchprocess
 import time
+from . import bof_config
+
 #计算投入/输出产品分布
 def cost_produce(request):
 	print("enter cost_produce")
@@ -53,7 +55,13 @@ def cost_produce(request):
 
 	# 当前时间
 	time_now=time.strftime('%Y-%m-%d',time.localtime(time.time()))
-	print(time_now,time2)
+	#将时间为空时的值进行转换
+	if time1=='':
+		time1='2016-01-01'
+	if time2=='':
+		time2=time_now
+
+	# print(time_now,time2)
 	#时间筛选条件
 	if time1=='2016-01-01' and time2==time_now:#走缓存
 		pass
@@ -232,8 +240,8 @@ def offset(xasis_fieldname,yaxis,str_select):
 			std_value=np.std(clean)
 			print("标准差",std_value)
 			#方差
-			var_value=np.var(clean)
-			print("方差",var_value)
+			# var_value=np.var(clean)
+			# print("方差",var_value)
 			#normx,normy=Norm_dist(avg_value,var_value)
 			print("min",clean.min())
 			print("max",clean.max())
@@ -265,7 +273,8 @@ def offset(xasis_fieldname,yaxis,str_select):
 #对偏离程度进行定性判断：高，偏高，正常范围，偏低，低，极端异常
 def qualitative_offset(offset_result):
 	#偏离程度定性标准，例如-10%~10%为正常，10%~30%为偏高，30%以上为高
-	qualitative_standard=[0.2,0.35,0.4]
+	# qualitative_standard=[0.2,0.35]
+	qualitative_standard=bof_config.qualitative_standard
 	qualitative_offset_result=[]
 	for i in range(len(offset_result)):
 		if offset_result[i]==None:
@@ -331,7 +340,7 @@ def probability_normal(request):
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	sqlVO["sql"]="SELECT HEAT_NO,"+bookno+" FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO>'1500000'"+str_select+bound_select
-	# print(sqlVO["sql"])
+	print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	print('len(scrapy_records):',len(scrapy_records))
 	if len(scrapy_records)<50:
@@ -415,10 +424,10 @@ def probability_normal(request):
 	# print(end1)
 	#numy1=vaild(numy,ivalue_valid,d3_data)
 	numy1=["%.6f"%(n) for n in numy]
-	print("x轴:")
-	print(numx3)
-	print("y轴:")
-	print(numy1)
+	# print("x轴:")
+	# print(numx3)
+	# print("y轴:")
+	# print(numy1)
 	desy1=vaild(desy,ivalue_valid,d4_data)
 
 	#计算正态分布起始--------------------------------------------------
@@ -570,32 +579,7 @@ def single_heat(heat_no,fieldname):
 	yaxis=frame1.FIELD[0]
 	return yaxis
 
-#请求chen.html页面
-def chen(request):
-	#print('请求主页')
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/chen.html',{'title':"青特钢大数据项目组数据管理"})
 
-#请求test.html页面
-def test(request):
-	#print('请求主页')
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/test")
-	return render(request,'data_import/test.html',{'title':"青特钢大数据项目组数据管理"})
-
-#跳转波动率fluctuation.html页面
-def fluctuation(request):
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/fluctuation.html')
-
-#analysis_tool.html页面
-def analysis_tool(request):
-	#print('请求主页')
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/analysis_tool.html',{'title':"青特钢大数据项目组数据管理"})
 
 #从数据库动态加载钢种
 def getGrape(request):
@@ -627,9 +611,15 @@ def updatevalue(request):
 	print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	print(len(scrapy_records))
-	tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
-	db=cx_Oracle.connect('qg_user','123456',tns)
+	# tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
+	# db=cx_Oracle.connect('qg_user','123456',tns)
+	# cur = db.cursor()#创建cursor
+
+	tns=cx_Oracle.makedsn(bof_config.db_host,bof_config.db_port,bof_config.db_name)
+	db=cx_Oracle.connect(bof_config.db_user,bof_config.db_password,tns)
 	cur = db.cursor()#创建cursor
+
+
 	# sql_str="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
 	# cur.execute(sql_str)
 	# rs=cur.fetchall()  #一次返回所有结果集
@@ -744,9 +734,13 @@ def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,
 	return dataclean_result
 
 def set_IF_ANALYSE_TEMP(fieldname):
-	tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
-	db=cx_Oracle.connect('qg_user','123456',tns)
+	# tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
+	# db=cx_Oracle.connect('qg_user','123456',tns)
+	# cur = db.cursor()#创建cursor
+	tns=cx_Oracle.makedsn(bof_config.db_host,bof_config.db_port,bof_config.db_name)
+	db=cx_Oracle.connect(bof_config.db_user,bof_config.db_password,tns)
 	cur = db.cursor()#创建cursor
+
 
 	update_IF_ANALYSE_TEMP_sql="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET IF_ANALYSE_TEMP=0 WHERE  DATA_ITEM_EN = \'"+fieldname+"\'"
 	try:
@@ -827,7 +821,7 @@ def regression_analyse_to(result):
 				str_cause=str_cause+'【'+str(n+1)+'】'+xaxis_chinese+'数据异常！\n' 
 				n=n+1
 				continue
-			elif abs(float(offset_value))<=0.2:#偏离度小于20%的设定为正常
+			elif abs(float(offset_value))<=bof_config.single_doretrospect:#偏离度小于20%的设定为正常
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。\n'      
 				continue
 

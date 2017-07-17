@@ -8,7 +8,9 @@
 <h2>青钢转炉数据分析-转炉-质量-波动率分析</h2>
 
     <div style="margin-top:5px">
-        <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name"></select>
+        <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name">
+            <option value='blank' selected = "selected"></option>
+        </select>
        <label> 班次：</label><select name="OPERATESHIFT" id="OPERATESHIFT" class="OPERATESHIFT_name">
             <option value='blank' selected = "selected"></option>
             <option value=1>白班</option>
@@ -106,14 +108,9 @@
         var time2 = $('#datepicker-example7-end').val();//计算波动率的时间范围终止时间
         var history_time1 = $('#datepicker-example7-start-history').val();//对比历史波动率的时间范围起始时间
         var history_time2 = $('#datepicker-example7-end-history').val();//对比历史波动率的时间范围终止时间
-        // var myChart_main = echarts.init(document.getElementById('main1'));
         var myChart_loading = echarts.init(document.getElementById('loadingarea'));
         $('#loadingarea').show();
-        // var myChart_main2 = echarts.init(document.getElementById('main2'));
         $("#cause_txt").empty();//清除文本内容
-//         myChart_main.showLoading({
-//                     text: "图表数据正在努力加载..."
-//                 });
         myChart_loading.showLoading({
                     text: "图表数据正在努力加载...请勿执行其它操作！"
                 });
@@ -171,8 +168,6 @@
          myChart_loading.showLoading({
              text: "质量字段正在追溯中...请勿执行其它操作！"
                 });
-         // alert(json_result);
-         // alert(result);
           $.ajax({
             type: "post",
             url:  "/quality_multifurnace_regression_analyse",
@@ -221,36 +216,10 @@
         });
 
 
-    //自动加载钢种
-    function loadGrape(){ 
-        $.ajax({
-        type: "POST",
-        dataType:"json",
-        url: "/getGrape" ,
-        data: {'greet':'hello'},
-        success: function(data){
-            //alert(data.result);
-            //alert(data.result.length);
-            pnames=data.result;
-            $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
-            for(var pname in pnames){
-                console.log(pnames[pname]) 
-                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
-            }
-        },
-        error: function () {
-            alert("error");
-            }
-         });
-        };
-
-
     function drawBarChart_fluc(result,area){
         var myChart = echarts.init(document.getElementById(area));
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#eeeeee', '#3397c9','#f39646','#e02222','#e0442f'];
-        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
         var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
-        // alert(result.result[classification].condition);
         if (result.condition=='NoData'){
             document.getElementById(area).innerHTML = "质量相关字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
             return;
@@ -418,13 +387,34 @@
     };
 
 
+    //自动加载钢种
+    function loadGrape(){ 
+        $.ajax({
+        type: "POST",
+        dataType:"json",
+        url: "/getGrape" ,
+        data: {'greet':'hello'},
+        success: function(data){
+            pnames=data.result;
+            // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
+            for(var pname in pnames){
+                console.log(pnames[pname]) 
+                $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
+            }
+        },
+        error: function () {
+            alert("error");
+            }
+         });
+        };
 
 
     //初始化
     $(function(){
-            loadOption_chen();
-            loadGrape();
+            loadGrape();//自动加载钢种
             $("#cause_area").hide();
+            fluc_cost_produce();//打开页面自动执行函数
+
         })
 </script>
 

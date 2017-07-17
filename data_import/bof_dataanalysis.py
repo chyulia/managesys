@@ -38,7 +38,7 @@ def num_describe(scrapy_records,bookno):
 			#print(value)
 			#bookno=value
 	#print(bookno)
-	print(scrapy_records[1:5])
+	# print(scrapy_records[1:5])
 	ivalue_i=[]
 	for n in range(len(scrapy_records)):
 		ivalue = scrapy_records[n].get(bookno,None)
@@ -55,7 +55,7 @@ def num_describe(scrapy_records,bookno):
 		if value != None :
 			scrapy_records[i][bookno] = float(value)			
 	frame=DataFrame(scrapy_records)
-	print(frame[1:5])	
+	# print(frame[1:5])	
 	df=frame.sort_values(by=bookno)
 	dfr=df[df>0].dropna(how='any')
 	#print(dfr['1622324'])
@@ -92,8 +92,8 @@ def num_describe(scrapy_records,bookno):
 	#numy=[ele for ele in end]
 	desx=[ele for ele in describe.index]
 	desy=[ele for ele in describe]
-	print(numx)
-	print(describe)
+	# print(numx)
+	# print(describe)
 	#contentVO={
 		#'title':'测试',
 		#'state':'success'
@@ -112,15 +112,15 @@ def num_describe(scrapy_records,bookno):
 	d2_valid=vaild(d2,ivalue_valid,d2_data)
 	numx1=list(set(d1_valid).union(set(d2_valid)))
 	numx2=sorted(numx1)
-	print("numx2:")
-	print(numx2)
+	# print("numx2:")
+	# print(numx2)
 	sections=[]
 	numx3=union_section(numx2,sections)
 	cut1=pd.cut(clean,numx2)
 	end1=pd.value_counts(cut1,sort=False)/clean.count()
 	numy=[ele for ele in end1]
-	print("end1:")
-	print(end1)
+	# print("end1:")
+	# print(end1)
 	#numy1=vaild(numy,ivalue_valid,d3_data)
 	numy1=["%.6f"%(n) for n in numy]
 	desy1=vaild(desy,ivalue_valid,d4_data)
@@ -298,17 +298,14 @@ def describe_ha(request):
 	desx=[ele for ele in describe.index]
 	desy=[ele for ele in describe]
 	desy1=["%.2f"%(n) for n in desy]
-	print(desx)
-	print(desy)
+	# print(desx)
+	# print(desy)
 	ana_describe={}
 	ana_describe['scopeb']=desx
 	ana_describe['numb']=desy1
 
 	return HttpResponse(json.dumps(ana_describe),content_type='application/json')
-def product_quality(request):
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/product_quality.html')
+
 def heat_no_quality(request):
 	print("计划牌号")
 	sqlVO={}
@@ -344,8 +341,8 @@ def liquid_ele(request):
 	#print(sqlVO["sql"])
 	scrapy_records_ele=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	scrapy_records_des=models.BaseManage().direct_select_query_sqlVO(sqlVO_des)
-	print(scrapy_records_ele)
-	print(scrapy_records_des)
+	# print(scrapy_records_ele)
+	# print(scrapy_records_des)
 	ele_value = scrapy_records_ele[0].get(liquid_steel,None)
 	iele_vale=str(ele_value)
 	print(ele_value)
@@ -413,10 +410,7 @@ def zhengtai_ele(request):
 	# dataclean_result['std_value']=std_value#标准差
 	# dataclean_result['normx']=normx#x轴取样点
 	# dataclean_result['normy']=normy#正态分布取样点对应的Y轴取值
-def w_fluc_quality(request):
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/m_fluc_quality.html')
+
 #统计分析按表结构加载下拉框	
 from . import zhuanlu	
 def lond_to(request):

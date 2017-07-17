@@ -14,7 +14,8 @@ from docx import Document
 from docx.shared import Inches
 from . import batchprocess
 import time
-#from . import hashuang
+from . import bof_config
+
 
 #计算转炉质量及含量
 def qualityfields(request):
@@ -206,8 +207,8 @@ def offset(xasis_fieldname,yaxis,str_select):
 			std_value=np.std(clean)
 			print("标准差",std_value)
 			#方差
-			var_value=np.var(clean)
-			print("方差",var_value)
+			# var_value=np.var(clean)
+			# print("方差",var_value)
 			#normx,normy=Norm_dist(avg_value,var_value)
 			print("min",clean.min())
 			print("max",clean.max())
@@ -277,7 +278,8 @@ def union_section(section_point,sections):
 #对偏离程度进行定性判断：高，偏高，正常范围，偏低，低，极端异常
 def qualitative_offset(offset_result):
 	#偏离程度定性标准，例如-10%~10%为正常，10%~30%为偏高，30%以上为高
-	qualitative_standard=[0.2,0.35,0.4]
+	# qualitative_standard=[0.2,0.35]
+	qualitative_standard=bof_config.qualitative_standard
 	qualitative_offset_result=[]
 	for i in range(len(offset_result)):
 		if offset_result[i]==None:
@@ -297,18 +299,6 @@ def qualitative_offset(offset_result):
 	return  qualitative_offset_result
 
 
-
-def quality_zhuanlu(request):
-	#print('请求主页')
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/qualityzhuanlu.html',{'title':"青特钢大数据项目组数据管理"})
-
-#跳转波动率fluctuation.html页面
-def fluctuation(request):
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/fluctuation.html')
 
 #从数据库动态加载钢种
 def getGrape(request):
@@ -620,7 +610,7 @@ def quality_regression_analyse_to(result):
 			str_cause=str_cause+'【'+str(n+1)+'】'+xaxis_chinese+'数据异常！\n' 
 			n=n+1
 			continue
-		elif abs(float(offset_value))<=0.2:#偏离度小于20%的设定为正常
+		elif abs(float(offset_value))<=bof_config.single_doretrospect:#偏离度小于20%的设定为正常
 			# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。\n'      
 			continue
 

@@ -897,11 +897,7 @@ def getAllTradeNo_time(request):
 	# return HttpResponse(json.dumps(contentVO),content_type='application/json')
 	return HttpResponse(json.dumps({'result':allTradeNo}),content_type='json')
 
-def ha(request):
-	print('转炉数据清洗')
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	return render(request,'data_import/hashuang.html',{'title':"青特钢大数据项目组数据管理"})
+
 def lond_to_B(request):
 	contentVO={
 		'title':'测试',
@@ -912,3 +908,45 @@ def lond_to_B(request):
 	contentVO['procedure_names']=ana_result
 	#print(contentVO)
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def bof_dataanalysis(request):
+	print('转炉数据清洗')
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/bof_dataanalysis.html',{'title':"青特钢大数据项目组数据管理"})
+
+
+#请求成本单炉次bof_singlecost.html页面
+def bof_singlecost(request):
+	#print('请求主页')
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/bof_singlecost.html',{'title':"青特钢大数据项目组数据管理"})
+
+
+#跳转成本多炉次波动率页面
+def bof_fluccost(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/bof_fluccost.html')
+
+#跳转到质量单炉次
+def bof_singlequality(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/bof_singlequality.html',{'title':"青特钢大数据项目组数据管理"})
+
+#跳转到质量多炉次波动率页面
+def bof_flucquality(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/bof_flucquality.html')
+
+
+
+#跳转到分析工具analysis_tool.html页面
+def analysis_tool(request):
+	#print('请求主页')
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/analysis_tool.html',{'title':"青特钢大数据项目组数据管理"})
