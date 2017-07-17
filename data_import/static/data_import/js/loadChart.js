@@ -769,7 +769,7 @@ function drawStockControl(data,module_unit_key){
         trigger: 'axis', 
         formatter : function (params) {
                 //console.log(params);
-                return params[0].name + "<br/>" +  params[0].seriesName + ":" + params[0].value + "<br/>2017-04-01以前总重量:" + params[1].value ;
+                return params[0].name + "<br/>" +  params[0].seriesName + ":" + params[0].value + "<br/>库龄大于3月的总重量:" + params[1].value ;
             }
     },
     legend: {

@@ -458,6 +458,7 @@ def main(module,aspect,dateChoose,sql_date1,sql_date2,sql_cust,tradeNo,space,spa
 			maxValue,maxKey,minValue,minKey,noMin,sumValue,averageValue,printMax,maxRate,maxRate100,maxRateReason = max_min_average.max_min_ave_sum(dictionary,aspect,module_unit)
 			# 【 结 论 输 出 】
 			conclusionPrint = conclusion.final_conclusion_cust2(sql_date1,sql_date2,sql_cust,aspect_name,printMax,maxRateReason,sumValue,unite,averageValue,maxKey,maxValue,minKey,minValue,maxRate100,aspect,passOrNot,tradeNo_rtn_reason_print,module_unit,noMin,module)
+			#print ("*****************")
 			return dictionary,conclusionPrint,module_name,aspect_name,unite,maxValue
 		else:
 			pass
