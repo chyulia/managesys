@@ -32,47 +32,20 @@
       </div> -->
       <!-- works -->
       <div id="works"  class=" clearfix grid">
+        {% for infotype,infos in infost.items %}
+          {% if infotype == '4' %}
+            {% for info in infos %}
           <figure class="effect-oscar  wowload fadeIn">
               <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
               <figcaption>
-                  <h2>转炉数据分析</h2>
+                  <h2>{{info.title}}</h2>
                   <p><br>
-                  <a class="page-scroll" href="/chen">转炉数据分析</a></p>
+                  <a class="page-scroll" href="{{info.link}}">{{info.title}}</a></p>
               </figcaption>
           </figure>
-           <figure class="effect-oscar  wowload fadeInUp">
-              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-              <figcaption>
-                  <h2>波动率分析</h2>
-                  <p><br>
-                  <a class="page-scroll" href="/fluctuation">波动率分析</a></p>
-              </figcaption>
-          </figure>
-           <figure class="effect-oscar  wowload fadeInUp">
-              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-              <figcaption>
-                  <h2>数据预处理</h2>
-                  <p><br>
-                  <a class="page-scroll" href="/ha">转炉数据预处理</a></p>
-              </figcaption>
-          </figure>
-           <figure class="effect-oscar  wowload fadeInUp">
-              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-              <figcaption>
-                  <h2>单炉质量回溯</h2>
-                  <p><br>
-                  <a class="page-scroll" href="/product_quality">转炉单炉质量回溯</a></p>
-              </figcaption>
-          </figure>
-           <figure class="effect-oscar  wowload fadeInUp">
-              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-              <figcaption>
-                  <h2>多炉质量回溯</h2>
-                  <p><br>
-                  <a class="page-scroll" href="/w_fluc_quality">转炉多炉质量回溯</a></p>
-              </figcaption>
-          </figure>
-
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
       </div>
       <!-- works -->
     </div>
