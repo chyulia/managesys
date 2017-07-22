@@ -1,15 +1,15 @@
 from django.conf.urls import url, include
 from . import views
-from . import chyulia
-from . import fluc_chyulia
-from . import hashuang
+from . import bof_dataanalysis
+from . import bof_singlecost
+from . import bof_fluccost
+from . import bof_singlequality
+from . import bof_flucquality
 from data_import.SteelPricePredict import steelprice
-from . import qualityzhuanlu
-from . import fluc_quality
 from . import batchprocess
 from . import ironstoneprice
 from . import violent_analyse
-from . import quality_prediction
+
 urlpatterns = [
     #需要对相同业务的加载与处理写一个分发器
     url(r'^$', views.home),
@@ -64,35 +64,6 @@ urlpatterns = [
     #数据仓库更新
     url(r'^update_mysql_space',views.update_mysql_space),
 
-
-    #ha
-    #显示统计分析页面
-    url(r'^ha', hashuang.ha),
-    #按表结构加载下拉框
-    url(r'^lond_to',hashuang.lond_to),
-    url(r'^no_lond_to',hashuang.no_lond_to),
-    url(r'^little_lond_to',hashuang.little_lond_to),
-    #转炉统计分析综合条件筛选
-    url(r'^zong_analy_ha',hashuang.multi_analy),
-    #加载钢种
-    url(r'^paihao_getGrape',hashuang.paihao_getGrape),
-    #统计分析方法
-    url(r'^describe_ha',hashuang.describe_ha),
-    #质量回溯
-    #加载单炉次质量回溯页面（product_quality.html）
-    url(r'^product_quality',hashuang.product_quality),
-    #同时计算正态分布和概率分布
-    url(r'^probability_distribution',qualityzhuanlu.probability_distribution),
-    url(r'^qualityfields',qualityzhuanlu.qualityfields),
-    #单炉次原因追溯
-    #url(r'^q_max_influence',qualityzhuanlu.max_influence),
-    url(r'^quality_singlefurnace_regression_analyse',qualityzhuanlu.quality_singlefurnace_regression_analyse),
-    #比较多炉次波动率计算(m_fluc_qulity.html)
-    url(r'^w_fluc_quality',hashuang.w_fluc_quality),
-    #波动率原因追溯
-    url(r'^fluc_qualityfields',fluc_quality.fluc_qualityfields),
-    url(r'^quality_fluc_influence',fluc_quality.quality_fluc_influence),
-    url(r'^quality_multifurnace_regression_analyse',fluc_quality.quality_multifurnace_regression_analyse),
     
     #暴力求解
     # url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),
@@ -110,6 +81,8 @@ urlpatterns = [
     url(r'^stone_price_history',ironstoneprice.price_history),
     url(r'^stone_price_predict',ironstoneprice.price_predict),
 
+    url(r'^violent_analyse$',violent_analyse.violent_analyse),
+   
     #质量预测
     #quelity-predict
     url(r'^quality_prediction',quality_prediction.quality_prediction),
@@ -117,33 +90,85 @@ urlpatterns = [
     url(r'^lf_quality_history',quality_prediction.lf_quality_history),
 
 
-    #chen
-    #显示chen页面
-    url(r'^chen', chyulia.chen),
-    url(r'^cost_produce',chyulia.cost_produce),
+    #成本质量相关页面的跳转
+    #1、显示统计分析页面
+    url(r'^bof_dataanalysis', views.bof_dataanalysis),
+    #2、跳转到成本单炉次页面
+    url(r'^bof_singlecost', views.bof_singlecost),
+    #3、跳转到成本波动率页面
+    url(r'^bof_fluccost$',views.bof_fluccost),
+    #4、跳转到质量单炉次页面
+    url(r'^bof_singlequality',views.bof_singlequality),
+    #5、跳转到质量波动率计算页面
+    url(r'^bof_flucquality',views.bof_flucquality),
+    #跳转到分析工具页面
+    url(r'^analysis_tool$',views.analysis_tool),
+
+
+    #统计分析页面
+    #按表结构加载下拉框
+    url(r'^lond_to',bof_dataanalysis.lond_to),
+    url(r'^no_lond_to',bof_dataanalysis.no_lond_to),
+    url(r'^little_lond_to',bof_dataanalysis.little_lond_to),
+    #转炉统计分析综合条件筛选
+    url(r'^zong_analy_ha',bof_dataanalysis.multi_analy),
+    #加载钢种
+    url(r'^paihao_getGrape',bof_dataanalysis.paihao_getGrape),
+    #统计分析方法
+    url(r'^describe_ha',bof_dataanalysis.describe_ha),
+
+
+
+    #转炉-单炉次-成本
     #自动加载钢种
-    url(r'^getGrape',chyulia.getGrape),
-    #跳转到波动率页面fluctuation.html
-    url(r'^fluctuation$',chyulia.fluctuation),
-    #定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
-    url(r'^updatevalue',chyulia.updatevalue),
+    url(r'^getGrape',bof_singlecost.getGrape),
+    #四大类成本字段的分析
+    url(r'^cost_produce',bof_singlecost.cost_produce),
+    #单炉次成本统一追溯函数
+    url(r'^singlefurnace_regression_analyse',bof_singlecost.singlefurnace_regression_analyse),
     #同时计算正态分布和概率分布
-    url(r'^probability_normal',chyulia.probability_normal),
-    #比较总体的波动率计算(fluctuation.html)
-    url(r'^fluc_cost_produce',fluc_chyulia.fluc_cost_produce),
-    #波动率原因追溯
-    url(r'^fluc_influence',fluc_chyulia.fluc_influence),
+    url(r'^probability_normal',bof_singlecost.probability_normal),
+    #定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
+    url(r'^updatevalue',bof_singlecost.updatevalue),
+    
+
+    #转炉-多炉次-成本
+    #四大类字段的总体波动率分析
+    url(r'^fluc_cost_produce',bof_fluccost.fluc_cost_produce),
+    #成本字段的波动率追溯（单个字段，鼠标触发）
+    url(r'^fluc_influence',bof_fluccost.fluc_influence),
+    #多炉次成本字段的统一追溯
+    url(r'^multifurnace_regression_analyse',bof_fluccost.multifurnace_regression_analyse),
     #定期更新数据库中表结构表中的期望等参数值（本月及上月数据），每日更新
-    url(r'^daily_updatevalue',fluc_chyulia.daily_updatevalue),
-    url(r'^test',chyulia.test),
-    url(r'^analysis_tool$',chyulia.analysis_tool),
-    url(r'^violent_analyse$',violent_analyse.violent_analyse),
-    url(r'^singlefurnace_regression_analyse',chyulia.singlefurnace_regression_analyse),
-    url(r'^multifurnace_regression_analyse',fluc_chyulia.multifurnace_regression_analyse),
+    url(r'^daily_updatevalue',bof_fluccost.daily_updatevalue),
+
+
+    #转炉-单炉次-质量
+    #质量字段的单炉次分析
+    url(r'^qualityfields',bof_singlequality.qualityfields),
+    #同时计算正态分布和概率分布
+    url(r'^probability_distribution',bof_singlequality.probability_distribution),
+    #单炉次原因追溯
+    url(r'^quality_singlefurnace_regression_analyse',bof_singlequality.quality_singlefurnace_regression_analyse),
+
+
+    #转炉=多炉次-质量
+
+    #质量字段的总体波动率分析
+    url(r'^fluc_qualityfields',bof_flucquality.fluc_qualityfields),
+    #质量字段的波动率追溯（单个字段，鼠标触发）
+    url(r'^quality_fluc_influence',bof_flucquality.quality_fluc_influence),
+    #多炉次质量字段的统一追溯
+    url(r'^quality_multifurnace_regression_analyse',bof_flucquality.quality_multifurnace_regression_analyse),
+
 
 
     #添加工具类方法，之后处理为批处理事件
     url(r'^relation_ana$',batchprocess.relation_ana),
     url(r'^report$',batchprocess.report),
+
+
+
+  
 
 ]
