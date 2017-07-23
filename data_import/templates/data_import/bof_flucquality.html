@@ -32,7 +32,7 @@
         <!-- 字段名：<select name="flu_field" id="flu_field" class="fluctution_time"></select> -->
         <!--<input id="datepicker-example5" type="text">-->
     </div>
-         
+
 
     <!--time_select已经被隐藏style="display:none"-->
     <!-- <div id='time_select' style="display:none"> -->
@@ -43,7 +43,7 @@
             至 <input id="datepicker-example7-end" type="text">
             快捷选项：<button id="thisMonth" onclick="months(this,'current',1,0)" > 近一月 </button>
         </div>
-        
+
         <div style="margin-top:5px;">
             <b>历史波动率的时间范围:</b>
             <input id="datepicker-example7-start-history" type="text" >
@@ -69,21 +69,20 @@
             <p><strong>转炉工序多炉次整体质量分析结果：</strong></p>
             <textarea id="cause_txt" style="width: 650px;height:200px;"></textarea>
         </div>
-    </div>     
+    </div>
 
 
 <!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">     -->
-<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />  
-<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />  
-<link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">  
-<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script> 
-<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>  
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />
+<link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script>
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
 
 <script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
-<script type="text/javascript" src="/static/data_import/js/loadParam.js"></script>
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-<script type="text/javascript"> 
+<script type="text/javascript">
 
     function months(obj,station,month1,month2){//调用插件接口
         //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
@@ -94,9 +93,9 @@
         else if(station=='history'){
             $('#datepicker-example7-start-history').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
             $('#datepicker-example7-end-history').val(moment().subtract('month', month2).format('YYYY-MM-DD'));
-           
+
         }
-        
+
     }
     function fluc_cost_produce(){
         var SPECIFICATION = $("#SPECIFICATION").val();//钢种,不用转化为大写
@@ -125,7 +124,7 @@
             },
             success: function(data) {
                 // alert(data.state);
-               
+
                 if(data.state=='failure_current'){
                     // alert('当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
                     //无法使用 $('#drawPicture_area').empty();这样是把整个区域都清空了，不再有main1、main2等
@@ -159,7 +158,7 @@
                 // myChart_main2.hideLoading();
             }
         })
-    }; 
+    };
 
 
     function multifurnace_regression_analyse(result){
@@ -236,11 +235,11 @@
                 tooltip: {
                         trigger:'item',
                         formatter: function (params){//result.result.raw.fieldname_ch[params.dataIndex]
-                            var res = result.fieldname_ch[params.dataIndex]+'<br/>'+params.seriesName+'：'+params.value+ '<br/>偏离程度：'+result.offset_result_cent[params.dataIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.dataIndex];        
-                            // var res = result.fieldname_ch[params.seriesIndex]+':</br>波动率实际值：'+params.value+'</br>波动率历史值：'+result.ana_describe_history[params.seriesIndex].numb[2]+ '<br/>偏离程度：'+result.offset_result[params.seriesIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.seriesIndex];                         
+                            var res = result.fieldname_ch[params.dataIndex]+'<br/>'+params.seriesName+'：'+params.value+ '<br/>偏离程度：'+result.offset_result_cent[params.dataIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.dataIndex];
+                            // var res = result.fieldname_ch[params.seriesIndex]+':</br>波动率实际值：'+params.value+'</br>波动率历史值：'+result.ana_describe_history[params.seriesIndex].numb[2]+ '<br/>偏离程度：'+result.offset_result[params.seriesIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.seriesIndex];
                             return res;
                             }
-                     
+
                 },
                 toolbox: {
                     show : true,
@@ -279,7 +278,7 @@
                     //     formatter: '{value} Kg'
                     // }
                 },
-               
+
                 ],
                 series: [{
                     name:'波动率',
@@ -321,13 +320,13 @@
                     }
                 }
                 },
-                
+
                 ]
             };
 
             var ecConfig = echarts.config;
             myChart.on('click', function (params) {
-            if (typeof params.seriesIndex != 'undefined') { 
+            if (typeof params.seriesIndex != 'undefined') {
                 // fieldname_chinese=result.fieldname_ch[params.seriesIndex];
                 // fieldname_english=result.fieldname_en[params.seriesIndex];
                 // probability_distribution(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value);
@@ -358,7 +357,7 @@
             $("#cause_txt").append('，即相当于波动率变小，时间范围内数值趋于稳定。\n');
             $("#cause_area").show();
             return
-                
+
         }
         else if(result.offset_result[index]<=0.1) {
             $("#cause_txt").append('，在误差范围内，属于正常状态。\n');
@@ -377,18 +376,18 @@
                     $("#cause_txt").append('。\n    质量追溯所得字段影响因素分析如下:\n');
                     for (var i=0;i<2;i++){
                         $("#cause_txt").append('        No.'+(i+1)+' 相关字段为: '+data.En_to_Ch_result[i]+"，其偏离程度为："+data.offset_result_nature[i]+data.offset_result_cent[i]+'，权重系数为：'+data.regression_coefficient[i]+"。\n");
-                    } 
-                     
+                    }
+
                     $("#cause_area").show();
                 }
             })
-        }         
+        }
 
     };
 
 
     //自动加载钢种
-    function loadGrape(){ 
+    function loadGrape(){
         $.ajax({
         type: "POST",
         dataType:"json",
@@ -398,7 +397,7 @@
             pnames=data.result;
             // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                console.log(pnames[pname]) 
+                console.log(pnames[pname])
                 $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },

@@ -84,7 +84,7 @@ else:
         'mes_backup': {
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
-            'USER': 'db_query',
+            'USER': 'report_query',
             'PASSWORD': 'xxx',
             'HOST': '10.30.0.160',
             'PORT': '1521',
@@ -92,7 +92,7 @@ else:
         'l2_backup': {
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'qgil2dbdg',
-            'USER': 'bd_query',
+            'USER': 'report_query',
             'PASSWORD': 'xxx',
             'HOST': '10.30.0.161',
             'PORT': '1521',
@@ -111,7 +111,7 @@ else:
     MEDIA_URL = '/media/'
     STATIC_ROOT = '/home/maksim/qinggang/static/'
     STATIC_URL = '/static/'
-cd 
+cd
     STATICFILES_DIRS = (
         os.path.join(PROJECT_DIR, 'static'),
     )
