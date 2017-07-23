@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import platform
 
+master_ip = '10.30.0.152'
 node = platform.node()
 print(node)
 dev_machines = ('cheng-cx','cheng-cx.local')
@@ -29,15 +30,15 @@ if node in dev_machines:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
-            # 'HOST': 'localhost',
+            # 'HOST': master_ip,
+            'HOST': 'localhost',
             'PORT': '3306',
         },
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'orcl',
-            'USER': 'qg_user',
-            'PASSWORD': '123456',
+            'NAME':'qinggang',
+            'USER': 'qinggang',
+            'PASSWORD': 'qinggang',
             'HOST': '202.204.54.212',
             'PORT': '1521',
         },
@@ -66,10 +67,10 @@ else:
     DATABASES = {
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'orcl',
-            'USER': 'qg_user',
-            'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'NAME':'qinggang',
+            'USER': 'qinggang',
+            'PASSWORD': 'qinggang',
+            'HOST': master_ip,
             'PORT': '1521',
         },
         'default': {
@@ -77,40 +78,40 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': master_ip,
             'PORT': '3306',
         },
-        'mes': {
+        'mes_backup': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME': 'mesdb2',#sid:mesdb2;service:mesdb
-            'USER': 'xx_query',
+            'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
+            'USER': 'db_query',
             'PASSWORD': 'xxx',
-            'HOST': 'xx.30.xx.17',
+            'HOST': '10.30.0.160',
             'PORT': '1521',
         },
-        'l2': {
+        'l2_backup': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME': 'qgil2db',
-            'USER': 'xx_query',
+            'NAME': 'qgil2dbdg',
+            'USER': 'bd_query',
             'PASSWORD': 'xxx',
-            'HOST': 'xx.30.xx.17',
+            'HOST': '10.30.0.161',
             'PORT': '1521',
         },
         'sale': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'orcl',
-            'USER': 'meskc',
-            'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'NAME':'qinggang',
+            'USER': 'qg_user',
+            'PASSWORD': 'xxxx',
+            'HOST': '10.30.0.152',
             'PORT': '1521',
         },
     }
-    PROJECT_DIR = '/home/maksim/venv/qinggang/managesys'
-    MEDIA_ROOT = '/home/maksim/venv/qinggang/media/'
+    PROJECT_DIR = '/home/maksim/qinggang/managesys'
+    MEDIA_ROOT = '/home/maksim/qinggang/media/'
     MEDIA_URL = '/media/'
-    STATIC_ROOT = '/home/maksim/venv/qinggang/static/'
+    STATIC_ROOT = '/home/maksim/qinggang/static/'
     STATIC_URL = '/static/'
-
+cd 
     STATICFILES_DIRS = (
         os.path.join(PROJECT_DIR, 'static'),
     )
