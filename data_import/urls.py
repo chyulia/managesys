@@ -6,6 +6,7 @@ from . import bof_fluccost
 from . import bof_singlequality
 from . import bof_flucquality
 from data_import.SteelPricePredict import steelprice
+from . import quality_prediction
 from . import batchprocess
 from . import ironstoneprice
 from . import violent_analyse
@@ -64,7 +65,7 @@ urlpatterns = [
     #数据仓库更新
     url(r'^update_mysql_space',views.update_mysql_space),
 
-    
+
     #暴力求解
     # url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),
 
@@ -82,7 +83,7 @@ urlpatterns = [
     url(r'^stone_price_predict',ironstoneprice.price_predict),
 
     url(r'^violent_analyse$',violent_analyse.violent_analyse),
-   
+
     #质量预测
     #quelity-predict
     url(r'^quality_prediction',quality_prediction.quality_prediction),
@@ -130,7 +131,7 @@ urlpatterns = [
     url(r'^probability_normal',bof_singlecost.probability_normal),
     #定期更新数据库中表结构表中的期望等参数值(全部数据)，每月更新
     url(r'^updatevalue',bof_singlecost.updatevalue),
-    
+
 
     #转炉-多炉次-成本
     #四大类字段的总体波动率分析
@@ -169,6 +170,6 @@ urlpatterns = [
 
 
 
-  
+
 
 ]
