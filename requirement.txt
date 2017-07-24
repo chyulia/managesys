@@ -1,5 +1,6 @@
+cx_Oracle==5.2.1
 django==1.8
-pymysql
+pymysql==0.7.9
 openpyxl
 django-taggit
 markdown2
@@ -9,7 +10,6 @@ scipy
 pandas
 matplotlib
 sklearn
-cx_Oracle
 python-docx
 sqlalchemy
 django_crontab
