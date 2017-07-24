@@ -13,3 +13,4 @@ sklearn
 python-docx
 sqlalchemy
 django_crontab
+uwsgi
