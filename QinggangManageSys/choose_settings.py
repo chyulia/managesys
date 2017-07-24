@@ -14,7 +14,7 @@ import os
 import platform
 
 master_ip = '10.30.0.152'
-backuppwd= "xxxxx"
+backuppwd= "xxxx"
 node = platform.node()
 print(node)
 dev_machines = ('cheng-cx','cheng-cx.local1')
@@ -172,10 +172,10 @@ elif node == "hadoop01":
             'PORT': '1521',
         },
     }
-    PROJECT_DIR = '/home/maksim/qinggang/managesys'
-    MEDIA_ROOT = '/home/maksim/qinggang/media/'
+    PROJECT_DIR = '/home/hadoop/qinggang/managesys'
+    MEDIA_ROOT = '/home/hadoop/qinggang/media/'
     MEDIA_URL = '/media/'
-    STATIC_ROOT = '/home/maksim/qinggang/static/'
+    STATIC_ROOT = '/home/hadoop/qinggang/static/'
     STATIC_URL = '/static/'
     STATICFILES_DIRS = (
         os.path.join(PROJECT_DIR, 'static'),
