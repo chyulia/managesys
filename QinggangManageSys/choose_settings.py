@@ -111,7 +111,6 @@ else:
     MEDIA_URL = '/media/'
     STATIC_ROOT = '/home/maksim/qinggang/static/'
     STATIC_URL = '/static/'
-cd
     STATICFILES_DIRS = (
         os.path.join(PROJECT_DIR, 'static'),
     )
