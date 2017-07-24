@@ -92,12 +92,12 @@
         //hidden_inform隐藏域用于在进行追溯时直接从页面读取信息
         if (month1=='all'){
             $('#datepicker-example7-start').val('2016-01-01');
-            $('#datepicker-example7-end').val(moment().format('YYYY-MM-DD'));    
+            $('#datepicker-example7-end').val(moment().format('YYYY-MM-DD'));
 
             }
         else{
             $('#datepicker-example7-start').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
-            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD')); 
+            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD'));
             }
         }
 
@@ -130,7 +130,8 @@
             url:  "/cost_produce",
             data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
-                alert("错误！！");
+                console.log("差错1");
+                console.log("错误！！");
             },
             success: function(data) {
                 //alert(data.result);
@@ -182,7 +183,8 @@
             url:  "/singlefurnace_regression_analyse",
             data: {'result':json_result},
             error: function() {
-                alert("错误！！");
+                console.log("差错2");
+                console.log("错误！！");
             },
             success: function(data) {
                 // alert(data.str_cause);
@@ -205,7 +207,8 @@
             url:  "/max_influence",
             data: {'field':fieldname_english,'offset_value':offset_value,'heat_no':heat_no,'str_select':str_select},
             error: function() {
-                alert("错误！！");
+                console.log("差错3");
+                console.log("错误！！");
             },
             success: function(data) {
                 //alert(data.result)
@@ -1527,7 +1530,7 @@
             pnames=data.result;
             $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                console.log(pnames[pname])
+                // console.log(pnames[pname])
                 $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },
@@ -1556,11 +1559,11 @@
             $('#datepicker-example7-end').Zebra_DatePicker({
                 direction: 1
             });
-           
+
             //设置控件默认时间
             $('#datepicker-example7-start').val('2016-01-01');
             $('#datepicker-example7-end').val(moment().subtract('month', 0).format('YYYY-MM-DD'));
-           
+
         });
 
 

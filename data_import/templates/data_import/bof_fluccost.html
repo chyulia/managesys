@@ -188,7 +188,7 @@
             url:  "/multifurnace_regression_analyse",
             data: {'result':json_result},
             error: function() {
-                alert("错误！！");
+                console.log("错误！！");
             },
             success: function(data) {
                 // alert(data.str_cause);
@@ -423,7 +423,7 @@
             pnames=data.result;
             // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                console.log(pnames[pname])
+                // console.log(pnames[pname])
                 $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },

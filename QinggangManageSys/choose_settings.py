@@ -14,6 +14,7 @@ import os
 import platform
 
 master_ip = '10.30.0.152'
+backuppwd= "xxxxx"
 node = platform.node()
 print(node)
 dev_machines = ('cheng-cx','cheng-cx.local1')
@@ -86,7 +87,7 @@ elif node == "cheng-cx.local":
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -94,7 +95,7 @@ elif node == "cheng-cx.local":
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'qgil2dbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.161',
             'PORT': '1521',
         },
@@ -102,7 +103,7 @@ elif node == "cheng-cx.local":
             'ENGINE': 'django.db.backends.oracle',
             'NAME':'mesdbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -150,7 +151,7 @@ elif node == "hadoop01":
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -158,7 +159,7 @@ elif node == "hadoop01":
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'qgil2dbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.161',
             'PORT': '1521',
         },
@@ -166,7 +167,7 @@ elif node == "hadoop01":
             'ENGINE': 'django.db.backends.oracle',
             'NAME':'mesdbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -210,7 +211,7 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -218,7 +219,7 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'qgil2dbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.161',
             'PORT': '1521',
         },
@@ -226,7 +227,7 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME':'mesdbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },

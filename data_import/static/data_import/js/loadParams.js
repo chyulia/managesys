@@ -11,10 +11,10 @@ function loadOption(){
             console.log(data.procedure_names);
             pnames=data.procedure_names;
             for(var pname in pnames){
-                console.log(pnames[pname])
+                // console.log(pnames[pname])
                 $(".procedurename").append("<option value='"+pname+"'>"+pnames[pname]+"</option>")
             }
-            var filepath= 'http://127.0.0.1:8000'+data.filepath; 
+            var filepath= 'http://127.0.0.1:8000'+data.filepath;
             console.log("<a href='"+filepath+"'>")
             $("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
         }
@@ -36,9 +36,9 @@ function loadOption_ha(){
                 //console.log(pnames[pname])
                 $(".procedurename").append("<option value='"+pname+"'>"+pnames[pname]+"</option>")
             }
-            var filepath= 'http://127.0.0.1:8000'+data.filepath; 
-            console.log("<a href='"+filepath+"'>")
-            $("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
+            // var filepath= 'http://127.0.0.1:8000'+data.filepath;
+            // console.log("<a href='"+filepath+"'>")
+            // $("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
         }
     })
 }
@@ -57,7 +57,7 @@ function no_loadOption_ha(){
                 //console.log(pname)
                 $(".no_procedurename").append("<option value='"+pname+"'>"+pnames[pname]+"</option>")
             }
-            //var filepath= 'http://127.0.0.1:8000'+data.filepath; 
+            //var filepath= 'http://127.0.0.1:8000'+data.filepath;
             //console.log("<a href='"+filepath+"'>")
             //$("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
         }
@@ -93,17 +93,17 @@ function loadOption_chen(){
             //console.log(data.procedure_names);
             pnames=data.procedure_names;
             for(var pname in pnames){
-                console.log(pnames[pname])
+                // console.log(pnames[pname])
                 $(".procedurename1").append("<option value='"+pname+"'>"+pnames[pname]+"</option>");
                 $(".fluctution_time").append("<option value='"+pname+"'>"+pnames[pname]+"</option>");
             }
-            //var filepath= 'http://127.0.0.1:8000'+data.filepath; 
+            //var filepath= 'http://127.0.0.1:8000'+data.filepath;
             //console.log("<a href='"+filepath+"'>")
             //$("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
         }
     })
 }
-function p_loadGrape_ha(){ 
+function p_loadGrape_ha(){
     $.ajax({
         type: "POST",
         dataType:"json",
@@ -113,11 +113,12 @@ function p_loadGrape_ha(){
             pnames=data.result;
             $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                 console.log(pnames[pname]) 
+                //  console.log(pnames[pname])
                  $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },
         error: function () {
+						console.log("here");
             alert("error");
             }
         });
@@ -138,7 +139,7 @@ function little_loadOption_ha(){
                 //console.log(pname)
                 $(".little_procedurename").append("<option value='"+pname+"'>"+pnames[pname]+"</option>")
             }
-            //var filepath= 'http://127.0.0.1:8000'+data.filepath; 
+            //var filepath= 'http://127.0.0.1:8000'+data.filepath;
             //console.log("<a href='"+filepath+"'>")
             //$("#filedownload").html("<a href='"+filepath+"'>下载文件</a>")
         }
