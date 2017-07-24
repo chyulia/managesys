@@ -99,10 +99,10 @@ else:
         },
         'sale': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'qinggang',
-            'USER': 'qg_user',
+            'NAME':'mesdbdg',
+            'USER': 'report_query',
             'PASSWORD': 'xxxx',
-            'HOST': '10.30.0.152',
+            'HOST': '10.30.0.160',
             'PORT': '1521',
         },
     }
