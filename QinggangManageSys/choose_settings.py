@@ -68,8 +68,8 @@ else:
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
             'NAME':'qinggang',
-            'USER': 'qinggang',
-            'PASSWORD': 'qinggang',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
             'HOST': master_ip,
             'PORT': '1521',
         },
