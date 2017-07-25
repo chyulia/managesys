@@ -14,10 +14,10 @@ import os
 import platform
 
 master_ip = '10.30.0.152'
-backuppwd= "qdisqdis"
+backuppwd= "xxxx"
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local')
+dev_machines = ('cheng-cx','cheng-cx.local1')
 
 if node in dev_machines:
     # folder QinggangManageSys
@@ -35,22 +35,22 @@ if node in dev_machines:
             'HOST': 'localhost',
             'PORT': '3306',
         },
-        # 'l2own': {
-        #     'ENGINE': 'django.db.backends.oracle',
-        #     'NAME':'qinggang',
-        #     'USER': 'qinggang',
-        #     'PASSWORD': 'qinggang',
-        #     'HOST': '202.204.54.212',
-        #     'PORT': '1521',
-        # },
-        # 'sale': {
-        #     'ENGINE': 'django.db.backends.oracle',
-        #     'NAME':'orcl',
-        #     'USER': 'meskc',
-        #     'PASSWORD': '123456',
-        #     'HOST': '202.204.54.212',
-        #     'PORT': '1521',
-        # },
+        'l2own': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'qinggang',
+            'PASSWORD': 'qinggang',
+            'HOST': '202.204.54.212',
+            'PORT': '1521',
+        },
+        'sale': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'orcl',
+            'USER': 'meskc',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
+            'PORT': '1521',
+        },
     }
     print(PROJECT_DIR)
     STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
@@ -63,7 +63,7 @@ if node in dev_machines:
     )
     TEMPLATE_DIRS = [os.path.join(QinggangManageSys, 'templates')]
     ALLOWED_HOSTS = ['*']
-elif node == "cheng-cx.local1":
+elif node == "cheng-cx.local":
     print("单独加了一个独立的分支,以便适应现场的环境")
     DEBUG = True
     DATABASES = {
