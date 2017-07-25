@@ -24,7 +24,7 @@ class ExtremeLM(object):
         return 'ExtremeLM predict'
 
     def predict(self,model_data,exnum):
-        return elm_(model_data,exnum)
+        return elm_(model_data,0.2)
 
 
 
@@ -39,7 +39,7 @@ class SVM(object):
         return 'SVM predict'
 
     def predict(self,model_data,exnum):
-    	return elm_(model_data,0.3)
+    	return elm_(model_data,0.2)
 
 class LR(object):
     """docstring for SVM."""
@@ -65,7 +65,7 @@ class BP(object):
         return 'BP predict'
 
     def predict(self,model_data,exnum):
-    	return elm_(model_data,0.15)
+    	return elm_(model_data,0.2)
 
 class RandomForest(object):
     """docstring for SVM."""
@@ -78,7 +78,7 @@ class RandomForest(object):
         return 'RandomForest predict'
 
     def predict(self,model_data,exnum):
-    	return elm_(model_data,0.25)
+    	return elm_(model_data,0.2)
 
     def classify(self):
 
