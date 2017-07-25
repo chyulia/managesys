@@ -193,10 +193,10 @@ else:
     DATABASES = {
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'qinggang',
+            'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': master_ip,
+            'HOST': '202.204.54.212',
             'PORT': '1521',
         },
         'default': {
@@ -204,7 +204,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': master_ip,
+            'HOST': '202.204.54.212',
             'PORT': '3306',
         },
         'mes_backup': {
@@ -225,10 +225,10 @@ else:
         },
         'sale': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'mesdbdg',
-            'USER': 'report_query',
-            'PASSWORD': backuppwd,
-            'HOST': '10.30.0.160',
+            'NAME':'orcl',
+            'USER': 'meskc',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
             'PORT': '1521',
         },
     }
