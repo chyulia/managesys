@@ -7,7 +7,6 @@
 控制 空间分析 的 sql 语句
 
 '''
-from . import mysql
 from data_import import models
 conn_mysql = models.BaseManage()
 import datetime
