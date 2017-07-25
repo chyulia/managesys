@@ -26,13 +26,14 @@ predict_method = {
 # 	"month":"月",
 # }
 yinsu_type = {
- "tkszs_qdg":"铁矿石指数",
- "psjgzs":"普氏价格指数",
- "meiyuan":"美元指数",
- "tegang_zonghe_zhishu":"特钢综合指数",
- "pugang_zhishu":"普刚指数",
- "haiyun_BDI":"波罗的海指数",
- "haiyun_BDTI":"波罗的海原油指数",
- "feigang":"废钢价格",
- "WTI":"WTI原油价格",
+	"tkszs":"铁矿石指数",
+	"psjgzs":"普氏价格指数",
+	"meiyuan_zhishu":"美元指数",
+	"tegang_zonghe_zhishu":"特钢综合指数",
+	"gangtie_cugang":"粗钢指数",
+	"gangtie_gangcai":"钢材指数",
+	"pugang_zhishu":"普刚指数",
+	"haiyun_BDI":"波罗的海指数",
+	"haiyun_BDTI":"波罗的海原油指数",
+	"WTI":"WTI原油价格",
 }
