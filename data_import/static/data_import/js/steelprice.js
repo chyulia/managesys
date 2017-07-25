@@ -126,10 +126,12 @@ function drawPredictBrokenLineChart(data,figure_name,method){
     // 使用刚指定的配置项和数据显示图表。
     if (option && typeof option === "object") {
         var startTime = +new Date();
-        var true_his = data.true_value.slice(0,-300)
-        var predict_new = data.predict_value.slice(-300)
-        var fill_his = Array(predict_new.length).fill('-')
-        var fill_new = Array(true_his.length).fill('-')
+        var true_his = data.true_value.slice(0,-300);
+        var final_value = data.true_value.slice(-302,-300);
+        var predict_new = data.predict_value.slice(-300);
+        var predict_new = final_value.concat(predict_new);
+        var fill_his = Array(predict_new.length).fill('-');
+        var fill_new = Array(true_his.length).fill('-');
         option.series[0].data = true_his.concat(fill_his) ;
         option.series[1].data = fill_new.concat(predict_new);
         myChart.setOption(option, true);
