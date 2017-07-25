@@ -16,8 +16,8 @@
             <div class="title_sec">
                 <h1>价格预测</h1>
                 <h2>包括选择种类、影响因素、预测时间、尺度，给出相应的价格预测曲线，包括历史价格展示和未来价格预测两部分</h2>
-            </div>          
-        </div>      
+            </div>
+        </div>
         <div class="col-lg-12">
             <div class="portfolio-filter text-uppercase text-center">
                 <ul class="filter">
@@ -26,12 +26,24 @@
                 </ul>
 
             </div>
-             
+
             <div class="all-portfolios">
                 <div class="col-sm-12  col-lg-12 col-md-12 col-xs-12 ">
                     <div class="single-portfolio price-history">
                       <div class="col-xs-4">
                         <form role="form" id="history_form" action="">
+                            <div class="form-group">
+                              <label>钢材种类</label>
+                              <select class="form-control input-lg" id="time_scale" placeholder="选择时间尺度">
+                              {% for scale,display in time_scale.items %}
+                                {% if scale == "day" %}
+                                <option value="{{ scale }}" selected>{{ display }}</option>
+                                {% else %}
+                                <option value="{{ scale }}" >{{ display }}</option>
+                                {% endif %}
+                              {% endfor %}
+                              </select>
+                            </div>
                             <div class="form-group">
                               <label>初始时间</label>
                               <input id="history_begin" name="history_begin" type="date" value="2004-04-10">
@@ -50,13 +62,13 @@
                       <div class="col-xs-8">
                         <div id="history_figure" style="width: 500px;height:400px;"></div>
                       </div>
-                        
-                    </div>              
+
+                    </div>
                 </div>
 
                 <div class="col-sm-12  col-lg-12 col-md-12 col-xs-12 ">
                     <div class="single-portfolio price-predict">
-                        
+
                           <!-- <div class="row">
                             <div class="col-xs-3 ">相关因素显示</div>
                             <div class="col-xs-9">
@@ -74,7 +86,7 @@
                                     <label >预测钢材种类</label>
                                     <select class="form-control input-lg" id="steel_type" name="steel_type" placeholder="钢种">
                                     {% for type,display in steel_type.items %}
-                                      {% if type == "60Si2Mn" %}                                  
+                                      {% if type == "60Si2Mn" %}
                                       <option value="{{ type }}" selected>{{ display }}</option>
                                       {% else %}
                                       <option value="{{ type }}">{{ display }}</option>
@@ -103,7 +115,7 @@
                                       </label>
                                     </div>
                                     {% endfor %}
-                                  </div>              
+                                  </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group">
@@ -117,15 +129,15 @@
                                       <li>炼焦煤</li>
                                       <li>废钢</li>
                                       <li>铁精粉</li>
-                                    </ul>   
+                                    </ul>
                                     </div>
                                   </div>
                                   <div class="alert alert-info" role="alert">{{ info }}</div>
                                   <div class="alert alert-warning hide" id ="waitwarning"role="alert">{{ warning }}</div>
                                 </div>
-                                </div>                                
+                                </div>
                                 <div class="form-group">
-                                  <input class="btn btn-primary"  type="submit" value="查询"> 
+                                  <input class="btn btn-primary"  type="submit" value="查询">
                                 </div>
                               </form>
                             </div>
@@ -134,34 +146,32 @@
                             </div>
                           </div>
                           <div id="figures">
-                            
+
                           </div>
-                     </div>                  
+                     </div>
                 </div>
             </div>
 
         </div>
-            
-    </div>          
+
+    </div>
 </div>
 <script type="text/javascript">
-  $(document).on('submit', 'form#predict_form', function() { 
+  $(document).on('submit', 'form#predict_form', function() {
     predict_query();
     console.log("叫一声佛祖，回头无岸！");
-    return false;                 
+    return false;
     });
-  $(document).on('submit', 'form#history_form', function() { 
+  $(document).on('submit', 'form#history_form', function() {
     history_query();
-    return false;                 
+    return false;
     });
-  
+
 </script>
 </section>
-<!-- End Portfolio Section -->        
+<!-- End Portfolio Section -->
 
 <script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>
 <script type="text/javascript" src="/static/data_import/js/steelprice.js"></script>
 
 {% endblock %}
-
-
