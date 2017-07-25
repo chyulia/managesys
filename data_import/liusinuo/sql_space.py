@@ -8,7 +8,9 @@
 
 '''
 from . import mysql
-conn_mysql=mysql.MySQL();
+from data_import import models
+conn_mysql = models.BaseManage()
+
 
 #=====================【 SQL 语 句 查 询 】==================================
 '''
@@ -68,14 +70,14 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 			sql_wgt = "select c.tradeNo,sum(a.receiveWgt) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
 			#外库接收时间、总销售额
 			sql_amt = "select c.tradeNo,sum(a.receiveWgt * c.unitPrice) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
-		
+
 		#总退货率、质量问题个数   不分时间
 		sql_rtn = "select a.tradeNo,sum(a.rtnWgt) from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space +  "'  and a.custNo = b.custNo  group by a.tradeNo"
 		sql_rtn_reason = "select a.rtnNo,a.orderNo,a.custNo,a.tradeNo,a.rtnWgt,a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space +  "'  and a.custNo = b.custNo"
 		sql_rtn_reason_count = "select a.tradeNo,a.orderNo,a.orderItem,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space +  "'  and a.custNo = b.custNo group by a.orderNo,a.orderItem,a.rtnReason"
 
 		#=====================【 求 和 存 入 字 典 】==================================
-		
+
 		if aspect == 1 :
 			tradeNo_wgt_list = conn_mysql.select(sql_wgt)
 			print (type(tradeNo_wgt_list))
@@ -151,7 +153,7 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 				for tradeNo_rtn_reason in tradeNo_rtn_reason_list:
 					if tradeNo_rtn_reason[3] == tradeNo:
 						tradeNo_rtn_reason_print.append(tradeNo_rtn_reason)
-			#print ("质量问题原因",tradeNo_rtn_reason_print)			
+			#print ("质量问题原因",tradeNo_rtn_reason_print)
 		else:
 			pass
 

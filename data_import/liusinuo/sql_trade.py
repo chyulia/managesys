@@ -8,7 +8,8 @@
 
 '''
 from . import mysql
-conn_mysql=mysql.MySQL();
+from data_import import models
+conn_mysql = models.BaseManage()
 
 #=====================【 SQL 语 句 查 询 】==================================
 '''
@@ -34,9 +35,9 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 	rtn_rate = 0
 
 	if dateChoose == 1:  #订单时间
-		#订单时间、总销量	
+		#订单时间、总销量
 		sql_wgt = "select c.tradeNo,sum(c.orderWeight) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
-		#订单时间、总销售额	
+		#订单时间、总销售额
 		sql_amt = "select c.tradeNo,sum(c.orderWeight * c.basePrice) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
 		#订单时间、总退货率、质量问题个数
 		#sql_rtn = "select a.orderNo,a.custNo,a.tradeNo,sum(a.rtnWgt),a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = " + space_name +  "  and a.custNo = b.custNo  group by a.tradeNo"
@@ -77,7 +78,7 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 		sql_wgt = "select c.tradeNo,sum(a.receiveWgt) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
 		#外库接收时间、总销售额
 		sql_amt = "select c.tradeNo,sum(a.receiveWgt * c.unitPrice) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
-	
+
 	#总退货率、质量问题个数   不分时间
 	sql_rtn = "select a.tradeNo,sum(a.rtnWgt) from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name +  "'  and a.custNo = b.custNo  group by a.tradeNo"
 	sql_rtn_reason = "select a.rtnNo,a.orderNo,a.custNo,a.tradeNo,a.rtnWgt,a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + space_name +  "'  and a.custNo = b.custNo"
@@ -101,7 +102,7 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 					chooseTrade_sum += tradeNo_wgt[1] #所选钢种 重量求和
 				else:
 					pass
-			
+
 		elif aspect == 2:
 			tradeNo_amt_list = conn_mysql.select(sql_amt)
 			for tradeNo_amt in tradeNo_amt_list:
@@ -116,7 +117,7 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 					chooseTrade_sum += tradeNo_amt[1] #重量求和
 				else:
 					pass
-			
+
 		elif aspect == 3:
 			tradeNo_wgt_list = conn_mysql.select(sql_wgt)
 			for tradeNo_wgt in tradeNo_wgt_list: #在订单中
@@ -162,7 +163,7 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 				rtn_rate = "总销量为0，无法计算退货率！"
 
 			trade_dict[tradeNo] = rtn_rate
-			
+
 		else:
 			count = 0
 			tradeNo_rtn_reason_count_list = conn_mysql.select(sql_rtn_reason_count)
@@ -180,7 +181,7 @@ def trade_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspe
 			for tradeNo_rtn_reason in tradeNo_rtn_reason_list:
 				if tradeNo_rtn_reason[3] == tradeNo:
 					tradeNo_rtn_reason_print.append(tradeNo_rtn_reason)
-			#print ("质量问题原因",tradeNo_rtn_reason_print)			
+			#print ("质量问题原因",tradeNo_rtn_reason_print)
 		else:
 			pass
 

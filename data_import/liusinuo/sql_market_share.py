@@ -18,8 +18,8 @@
 #======================================================================
 #！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
-#from sys import argv 
-#script, filename = argv 
+#from sys import argv
+#script, filename = argv
 
 from . import input_
 from . import sql_space
@@ -32,8 +32,8 @@ from . import conclusion
 from . import save_txt
 import math
 from functools import reduce
-from . import mysql
-conn_mysql=mysql.MySQL();
+from data_import import models
+conn_mysql = models.BaseManage()
 
 
 def sql_market_share(startYear,startMonth,endYear,endMonth):
@@ -41,7 +41,6 @@ def sql_market_share(startYear,startMonth,endYear,endMonth):
     #获取数据
     #print ("开始执行 market_share_sql 函数")
     sql_province = "select a.province,sum(a.salesWeight),sum(a.qdisSalesWeight),(sum(a.qdisSalesWeight)/sum(a.salesWeight))*100 from data_new_sales_space_comparsion a where a.year >= " + startYear + " and a.year <= " + endYear + " and a.month >= " + startMonth + " and a.month <= " + endMonth + " group by a.province"
-
     province_salesWeight_list = conn_mysql.select(sql_province) #得到的是一个tuple
     #print (type(province_salesWeight_list))
     print (province_salesWeight_list)
@@ -85,11 +84,3 @@ if __name__ == '__market_share_sql__':
     ratio_dictionary,conclusion,all_dictionary = sql_market_share(startYear,startMonth,endYear,endMonth)
     #print("market_share_sql.py 执行完毕")
     #print (module,tradeNo)
-
-
-
-
-
-
-
-
