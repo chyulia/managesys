@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import uuid
+import math
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse, Http404
@@ -16,6 +17,12 @@ from . import models
 from .zhuanlu import PRO_BOF_HIS_ALLFIELDS
 from QinggangManageSys.settings import MAIN_OUTFIT_BASE,MEDIA_ROOT,MEDIA_URL
 
+from . import models
+db_conn = models.BaseManage()
+
+from functools import partial
+select = partial(db_conn.select, db_name='l2own')
+execute = partial(db_conn.execute, db_name='l2own')
 # def load(request):
 #     if not request.user.is_authenticated():
 #         return HttpResponseRedirect("/login")
@@ -25,6 +32,237 @@ from QinggangManageSys.settings import MAIN_OUTFIT_BASE,MEDIA_ROOT,MEDIA_URL
 #     }
 #     return render(request, 'data_import/analysis_tool.htm',contentVO)
 
+def wushu_ana(df):
+    """
+    五数区间
+    """
+    Q1 = np.percentile(df,25)
+    Q3 = np.percentile(df,75)
+    L = 2*Q1 - Q3
+    H = 2*Q3 - Q1
+    ana_result={}
+    ana_result['Q1'] = Q1
+    ana_result['Q3'] = Q3
+    ana_result['down'] = L
+    ana_result['top'] = H
+    return ana_result
+
+def relation_cal(DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER, INDEPENDENT_VARIABLE_ATTRIBUTE_NUMBER):
+    status = "fail"
+    valid_num = 100
+    keyno = '%s%s'%(DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER, INDEPENDENT_VARIABLE_ATTRIBUTE_NUMBER)
+    filenames = {
+        '32':"out_mid.txt",
+        '31':"out_in.txt",
+        '21':"mid_in.txt"
+    }
+    db_table_names = {
+        '32':"relation_cof_output_middle",
+        '31':"relation_cof_output_input",
+        '21':"relation_cof_middle_input"
+    }
+    filename = filenames[keyno]
+    db_table_name = db_table_names[keyno]
+
+    A_data = []  # 输出字段
+    A_isFiveAnalyse = dict()
+    A_Range_Low = dict()
+    A_Range_High = dict()
+
+    B_data = []  # 控制字段
+    B_isFiveAnalyse = dict()
+    B_Range_High = dict()
+    B_Range_Low = dict()
+
+    if DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER ==3:
+        sql = 'select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from qg_user.PRO_BOF_HIS_ALLSTRUCTURE WHERE (FIELD_ATTRIBUTE_NUMBER = %s OR FIELD_ATTRIBUTE_NUMBER = %s) AND IF_ANALYSE_TEMP = 1'% (DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER, DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER+1)
+    else:
+        sql = 'select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from qg_user.PRO_BOF_HIS_ALLSTRUCTURE WHERE FIELD_ATTRIBUTE_NUMBER = %s AND IF_ANALYSE_TEMP = 1'% DEPENDENT_VARIABLE_ATTRIBUTE_NUMBER
+    print(sql)
+    one = select(sql)
+    if one == False:
+        return status
+    for row in one:
+        A_data.append('%s' % row[0])
+        A_isFiveAnalyse['%s' % row[0]] = '%s' % row[1]
+        A_Range_Low['%s' % row[0]] = '%s' % row[2]
+        A_Range_High['%s' % row[0]] = '%s' % row[3]
+    sql = 'select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from qg_user.PRO_BOF_HIS_ALLSTRUCTURE WHERE FIELD_ATTRIBUTE_NUMBER = %s AND IF_ANALYSE_TEMP = 1'% INDEPENDENT_VARIABLE_ATTRIBUTE_NUMBER
+    one = select(sql)
+    if one == False:
+        return status
+    for row in one:
+        B_data.append('%s' % row[0])
+        B_isFiveAnalyse['%s' % row[0]] = '%s' % row[1]
+        B_Range_Low['%s' % row[0]] = '%s' % row[2]
+        B_Range_High['%s' % row[0]] = '%s' % row[3]
+
+    #create table to save data.
+    drop_sql = 'drop table QUERY.%s' % db_table_name
+    create_sql = 'create table QUERY.%s(outputfield varchar(50),middlefield varchar(50),cof varchar(50))'% db_table_name
+    execute(drop_sql)
+    execute(create_sql)
+    """
+    iterate output and middields.
+    """
+    fout_om = open(filename, 'w+', encoding='utf-8')
+    fout_error = open(db_table_name + '_error.txt','w+', encoding='utf-8')
+    r_vlaue_array = []
+    i = 0
+    for A_liter in A_data:
+        #add tag for A fields, just clean one time quarter number
+        cleaningtag = True
+        for B_liter in B_data:
+            if A_liter != 'AS' and B_liter != 'AS':
+                print(A_liter, B_liter)
+                print(i)
+                n = 0
+                sx = 0
+                sy = 0
+                sxy = 0
+                sx2 = 0
+                sy2 = 0
+                sql = 'select ' + A_liter + ',' + B_liter + ' from qg_user.PRO_BOF_HIS_ALLFIELDS '
+                one = select(sql)
+                if one == False:
+                    return status
+                abdf = pd.DataFrame(list(one))
+                # 获取字段的上下数值范围
+                A_Bound_Low = float(A_Range_Low[A_liter])
+                A_Bound_High = float(A_Range_High[A_liter])
+                B_Bound_Low = float(B_Range_Low[B_liter])
+                B_Bound_High = float(B_Range_High[B_liter])
+                print(A_Bound_Low, A_Bound_High, B_Bound_Low, B_Bound_High)
+                # drop 0 and None values
+                cols = list(abdf.columns)
+                temp_df = abdf.copy()
+                temp_df[cols[0]] = abdf[cols[0]].dropna().map(lambda x:float(x))
+                # filter data by bound of low and high
+                temp_df = temp_df[(temp_df[cols[0]] >= A_Bound_Low) & (temp_df[cols[0]] <=A_Bound_High)]
+                # 获取相应字段的五数分析结果
+                if cleaningtag:
+                    if len(temp_df) == 0:
+                        err_message =  'variable A %s has no valid data \n' % A_liter
+                        print(err_message)
+                        fout_error.write(err_message)
+                        break
+                    # 根据数据的上下限进行筛选
+                    LHA = wushu_ana(temp_df.sort_values(by=cols[0])[cols[0]])
+                    A_down = LHA['down']
+                    A_top = LHA['top']
+                    print(LHA,temp_df.sort_values(by=cols[0])[cols[0]].describe())
+                    cleaningtag = False
+
+                temp_df = abdf.copy()
+                temp_df[cols[1]] = abdf[cols[1]].dropna().map(lambda x:float(x))
+                temp_df = temp_df[(temp_df[cols[1]] >= B_Bound_Low) & (temp_df[cols[1]] <=B_Bound_High)]
+                #加上数据的上下限
+                if len(temp_df) == 0:
+                    r_value = 0
+                    fout_om.write('%s,%s,%s\n' % (A_liter, B_liter, r_value))
+                    sql = 'insert into QUERY.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, A_liter, B_liter, r_value)
+                    execute(sql)
+                    err_message = 'variable B %s has no valid data \n' % B_liter
+                    print(err_message)
+                    fout_error.write(err_message)
+                    i = i + 1
+                    continue
+                LHB = wushu_ana(temp_df.sort_values(by=cols[1])[cols[1]])
+                B_down = LHB['down']
+                B_top = LHB['top']
+                print(LHB,temp_df.sort_values(by=cols[1])[cols[1]].describe())
+                # 数据联合清洗，判断数据上下限
+                try:
+                    no_0_none_abdf = abdf.dropna(how='any')
+                    no_0_none_abdf[cols[0]] = no_0_none_abdf[cols[0]].map(lambda x: float(x))
+                    no_0_none_abdf[cols[1]] = no_0_none_abdf[cols[1]].map(lambda x: float(x))
+                    no_0_none_abdf = no_0_none_abdf[(no_0_none_abdf[cols[0]] >= A_Bound_Low ) & (no_0_none_abdf[cols[1]] >= B_Bound_Low ) & (no_0_none_abdf[cols[0]] <= A_Bound_High ) & (no_0_none_abdf[cols[1]] <= B_Bound_High )]
+                except:
+                    r_value = 0
+                    fout_om.write('%s,%s,%s\n' % (A_liter, B_liter, r_value))
+                    sql = 'insert into QUERY.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, A_liter, B_liter, r_value)
+                    execute(sql)
+                    print(err_message)
+                    fout_error.write(err_message)
+                    continue
+
+                if len(no_0_none_abdf) < valid_num:
+                    r_value = 0
+                    fout_om.write('%s,%s,%s\n' % (A_liter, B_liter, r_value))
+                    sql = 'insert into QUERY.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, A_liter, B_liter, r_value)
+                    execute(sql)
+                    err_message = 'two vriables %s ,%s have not enough valid data \n' % (A_liter, B_liter)
+                    print(err_message)
+                    fout_error.write(err_message)
+                    i = i + 1
+                    continue
+
+                print(A_down, A_top, B_down, B_top)
+
+                """
+                operate FiveAnalyse in responde to the structure.
+                """
+
+                if A_isFiveAnalyse[A_liter] == '1' and B_isFiveAnalyse[B_liter] == '1':
+                    #print('A, B all need FiveAnalyse.')
+                    no_0_none_abdf = no_0_none_abdf[(no_0_none_abdf[cols[0]] > A_down ) & (no_0_none_abdf[cols[0]] < A_top )][(no_0_none_abdf[cols[1]] > B_down ) & (no_0_none_abdf[cols[1]] < B_top )]
+                elif A_isFiveAnalyse[A_liter] == '1' and B_isFiveAnalyse[B_liter] == '0':
+                    #print('A needs FiveAnalyse.')
+                    no_0_none_abdf = no_0_none_abdf[(no_0_none_abdf[cols[0]] > A_down ) & (no_0_none_abdf[cols[0]] < A_top )]
+                elif A_isFiveAnalyse[A_liter] == '0' and B_isFiveAnalyse[B_liter] == '1':
+                    #print('B needs FiveAnalyse.')
+                    no_0_none_abdf = no_0_none_abdf[(no_0_none_abdf[cols[1]] > B_down ) & (no_0_none_abdf[cols[1]] < B_top )]
+                elif A_isFiveAnalyse[A_liter] == '0' and B_isFiveAnalyse[B_liter] == '0':
+                    print('Without FiveAnalyse.')
+
+                if len(no_0_none_abdf) == 0:
+                    r_value = 0
+                    fout_om.write('%s,%s,%s\n' % (A_liter, B_liter, r_value))
+                    err_message = '%s,%s no data after isFiveAnalyse compare \n' % (A_liter, B_liter)
+                    print(err_message)
+                    fout_error.write(err_message)
+                    i = i + 1
+                    continue
+                """
+                count A2 B2 AB
+                """
+
+                no_0_none_abdf['A2'] = no_0_none_abdf[cols[0]]*no_0_none_abdf[cols[0]]
+                no_0_none_abdf['B2'] = no_0_none_abdf[cols[1]]*no_0_none_abdf[cols[1]]
+                no_0_none_abdf['AB'] = no_0_none_abdf[cols[0]]*no_0_none_abdf[cols[1]]
+
+                des_rs = dict(no_0_none_abdf.describe())
+                keys = list(no_0_none_abdf.columns)
+
+                n = int(des_rs[keys[0]]['count'])
+                sx = n * des_rs[keys[0]]['mean']
+                sy = n * des_rs[keys[1]]['mean']
+                sx2 = n * des_rs[keys[2]]['mean']
+                sy2 = n * des_rs[keys[3]]['mean']
+                sxy = n * des_rs[keys[4]]['mean']
+
+                """
+                count r_value
+                """
+                r_value = 0
+
+                denominator = float(math.sqrt(abs( n *sx2 - sx*sx )) * math.sqrt(abs( n * sy2 - sy*sy )))
+                if  denominator != 0:
+                    molecule = float(n * sxy - sx * sy )
+                    r_value = molecule/denominator
+
+                i = i + 1
+                print(i)
+                if i%20 == 0:
+                    print(i)
+                fout_om.write('%s,%s,%s\n' % (A_liter, B_liter, r_value))
+                sql = 'insert into QUERY.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, A_liter, B_liter, r_value)
+                execute(sql)
+    fout_om.close()
+    # fout_error.close()
+    status = "success"
+    return status
+
 def relation_ana(request):
     if not request.user.is_authenticated():
             return HttpResponseRedirect("/login")
@@ -32,8 +270,20 @@ def relation_ana(request):
         'title':'数据分析工具——关联性分析',
         'state':'success'
     }
-
+    response_code = dict()
+    """
+    3 - output
+    2 - control
+    1 - input
+    """
+    entrance = [(3, 2), (3, 1), (2, 1)]
+    for variables in entrance:
+        x,y = variables
+        key = '%s%s'%(x, y)
+        response_code[key] = relation_cal(x,y)
+    contentVO["response_code"] = response_code
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
+
 def data_cleaning(data):
     return data.fillna(0)
 
@@ -59,22 +309,6 @@ def linear_regression_model(data, isstd):
 
     return regr.coef_, regr.intercept_
 
-
-def wushu_ana(df):
-    """
-    五数区间
-    """
-    Q1 = np.percentile(df,25)
-    Q3 = np.percentile(df,75)
-    L = 2*Q1 - Q3
-    H = 2*Q3 - Q1
-    ana_result={}
-    ana_result['Q1'] = Q1
-    ana_result['Q3'] = Q3
-    ana_result['down'] = L
-    ana_result['top'] = H
-    return ana_result
-
 def regression(output,selected_eles,isstd):
     """
     @param output 回归应变量 str
@@ -91,7 +325,7 @@ def regression(output,selected_eles,isstd):
     bound_lows = dict()
     bound_highs = dict()
 
-    sql = 'select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from QG_USER.PRO_BOF_HIS_ALLSTRUCTURE WHERE  IF_ANALYSE_TEMP = 1'
+    sql = 'select DATA_ITEM_EN,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from qg_user.PRO_BOF_HIS_ALLSTRUCTURE WHERE  IF_ANALYSE_TEMP = 1'
     sqlVO["sql"] = sql
     rs = models.BaseManage().direct_select_query_orignal_sqlVO(sqlVO)
 
@@ -103,7 +337,7 @@ def regression(output,selected_eles,isstd):
 
     allcolumns = selected_eles + [output]
     columns_coma = ",".join(allcolumns)
-    sql = 'SELECT ' + ', '.join(selected_eles) + ', ' + output + ' from QG_USER.PRO_BOF_HIS_ALLFIELDS'
+    sql = 'SELECT ' + ', '.join(selected_eles) + ', ' + output + ' from qg_user.PRO_BOF_HIS_ALLFIELDS'
     sqlVO["sql"] = sql
     rs = models.BaseManage().direct_select_query_orignal_sqlVO(sqlVO)
     """
@@ -196,10 +430,10 @@ def regression(output,selected_eles,isstd):
     # save result to database
     """
     for i in range(len(selected_eles)):
-        sql = 'insert into QG_USER.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, output, selected_eles[i], coef[i])
+        sql = 'insert into QUERY.%s values(\'%s\', \'%s\', \'%s\')'%(db_table_name, output, selected_eles[i], coef[i])
         sqlVO['sql'] = sql
         models.BaseManage().direct_execute_query_sqlVO(sqlVO)
-    sql = 'insert into QG_USER.%s values(\'%s\', \'BIAS\', \'%s\')'%(db_table_name, output, str(intercept))
+    sql = 'insert into QUERY.%s values(\'%s\', \'BIAS\', \'%s\')'%(db_table_name, output, str(intercept))
     sqlVO['sql'] = sql
     models.BaseManage().direct_execute_query_sqlVO(sqlVO)
     """
@@ -253,7 +487,7 @@ def report(request):
         tablekey = '%s%s%s' % tags
         table_name = db_table_names[tablekey]
 
-        sql = 'SELECT * FROM QG_USER.%s' % table_name.upper()
+        sql = 'SELECT * FROM QUERY.%s' % table_name.upper()
         sqlVO["sql"] = sql
 
         rs = models.BaseManage().direct_select_query_orignal_sqlVO(sqlVO)
