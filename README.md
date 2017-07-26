@@ -86,6 +86,7 @@ CRONJOBS = [
 | -(减号)  | 代表一段时间范围内，举例来说， 8 点到12 点之间的每小时的20 分都进行一项工作：20 8-12 * * * command仔细看到第二栏变成8-12 喔！代表8,9,10,11,12 都适用的意思！ |
 | /n(斜线) | 那个n 代表数字，亦即是『每隔n 单位间隔』的意思，例如每五分钟进行一次，则：*/5 * * * * command很简单吧！用* 与/5 来搭配，也可以写成0-59/5 ，相同意思！ |
 
+
 答案：
 
 ```
@@ -96,8 +97,16 @@ CRONJOBS = [
 
 
 
-
-
 > 日月和星期不可同时指定。
 >
 > 更多详情参考[django-crontab Github](https://github.com/kraiz/django-crontab)和[鸟哥的linux私房菜](http://linux.vbird.org/linux_basic/0430cron.php#cron)。
+
+### 在系统中添加定时任务
+```
+# run this command to add all defined jobs from CRONJOBS to crontab
+python manage.py crontab add
+# show current active jobs of this project:
+python manage.py crontab show
+# removing all defined jobs is straight forward
+python manage.py crontab remove
+```

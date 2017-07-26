@@ -19,7 +19,7 @@ from QinggangManageSys.settings import MAIN_OUTFIT_BASE,MEDIA_ROOT,MEDIA_URL
 
 from . import models
 db_conn = models.BaseManage()
-
+hello = "hello world"
 from functools import partial
 select = partial(db_conn.select, db_name='l2own')
 execute = partial(db_conn.execute, db_name='l2own')
@@ -522,3 +522,20 @@ def report(request):
     print(save_filename)
     wb.save(save_filename)
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
+
+'''
+按时执行定时任务
+'''
+def batch_relation_ana():
+    response_code = dict()
+    """
+    3 - output
+    2 - control
+    1 - input
+    """
+    entrance = [(3, 2), (3, 1), (2, 1)]
+    for variables in entrance:
+        x,y = variables
+        key = '%s%s'%(x, y)
+        response_code[key] = relation_cal(x,y)
+    return response_code
