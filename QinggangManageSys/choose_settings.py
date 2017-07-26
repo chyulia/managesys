@@ -107,6 +107,14 @@ elif node == "cheng-cx.local":
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
+        'l2query': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'query',
+            'PASSWORD': 'qdisqdis',
+            'HOST': '10.30.0.152',
+            'PORT': '1521',
+        },
     }
     # PROJECT_DIR = '/home/maksim/qinggang/managesys'
     PROJECT_DIR = '/Users/changxin/qinggang/managesys'
@@ -171,6 +179,14 @@ elif node == "hadoop01":
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
+        'l2query': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'query',
+            'PASSWORD': 'qdisqdis',
+            'HOST': '10.30.0.152',
+            'PORT': '1521',
+        },
     }
     PROJECT_DIR = '/home/hadoop/qinggang/managesys'
     MEDIA_ROOT = '/home/hadoop/qinggang/media/'
@@ -229,14 +245,6 @@ else:
             'USER': 'meskc',
             'PASSWORD': '123456',
             'HOST': '202.204.54.212',
-            'PORT': '1521',
-        },
-        'l2query': {
-            'ENGINE': 'django.db.backends.oracle',
-            'NAME':'qinggang',
-            'USER': 'query',
-            'PASSWORD': 'qdisqdis',
-            'HOST': '10.30.0.152',
             'PORT': '1521',
         },
     }
