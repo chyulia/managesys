@@ -523,6 +523,11 @@ def report(request):
     wb.save(save_filename)
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 
+
+'''
+转炉数据提取
+'''
+
 '''
 按时执行定时任务
 '''
