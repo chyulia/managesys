@@ -5,10 +5,10 @@
     <form action='/data_import'>
         <input type='submit' value="导入" > </input>
     </form>
-    <button onclick='functionDemo()'>功能测试</button>
+    <!-- <button onclick='functionDemo()'>功能测试</button>
     <button onclick='anaDataLack()'>数据缺失分析</button>
     <button onclick='ajaxtest()'>hello,测试ajax请求</button>
-    <button onclick='getjsondata()'>测试echarts绘图</button>
+    <button onclick='getjsondata()'>测试echarts绘图</button> -->
     <ul>
         {% for record in records %}
             <li>{{ record.FROM_TABLE }}</li>
@@ -17,13 +17,13 @@
     <p>greet:<span id="result"></span></p>
 
     <form  action="/data_import" method="post" enctype="multipart/form-data">
-        {% csrf_token %} 
+        {% csrf_token %}
         <div class="form-group">
             <div class="col-xs-12  ">
-                
+
                 <div class="input-group">
                 <label>工序</label>
-                    <select name="procedure"  class="procedurename">     
+                    <select name="procedure"  class="procedurename">
                     </select>
                 </div>
             </div>
@@ -34,16 +34,16 @@
                         class="glyphicon glyphicon-off"></span> 迁移
                 </button>
             </div>
-        </div>    
+        </div>
     </form>
     <!-- <form  action="/ana_data_lack" method="post" enctype="multipart/form-data">
         {% csrf_token %}  -->
         <div class="form-group">
             <div class="col-xs-12  ">
-                
+
                 <div class="input-group">
                 <label>工序</label>
-                    <select name="procedure" id="procedure" class="procedurename">     
+                    <select name="procedure" id="procedure" class="procedurename">
                     </select>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                         class="glyphicon glyphicon-off"></span> 数据缺失分析
                 </button>
             </div>
-        </div>    
+        </div>
     <!-- </form> -->
    <!--  <div id="filedownload"></div> -->
     <div id="main1" style="width: 600px;height:400px;"></div>
