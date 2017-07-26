@@ -231,6 +231,14 @@ else:
             'HOST': '202.204.54.212',
             'PORT': '1521',
         },
+        'l2query': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'query',
+            'PASSWORD': 'qdisqdis',
+            'HOST': '10.30.0.152',
+            'PORT': '1521',
+        },
     }
     PROJECT_DIR = '/home/maksim/venv/qinggang/managesys'
     MEDIA_ROOT = '/home/maksim/venv/qinggang/media/'
