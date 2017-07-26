@@ -2,9 +2,9 @@
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
 
 {% block content %}
-    <form action='/data_import'>
+    <!-- <form action='/data_import'>
         <input type='submit' value="导入" > </input>
-    </form>
+    </form> -->
     <!-- <button onclick='functionDemo()'>功能测试</button>
     <button onclick='anaDataLack()'>数据缺失分析</button>
     <button onclick='ajaxtest()'>hello,测试ajax请求</button>
@@ -14,7 +14,7 @@
             <li>{{ record.FROM_TABLE }}</li>
         {% endfor %}
     </ul>
-    <p>greet:<span id="result"></span></p>
+    <!-- <p>greet:<span id="result"></span></p> -->
 
     <form  action="/data_import" method="post" enctype="multipart/form-data">
         {% csrf_token %}
