@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 
 from django.db import models,connection,connections
+from django.db import transaction
 from . import util
 
 # for slug, get_absolute_url
@@ -64,7 +65,7 @@ class BaseManage(models.Manager):
 		print(cursor)
 		return self.dictfetchall(cursor)
 
-	def select(self,*params):
+	def select(self,*params,**karg):
 		print("****************new query*******************")
 		db_name = None
 		if len(params) == 1:
@@ -72,18 +73,47 @@ class BaseManage(models.Manager):
 		else:
 			sql,db_name = params
 		#如果是多数据库
-		print(sql)
-		#cursor = connections['my_db_alias'].cursor()
+		if 'db_name' in list(karg.keys()):
+			db_name = karg['db_name']
+		print ('DB [%s] SQL [%s]' % (db_name, sql))
 		if db_name !=None:
 			cursor = connections[db_name].cursor()
 		else:
 			cursor = connection.cursor()
 		try:
-			print(dir(cursor))
+			cursor.execute(sql)
+			return cursor.fetchall()
+		except Exception as e:
+			print('Failed to execute SQL[%s]\n' % sql )
+			print('error',e)
+			return False
+
+	def execute(self,*params,**karg):
+		print("****************new query*******************")
+		db_name = None
+		if len(params) == 1:
+			sql = params[0]
+		else:
+			sql,db_name = params
+		#如果是多数据库
+		if 'db_name' in list(karg.keys()):
+			db_name = karg['db_name']
+		print ('DB [%s] SQL [%s]' % (db_name, sql))
+		if db_name !=None:
+			cursor = connections[db_name].cursor()
+		else:
+			cursor = connection.cursor()
+		try:
 			cursor.execute(sql)
 		except Exception as e:
+			print( 'Failed to execute SQL[%s]\n' % sql )
 			print('error',e)
-		return cursor.fetchall()
+			transaction.rollback()
+			return False
+		else:
+			transaction.commit()
+			cursor.close()
+			return True
 
 	def direct_execute_query_sqlVO(self,sqlVO):
 		db_name=sqlVO.get('db_name')
