@@ -7,9 +7,8 @@
 控制 空间分析 的 sql 语句
 
 '''
-from . import mysql
-conn_mysql=mysql.MySQL();
-
+from data_import import models
+conn_mysql = models.BaseManage()
 #=====================【 SQL 语 句 查 询 】==================================
 '''
 时间：订单？发货？派车（出货销账）？派车（结算）？装车？存货？质保书？外库接收？
@@ -69,14 +68,14 @@ def cust_sql(sql_date1,sql_date2,aspect_name,dateChoose,aspect,sql_cust):
 		sql_wgt = "select c.tradeNo,sum(a.receiveWgt) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b.custNo = " + sql_cust + " and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
 		#外库接收时间、总销售额
 		sql_amt = "select c.tradeNo,sum(a.receiveWgt * c.unitPrice) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b.custNo = " + sql_cust + " and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
-	
+
 	#总退货率、质量问题个数   不分时间
 	sql_rtn = "select a.tradeNo,sum(a.rtnWgt) from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b.custNo = " + sql_cust + " and a.custNo = b.custNo  group by a.tradeNo"
 	sql_rtn_reason = "select a.rtnNo,a.orderNo,a.custNo,a.tradeNo,a.rtnWgt,a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b.custNo = " + sql_cust + " and a.custNo = b.custNo"
 	sql_rtn_reason_count = "select a.tradeNo,a.orderNo,a.orderItem,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b.custNo = " + sql_cust + " and a.custNo = b.custNo group by a.orderNo,a.orderItem,a.rtnReason"
 
 	#=====================【 求 和 存 入 字 典 】==================================
-	
+
 	if aspect == 1 :
 		tradeNo_wgt_list = conn_mysql.select(sql_wgt)
 		for tradeNo_wgt in tradeNo_wgt_list:
@@ -90,18 +89,18 @@ def cust_sql(sql_date1,sql_date2,aspect_name,dateChoose,aspect,sql_cust):
 			print ("总销售额：\t",tradeNo_amt[0],tradeNo_amt[1])
 
 	elif aspect == 3:
-		
+
 		tradeNo_wgt_list = conn_mysql.select(sql_wgt)
 		tradeNo_rtn_list = conn_mysql.select(sql_rtn)
 		rtn_rate = 0
 		weight_tradeNo = 0
-		
+
 		for tradeNo_rtn in tradeNo_rtn_list: #求总退货
-			rtn_readeNo = tradeNo_rtn[1]  
+			rtn_readeNo = tradeNo_rtn[1]
 			print (rtn_readeNo)
 			for tradeNo_wgt in tradeNo_wgt_list: #总销量
 				if tradeNo_rtn[0] == tradeNo_wgt[0]:
-					weight_tradeNo = tradeNo_wgt[1] 
+					weight_tradeNo = tradeNo_wgt[1]
 					print (weight_tradeNo)
 				if weight_tradeNo != 0:
 					rtn_rate = ( rtn_readeNo / weight_tradeNo ) * 100
@@ -131,7 +130,7 @@ def cust_sql(sql_date1,sql_date2,aspect_name,dateChoose,aspect,sql_cust):
 		tradeNo_rtn_reason_list = conn_mysql.select(sql_rtn_reason)
 		for tradeNo_rtn_reason in tradeNo_rtn_reason_list:
 			tradeNo_rtn_reason_print.append(tradeNo_rtn_reason)
-		#print ("质量问题原因",tradeNo_rtn_reason_print)			
+		#print ("质量问题原因",tradeNo_rtn_reason_print)
 	else:
 		pass
 

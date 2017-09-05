@@ -73,9 +73,8 @@ def predict_day(path,algorithm):
 	data1 = data.copy()
 	if data.columns[0] == 'Unnamed: 0':
 	    data = data.drop('Unnamed: 0',axis=1)
-	data = data.drop(['date','tegang_zonghe_zhishu','gangtie_cugang','gangtie_gangcai','haiyun_BDI',
-	                 'haiyun_BDTI','meiyuan_zhishu','psjgzs','pugang_zhishu','tkszs','WTI','fgzs'],axis=1)
-	algorithm = linear_model.SGDRegressor(loss='squared_loss')	
+	data = data.drop(['date','psjgzs','feigang','haiyun_BDI','haiyun_BDTI','pugang_zhishu','tegang_zonghe_zhishu','meiyuan'],axis=1)
+	algorithm = linear_model.SGDRegressor(loss='squared_loss')
 	# 输入的时间序列
 	data_index = data1.index
 	data_last10 = data1.loc[list(data_index)[-10:]]
@@ -90,9 +89,9 @@ def predict_day(path,algorithm):
 	    list_time.append(str(i)[0:10])
 	# 历史值
 	data_tkszs_10 = data1.loc[list(data_index)[-10:]]
-	data_tkszs_10['tkszs'][data_tkszs_10.index[-1]+1]='-'
-	data_tkszs_10['tkszs'][data_tkszs_10.index[-1]+2]='-'
-	data_tkszs_10['tkszs'][data_tkszs_10.index[-1]+3]='-'    
+	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+1]='-'
+	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+2]='-'
+	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+3]='-'
 	# 预测值
 	list_predict = ['-','-','-','-','-','-','-','-','-']
 	list_predict.append(0)
@@ -102,7 +101,7 @@ def predict_day(path,algorithm):
 	result = {}
 	result["score"] = 0.4
 	result["timeline"] = list_time
-	result["true_value"] = list(data_tkszs_10['tkszs'])
+	result["true_value"] = list(data_tkszs_10['tkszs_qdg'])
 	result["predict_value"] = list_predict
 	# print(result)
 	return result

@@ -14,6 +14,7 @@ import os
 import platform
 
 master_ip = '10.30.0.152'
+backuppwd= "xxxx"
 node = platform.node()
 print(node)
 dev_machines = ('cheng-cx','cheng-cx.local1')
@@ -62,7 +63,80 @@ if node in dev_machines:
     )
     TEMPLATE_DIRS = [os.path.join(QinggangManageSys, 'templates')]
     ALLOWED_HOSTS = ['*']
-else:
+elif node == "cheng-cx.local":
+    print("单独加了一个独立的分支,以便适应现场的环境")
+    DEBUG = True
+    DATABASES = {
+        'l2own': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
+            'HOST': master_ip,
+            'PORT': '1521',
+        },
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'qinggang',
+            'USER': 'root',
+            'PASSWORD': '123456',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        },
+        'mes_backup': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
+            'USER': 'report_query',
+            'PASSWORD': backuppwd,
+            'HOST': '10.30.0.160',
+            'PORT': '1521',
+        },
+        'l2_backup': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME': 'qgil2dbdg',
+            'USER': 'report_query',
+            'PASSWORD': backuppwd,
+            'HOST': '10.30.0.161',
+            'PORT': '1521',
+        },
+        'sale': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'mesdbdg',
+            'USER': 'report_query',
+            'PASSWORD': backuppwd,
+            'HOST': '10.30.0.160',
+            'PORT': '1521',
+        },
+        'l2query': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'query',
+            'PASSWORD': 'qdisqdis',
+            'HOST': '10.30.0.152',
+            'PORT': '1521',
+        },
+    }
+    # PROJECT_DIR = '/home/maksim/qinggang/managesys'
+    PROJECT_DIR = '/Users/changxin/qinggang/managesys'
+    # MEDIA_ROOT = '/home/maksim/qinggang/media/'
+    MEDIA_ROOT = '/Users/changxin/qinggang/media/'
+    MEDIA_URL = '/media/'
+    # STATIC_ROOT = '/home/maksim/qinggang/static/'
+    STATIC_ROOT = '/Users/changxin/qinggang/static/'
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = (
+        os.path.join(PROJECT_DIR, 'static'),
+    )
+
+    TEMPLATE_DIRS = (
+        os.path.join(PROJECT_DIR, 'templates'),
+    )
+
+    ALLOWED_HOSTS = [
+        '*',
+    ]
+elif node == "hadoop01":
+    print("部署在hadoop主节点")
     DEBUG = True
     DATABASES = {
         'l2own': {
@@ -85,7 +159,7 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
             'PORT': '1521',
         },
@@ -93,7 +167,7 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME': 'qgil2dbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.161',
             'PORT': '1521',
         },
@@ -101,8 +175,76 @@ else:
             'ENGINE': 'django.db.backends.oracle',
             'NAME':'mesdbdg',
             'USER': 'report_query',
-            'PASSWORD': 'xxxx',
+            'PASSWORD': backuppwd,
             'HOST': '10.30.0.160',
+            'PORT': '1521',
+        },
+        'l2query': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'qinggang',
+            'USER': 'query',
+            'PASSWORD': 'qdisqdis',
+            'HOST': '10.30.0.152',
+            'PORT': '1521',
+        },
+    }
+    PROJECT_DIR = '/home/hadoop/qinggang/managesys'
+    MEDIA_ROOT = '/home/hadoop/qinggang/media/'
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = '/home/hadoop/qinggang/static/'
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = (
+        os.path.join(PROJECT_DIR, 'static'),
+    )
+
+    TEMPLATE_DIRS = (
+        os.path.join(PROJECT_DIR, 'templates'),
+    )
+
+    ALLOWED_HOSTS = [
+        '*',
+    ]
+else:
+    DEBUG = True
+    DATABASES = {
+        'l2own': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'orcl',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
+            'PORT': '1521',
+        },
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'qinggang',
+            'USER': 'root',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
+            'PORT': '3306',
+        },
+        'mes_backup': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME': 'mesdbdg',#sid:mesdb2;service:mesdb
+            'USER': 'report_query',
+            'PASSWORD': backuppwd,
+            'HOST': '10.30.0.160',
+            'PORT': '1521',
+        },
+        'l2_backup': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME': 'qgil2dbdg',
+            'USER': 'report_query',
+            'PASSWORD': backuppwd,
+            'HOST': '10.30.0.161',
+            'PORT': '1521',
+        },
+        'sale': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'orcl',
+            'USER': 'meskc',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
             'PORT': '1521',
         },
     }

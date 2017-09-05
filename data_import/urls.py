@@ -10,7 +10,7 @@ from . import quality_prediction
 from . import batchprocess
 from . import ironstoneprice
 from . import violent_analyse
-
+from . import update
 urlpatterns = [
     #需要对相同业务的加载与处理写一个分发器
     url(r'^$', views.home),
@@ -169,6 +169,8 @@ urlpatterns = [
     url(r'^report$',batchprocess.report),
 
 
+    #更新bof数据
+    url(r'^updatebof', update.updatebof),
 
 
 

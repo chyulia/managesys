@@ -11,6 +11,7 @@ from data_import.SteelPricePredict.data_cleaning import get_history_price,create
 from data_import.SteelPricePredict.pre_config import steel_type,predict_method,time_scale,INFO,WARNING,model_classname
 import data_import.SteelPricePredict.PredictModels as PredictModels
 
+from data_import import models,util
 '''
 预测相关方法在SteelPricePredict文件夹中
 '''
@@ -49,23 +50,27 @@ def steelprice(request):
 
 
 def price_history(request):
-	if not request.user.is_authenticated():
-		return HttpResponseRedirect("/login")
-	if request.method == 'POST':
-		history_begin =	request.POST.get('history_begin', '')
-		history_end =	request.POST.get('history_end', '')
-	path = data_root + 'tegang.csv'
-	prices = get_history_price(path,history_begin,history_end)
+    if not request.user.is_authenticated():
+    	return HttpResponseRedirect("/login")
+    if request.method == 'POST':
+    	history_begin =	request.POST.get('history_begin', '')
+    	history_end =	request.POST.get('history_end', '')
+    path = data_root + 'tegang.csv'
+    prices = get_history_price(path,history_begin,history_end)
+    attrs = util.get_model_attrs(models.steelprice)
+    print(attrs)
+    sqlVO =util.create_select_condition({'tradeno':'65Mn','factory':'济源钢铁'})
+    rs = models.BaseManage().direct_select_query_orignal_sqlVO(sqlVO)
+    print(rs)
+    logger.debug(type(prices.get('price',None)[0]))
 
-	logger.debug(type(prices.get('price',None)[0]))
-
-	contentVO={
-		'title':'钢材历史价格',
-		'state':'success'
-	}
-	contentVO['timeline'] = prices.get('timeline',None)
-	contentVO['price'] = prices.get('price',None)
-	return HttpResponse(json.dumps(contentVO), content_type='application/json')
+    contentVO={
+    	'title':'钢材历史价格',
+    	'state':'success'
+    }
+    contentVO['timeline'] = prices.get('timeline',None)
+    contentVO['price'] = prices.get('price',None)
+    return HttpResponse(json.dumps(contentVO), content_type='application/json')
 
 def init_models(modelname):
 	model = None

@@ -1,4 +1,4 @@
-function heatno_ha(){ 
+function heatno_ha(){
     $.ajax({
         type: "POST",
         dataType:"json",
@@ -8,7 +8,7 @@ function heatno_ha(){
             pnames=data.result;
             $(".HEAT_NO").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                 console.log(pnames[pname]) 
+                //  console.log(pnames[pname]) 
                  $(".HEAT_NO").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },

@@ -14,6 +14,10 @@
 		<td><button onclick='daily_updatevalue()'>每日更新统计值</button></td>
 	</tr>
 	<tr>
+		<td>更新数据库转炉字段(guo): </td>
+		<td><button onclick='updatebof()'>更新统计值</button></td>
+	</tr>
+	<tr>
 		<td>相关性分析</td>
 		<td><button onclick='rela()'>相关性分析</button></td>
 	</tr>
@@ -35,6 +39,19 @@
 
 
 <script type="text/javascript">
+	function updatebof(){
+	        $.ajax({
+	        type: "post",
+	        url:  "/updatebof",
+	        data: {},
+	        error: function() {
+	            console.log("更新bof错误！");
+	        },
+	        success: function(data) {
+	            console.log("更新bof成功！");
+	        }
+	     })
+	    }
 	function violent_analyse(){
 		var myChart_loading = echarts.init(document.getElementById('loadingarea'));
         $('#loadingarea').show();

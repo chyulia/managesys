@@ -7,8 +7,8 @@
 控制 空间分析 的 sql 语句
 
 '''
-from . import mysql
-conn_mysql=mysql.MySQL();
+from data_import import models
+conn_mysql = models.BaseManage()
 import datetime
 
 #=====================【 SQL 语 句 查 询 】==================================
@@ -31,7 +31,7 @@ def time_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspec
 	weight_sum_dict ={}
 	passOrNot = 0
 	tradeNo_rtn_reason_print = []
-	
+
 	while i <= xDay:
 
 		#每次将日期更新为后一天
@@ -87,7 +87,7 @@ def time_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspec
 			sql_wgt = "select c.tradeNo,sum(a.receiveWgt) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
 			#外库接收时间、总销售额
 			sql_amt = "select c.tradeNo,sum(a.receiveWgt * c.unitPrice) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
-		
+
 		#总退货率、质量问题个数   不分时间
 		sql_rtn = "select a.tradeNo,sum(a.rtnWgt) from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name +  "'  and a.custNo = b.custNo  group by a.tradeNo"
 		sql_rtn_reason = "select a.rtnNo,a.orderNo,a.custNo,a.tradeNo,a.rtnWgt,a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name +  "'  and a.custNo = b.custNo"
@@ -200,5 +200,3 @@ def time_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspec
 	else:
 		return time_dict,passOrNot,tradeNo_rtn_reason_print
 	#return sql_wgt,sql_amt,sql_rtn,sql_rtn_reason,sql_rtn_reason_count
-
-

@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 
 from django.db import models,connection,connections
+from django.db import transaction
 from . import util
 
 # for slug, get_absolute_url
@@ -64,6 +65,56 @@ class BaseManage(models.Manager):
 		print(cursor)
 		return self.dictfetchall(cursor)
 
+	def select(self,*params,**karg):
+		print("****************new query*******************")
+		db_name = None
+		if len(params) == 1:
+			sql = params[0]
+		else:
+			sql,db_name = params
+		#如果是多数据库
+		if 'db_name' in list(karg.keys()):
+			db_name = karg['db_name']
+		print ('DB [%s] SQL [%s]' % (db_name, sql))
+		if db_name !=None:
+			cursor = connections[db_name].cursor()
+		else:
+			cursor = connection.cursor()
+		try:
+			cursor.execute(sql)
+			return cursor.fetchall()
+		except Exception as e:
+			print('Failed to execute SQL[%s]\n' % sql )
+			print('error',e)
+			return False
+
+	def execute(self,*params,**karg):
+		print("****************new query*******************")
+		db_name = None
+		if len(params) == 1:
+			sql = params[0]
+		else:
+			sql,db_name = params
+		#如果是多数据库
+		if 'db_name' in list(karg.keys()):
+			db_name = karg['db_name']
+		print ('DB [%s] SQL [%s]' % (db_name, sql))
+		if db_name !=None:
+			cursor = connections[db_name].cursor()
+		else:
+			cursor = connection.cursor()
+		try:
+			cursor.execute(sql)
+		except Exception as e:
+			print( 'Failed to execute SQL[%s]\n' % sql )
+			print('error',e)
+			transaction.rollback()
+			return False
+		else:
+			transaction.commit()
+			cursor.close()
+			return True
+
 	def direct_execute_query_sqlVO(self,sqlVO):
 		db_name=sqlVO.get('db_name')
 		if sqlVO.get('db_name')!=None:
@@ -104,6 +155,7 @@ class BaseManage(models.Manager):
 		except:
 			print( 'Failed to execute SQL[%s]\n' % sqlVO.get('sql') )
 			return False
+
 
 # Create your models here.
 class TransRelationManage(BaseManage):
@@ -236,15 +288,6 @@ class TransRelation(models.Model):
 		return u'{uid}{own_col}{from_col}'.format(uid=self.uid,own_col=self.own_col,from_col=self.from_col)
 
 	objects = TransRelationManage()
-
-
-class steel_price(models.Model):
-	own_uid = models.CharField(max_length=100,blank=True)
-	final_price = models.FloatField(blank=True)
-	highest_price = models.FloatField(blank=True)
-	lowest_price =models.FloatField(blank=True)
-	count = models.FloatField(blank=True)
-	count_price = models.FloatField(blank=True)
 
 class MaterialCode(models.Model):
 	"""docstring for Material code"""
@@ -1888,6 +1931,26 @@ class Information(models.Model):
 	publisher = models.CharField(max_length=30)
 	infotype = models.IntegerField()
 	#type={1:"页面底部导航栏"，2:“核心模块入口”}
+	def set_attr(self,**kwargs):
+		#print(kwargs.items())
+		for item in kwargs.items():
+			for each in item[1].items():
+				#print('{0}:{1}'.format(each[0],each[1]))
+				setattr(self,each[0],each[1])
+
+class steelprice(models.Model):
+	steeltype = models.CharField(max_length=150)
+	tradeno = models.CharField(max_length=150,null=True,blank=True)
+	delivery = models.CharField(max_length=150,null=True,blank=True)
+	specification = models.CharField(max_length=150,null=True,blank=True)
+	factory = models.CharField(max_length=150,null=True,blank=True)
+	price = models.FloatField(null=True,blank=True)
+	updown = models.CharField(max_length=150,null=True,blank=True)
+	region = models.CharField(max_length=150,null=True,blank=True)
+	trademark = models.CharField(max_length=150,null=True,blank=True)
+	updatetime = models.DateTimeField('publish time', auto_now=True)
+	remark = models.CharField(max_length=150,null=True,blank=True)
+
 	def set_attr(self,**kwargs):
 		#print(kwargs.items())
 		for item in kwargs.items():

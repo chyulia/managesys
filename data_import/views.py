@@ -31,7 +31,6 @@ import logging.config
 from data_import.structure import int_information
 
 from .models import ContentPost
-from .liusinuo import mysql
 
 # logging.config.dictConfig(LOGGING)
 logger = logging.getLogger('django')
@@ -755,7 +754,7 @@ def cust_time(request):
 			rst = []
 			for key in dictionary.keys():
 				rst.append({'name': key, 'value': dictionary.get(key)})
-			 
+
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': rst,
 				                            'module_name': module_name,
@@ -876,8 +875,9 @@ def update_mysql_space(request):
 
 
 #从数据库动态加载钢种
+from data_import import models
 def getAllTradeNo_time(request):
-	conn_mysql=mysql.MySQL();
+	conn_mysql = models.BaseManage()
 	sql_getAllTradeNo = "select c.tradeNo from data_import_sales_orderno a,data_import_sales2_orderno_orderitem c where c.orderNo = a.orderNo group by c.tradeNo"
 	allTradeNo = conn_mysql.select(sql_getAllTradeNo)
 	print (allTradeNo)
