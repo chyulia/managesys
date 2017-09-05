@@ -2,7 +2,7 @@ from django.conf import settings
 import pandas as pd
 
 media_root = settings.MEDIA_ROOT
-data_root = media_root + '/files/data/'
+data_root = media_root + 'files/data/'
 path_lf = data_root + 'LF_test3.csv'
 data = pd.read_csv(path_lf, encoding = 'gbk')
 heatno = {}
@@ -34,6 +34,6 @@ yinsu_type = {
 	"gangtie_gangcai":"钢材指数",
 	"pugang_zhishu":"普刚指数",
 	"haiyun_BDI":"波罗的海指数",
-	"haiyun_BDTI":"波罗的海原油指数",	
+	"haiyun_BDTI":"波罗的海原油指数",
 	"WTI":"WTI原油价格",
 }

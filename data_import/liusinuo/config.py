@@ -1,7 +1,7 @@
 
 
 #实验室
-db_host = '202.204.54.212'
+# db_host = '202.204.54.212'
 db_user = 'root'
 db_password = '123456'
 db_name = 'qinggang'
@@ -9,7 +9,7 @@ db_port = 3306
 
 
 # #我的电脑
-# db_host = 'localhost'
+db_host = 'localhost'
 # db_user = 'root'
 # db_password = '123456'
 # db_name = 'qinggang'

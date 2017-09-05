@@ -14,11 +14,18 @@ import data_import.SteelPricePredict.PredictModels as PredictModels
 '''
 预测相关方法在SteelPricePredict文件夹中
 '''
-logger = logging.getLogger('django')
+try:
+    logger = logging.getLogger('django')
+except:
+    pass
 
 media_root = settings.MEDIA_ROOT
 data_root = media_root + '/files/data/'
 
+def required_login(f):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/login")
+    return f
 def steelprice(request):
 	if not request.user.is_authenticated():
 		return HttpResponseRedirect("/login")
@@ -89,7 +96,6 @@ def price_predict(request):
 		typestr =	request.POST.get('typestr', '')
 		if typestr != "":
 			types = typestr.split(',')
-			logger.debug(types)
 	'''
 	根据参数选择模型
 	结果返回预测数据时间跨度，预测值，真实值，score值

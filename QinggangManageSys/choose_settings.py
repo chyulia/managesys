@@ -16,7 +16,7 @@ import platform
 master_ip = '10.30.0.152'
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local')
+dev_machines = ('cheng-cx','cheng-cx.local1')
 
 if node in dev_machines:
     # folder QinggangManageSys
@@ -106,10 +106,13 @@ else:
             'PORT': '1521',
         },
     }
-    PROJECT_DIR = '/home/maksim/qinggang/managesys'
-    MEDIA_ROOT = '/home/maksim/qinggang/media/'
+    # PROJECT_DIR = '/home/maksim/qinggang/managesys'
+    PROJECT_DIR = '/Users/changxin/qinggang/managesys'
+    # MEDIA_ROOT = '/home/maksim/qinggang/media/'
+    MEDIA_ROOT = '/Users/changxin/qinggang/media/'
     MEDIA_URL = '/media/'
-    STATIC_ROOT = '/home/maksim/qinggang/static/'
+    # STATIC_ROOT = '/home/maksim/qinggang/static/'
+    STATIC_ROOT = '/Users/changxin/qinggang/static/'
     STATIC_URL = '/static/'
     STATICFILES_DIRS = (
         os.path.join(PROJECT_DIR, 'static'),
