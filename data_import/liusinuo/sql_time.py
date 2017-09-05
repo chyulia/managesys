@@ -47,7 +47,8 @@ def time_sql(sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,space_name,aspec
 
 		if dateChoose == 1:  #订单时间
 			#订单时间、总销量
-			sql_wgt = "select c.tradeNo,sum(c.orderWeight) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			#sql_wgt = "select c.tradeNo,sum(c.orderWeight) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			sql_wgt = "select a.tradeNo,sum(a.orderItemWeight) from data_sales2_new_orderno_orderItem a where  a.orderDate = " + sql_date + " and a." + sql_ctry_prov_cty + " = '" + space_name + "' group by a.tradeNo"
 			#print (sql_wgt)
 			#订单时间、总销售额
 			sql_amt = "select c.tradeNo,sum(c.orderWeight * c.basePrice) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate = " + sql_date + " and b." + sql_ctry_prov_cty + " = '" + space_name + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"

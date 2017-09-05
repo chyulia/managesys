@@ -64,7 +64,14 @@ urlpatterns = [
     url(r'^GetTradeNo',views.getAllTradeNo_time),
     #数据仓库更新
     url(r'^update_mysql_space',views.update_mysql_space),
-
+    url(r'^update_data_sales',views.update_data_sales),
+    url(r'^update_orderno_orderItem',views.update_orderno_orderItem),
+    url(r'^update_displistno',views.update_displistno),
+    url(r'^update_loadno',views.update_loadno),
+    url(r'^update_collectno',views.update_collectno),
+    url(r'^update_receiveno',views.update_receiveno),
+    url(r'^update_rtnno',views.update_rtnno),
+    url(r'^update_millsheetno',views.update_millsheetno),
 
     #暴力求解
     # url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),

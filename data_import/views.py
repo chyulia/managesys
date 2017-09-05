@@ -863,6 +863,14 @@ def market_share(request):
 
 #import data_import.liusinuo.update_mysql_space
 from data_import.liusinuo.update_mysql_space import update_mysql_space_orderNo
+from data_import.liusinuo.update_mysql_space import update_data_new_sales2_orderno_orderItem
+from data_import.liusinuo.update_mysql_space import update_data_new_sales_displistno
+from data_import.liusinuo.update_mysql_space import update_data_new_sales_loadno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_loadno_collectno_receiveno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_collectno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_receiveno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_rtnno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_millsheetno
 #更新数据仓库：销售部分——空间分析
 def update_mysql_space(request):
 	contentVO={
@@ -870,8 +878,74 @@ def update_mysql_space(request):
 		'state':'success'
 	}
 	print("更新数据仓库 view.update_mysql_space可以执行")
-	update_mysql_space_orderNo();
+	update_data_sales_new_millsheetno();
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_orderno_orderItem(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_orderno_orderItem 可以执行")
+	update_data_new_sales2_orderno_orderItem();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_displistno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_displistno 可以执行")
+	update_data_new_sales_displistno()
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_loadno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_loadno 可以执行")
+	update_data_new_sales_loadno();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_collectno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_collectno 可以执行")
+	update_data_sales_new_collectno();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_receiveno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_receiveno 可以执行")
+	update_data_sales_new_receiveno();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_rtnno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_rtnno 可以执行")
+	update_data_sales_new_rtnno();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_millsheetno(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_millsheetno 可以执行")
+	update_data_sales_new_millsheetno();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+
+
 
 
 #从数据库动态加载钢种
@@ -954,3 +1028,10 @@ def analysis_tool(request):
 	if not request.user.is_authenticated():
 		return HttpResponseRedirect("/login")
 	return render(request,'data_import/analysis_tool.html',{'title':"青特钢大数据项目组数据管理"})
+
+#跳转到分析工具analysis_tool.html页面
+def update_data_sales(request):
+	#print('请求主页')
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect("/login")
+	return render(request,'data_import/update_data_sales.html',{'title':"青特钢大数据项目组数据管理"})

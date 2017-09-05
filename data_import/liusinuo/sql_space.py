@@ -27,18 +27,22 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 	for sql_space in space_dict:
 		if dateChoose == 1:  #订单时间
 			#订单时间、总销量
-			sql_wgt = "select c.tradeNo,sum(c.orderWeight) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			#sql_wgt = "select c.tradeNo,sum(c.orderWeight) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			sql_wgt = "select a.tradeNo,sum(a.orderItemWeight) from data_sales2_new_orderno_orderItem a where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and a." + sql_ctry_prov_cty + " = '" + sql_space + "'  group by a.tradeNo"
 			#订单时间、总销售额
-			sql_amt = "select c.tradeNo,sum(c.orderWeight * c.basePrice) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			#sql_amt = "select c.tradeNo,sum(c.orderWeight * c.basePrice) from data_import_sales_orderno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.custNo = b.custNo and c.orderNo = a.orderNo group by c.tradeNo"
+			sql_amt = "select a.tradeNo,sum(a.orderItemWeight * a.orderPrice) from data_sales2_new_orderno_orderItem a where a.orderDate >= " + sql_date1 + " and a.orderDate <= " + sql_date2 + " and a." + sql_ctry_prov_cty + " = '" + sql_space + "'  group by a.tradeNo"
 			#订单时间、总退货率、质量问题个数
 			#sql_rtn = "select a.orderNo,a.custNo,a.tradeNo,sum(a.rtnWgt),a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = " + sql_space +  "  and a.custNo = b.custNo  group by a.tradeNo"
 			#sql_rtn = "select a.tradeNo,sum(a.rtnWgt) from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = " + sql_space +  "  and a.custNo = b.custNo  group by a.tradeNo"
 			#sql_rtn_reason = "select a.orderNo,a.custNo,a.tradeNo,a.rtnWgt,a.unitPrice,a.rtnReason from data_import_sales_rtnno a,data_import_sales_custplace b where a.createDate >= " + sql_date1 + " and a.createDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = " + sql_space +  "  and a.custNo = b.custNo"
-		elif dateChoose == 2:  #发货时间 【很慢】，平均查询时间为10s左右，查询本身就很慢
+		elif dateChoose == 2:  #发货时间 【===【以前的sql很慢，新的很快】===】 【很慢】，平均查询时间为10s左右，查询本身就很慢
 			#发货时间、总销量
-			sql_wgt = "select d.tradeNo,sum(a.realDeliWgt) from data_import_sales_displistno a,data_import_sales_orderno b,data_import_sales_custplace c,data_import_sales2_orderno_orderitem d where a.createDate1 >= " + sql_date1 + " and a.createDate1 <= " + sql_date2 + " and a.orderNo = b.orderNo and c." + sql_ctry_prov_cty + " = '" + sql_space + "' and b.custNo = c.custNo and d.orderNo = a.orderNo and d.orderItem = a.orderItem group by d.tradeNo"
+			#sql_wgt = "select d.tradeNo,sum(a.realDeliWgt) from data_import_sales_displistno a,data_import_sales_orderno b,data_import_sales_custplace c,data_import_sales2_orderno_orderitem d where a.createDate1 >= " + sql_date1 + " and a.createDate1 <= " + sql_date2 + " and a.orderNo = b.orderNo and c." + sql_ctry_prov_cty + " = '" + sql_space + "' and b.custNo = c.custNo and d.orderNo = a.orderNo and d.orderItem = a.orderItem group by d.tradeNo"
+			sql_wgt = "select a.tradeNo,sum(a.dispWeight) from data_sales_new_displistno a where a.dispDate >= " + sql_date1 + " and a.dispDate <= " + sql_date2 + " and a." + sql_ctry_prov_cty + " = '" + sql_space + "' group by a.tradeNo"
 			#发货时间、总销售额
-			sql_amt = "select d.tradeNo,sum(a.prodAmt) from data_import_sales_displistno a,data_import_sales_orderno b,data_import_sales_custplace c,data_import_sales2_orderno_orderitem d where a.createDate1 >= " + sql_date1 + " and a.createDate1 <= " + sql_date2 + " and a.orderNo = b.orderNo and c." + sql_ctry_prov_cty + " = '" + sql_space + "' and b.custNo = c.custNo and d.orderNo = a.orderNo and d.orderItem = a.orderItem group by d.tradeNo"
+			#sql_amt = "select d.tradeNo,sum(a.prodAmt) from data_import_sales_displistno a,data_import_sales_orderno b,data_import_sales_custplace c,data_import_sales2_orderno_orderitem d where a.createDate1 >= " + sql_date1 + " and a.createDate1 <= " + sql_date2 + " and a.orderNo = b.orderNo and c." + sql_ctry_prov_cty + " = '" + sql_space + "' and b.custNo = c.custNo and d.orderNo = a.orderNo and d.orderItem = a.orderItem group by d.tradeNo"
+			sql_amt = "select a.tradeNo,sum(a.dispAmt) from data_sales_new_displistno a where a.dispDate >= " + sql_date1 + " and a.dispDate <= " + sql_date2 + " and a." + sql_ctry_prov_cty + " = '" + sql_space + "' group by a.tradeNo"
 		elif dateChoose == 3:  #派车履运时间(出货销账日期)
 			#派车履运时间、总销量
 			sql_wgt = "select a.tradeNo,sum(a.realWgt) from data_import_sales_loadno a,data_import_sales_custplace b where a.shipDate >= " + sql_date1 + " and a.shipDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.custNo = b.custNo group by a.tradeNo"
@@ -64,7 +68,7 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 			sql_wgt = "select a.tradeNo,sum(c.orderWeight) from data_import_sales_millsheetno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.reviseDate >= " + sql_date1 + " and a.reviseDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.customerNo = b.custNo and c.orderNo = a.orderNo and a.item = c.orderItem group by a.tradeNo"
 			#质保书时间、总销售额
 			sql_amt = "select a.tradeNo,sum(c.orderWeight * c.basePrice) from data_import_sales_millsheetno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.reviseDate >= " + sql_date1 + " and a.reviseDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.customerNo = b.custNo and c.orderNo = a.orderNo and a.item = c.orderItem group by a.tradeNo"
-		else: #外库接收时间    #########  搞清楚 外库接收 与 派车履运 的关系，他们是互斥关系，现在需要重新导labelno表，以使得此时间可以得出结果
+		else: #外库接收时间    #########  搞清楚 外库接收 与 派车履运 的关系，他们是互斥关系，现在需要重新导loadno表，以使得此时间可以得出结果
 			#外库接收时间、总销量
 			sql_wgt = "select c.tradeNo,sum(a.receiveWgt) from data_import_sales_receiveno a,data_import_sales_custplace b,data_import_sales_loadno c where a.updateDate >= " + sql_date1 + " and a.updateDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and c.custNo = b.custNo and a.loadNo = c.loadNo group by c.tradeNo"
 			#外库接收时间、总销售额
