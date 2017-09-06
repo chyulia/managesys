@@ -1,0 +1,173 @@
+{% extends "data_import/base.html" %}
+{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
+{% block content %}
+
+<h2>青钢数据分析工具</h2>
+<br>
+<table>
+	<tr>
+		<td>&nbsp;====================================================================</td>
+	</tr>
+	<tr>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;注：数据更新耗时较长，请耐心等待，不要进行其他操作，更新完毕后会有弹窗提示。</td>
+	</tr>
+	<tr>
+		<td>&nbsp;====================================================================</td>
+	</tr>
+</table>
+
+<div id="loadingarea" style="float:middle;width:800px;height:30px"></div>
+<table>
+	<tr>
+		<td>订单项次表（大约需要5s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_orderno_orderItem()'>更新数据表</button></td>
+	</tr>
+	<tr>
+		<td>发货表（大约需要100s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_displistno()'>更新数据表</button></td>
+	</tr>
+	<tr>
+		<td>派车表（大约需要140s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_loadno()'>更新数据表</button></td>
+	</tr>
+	<tr>
+		<td>装船表（大约需要130s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_collectno()'>更新数据表</button></td>
+	</tr>
+	<tr>
+		<td>外库接收表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_receiveno()'>更新数据表</button></td>
+	</tr>
+	<tr>
+		<td>退货表（大约需要5s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_rtnno()'>更新数据表</button></td>
+		<td id="file_download"></td>
+	</tr>
+	<tr>
+		<td>质保书表（大约需要40s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_millsheetno()'>更新数据表</button></td>
+	</tr>
+
+</table>
+
+
+
+<script type="text/javascript">
+    function update_orderno_orderItem(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_orderno_orderItem" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	            alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_displistno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_displistno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	       	    alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_loadno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_loadno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	       		alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_collectno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_collectno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	        	alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_receiveno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_receiveno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	        	alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_rtnno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_rtnno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	        	alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+    function update_millsheetno(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_millsheetno" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	        	alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+
+
+</script>
+
+
+{% endblock %}
