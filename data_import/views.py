@@ -835,7 +835,9 @@ def market_share(request):
 	if request.method == "GET":
 		return render(request,'data_import/market_share.html',{'title':"青特钢大数据项目组数据管理"})
 	elif request.method == "POST":
+		print("====================================")
 		print(request.POST)
+		print("====================================")
 		#print (" >>> 开始执行 view.py 中的 market_share 函数")
 		try:
 			ratio_dictionary, conclusion,all_dictionary = sql_market_share(request.POST.get("startYear"),
@@ -871,6 +873,8 @@ from data_import.liusinuo.update_mysql_space import update_data_sales_new_collec
 from data_import.liusinuo.update_mysql_space import update_data_sales_new_receiveno
 from data_import.liusinuo.update_mysql_space import update_data_sales_new_rtnno
 from data_import.liusinuo.update_mysql_space import update_data_sales_new_millsheetno
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_space_comparsion
+from data_import.liusinuo.update_mysql_space import update_data_sales_new_marketshare
 #更新数据仓库：销售部分——空间分析
 def update_mysql_space(request):
 	contentVO={
@@ -878,7 +882,7 @@ def update_mysql_space(request):
 		'state':'success'
 	}
 	print("更新数据仓库 view.update_mysql_space可以执行")
-	update_data_sales_new_millsheetno();
+	update_mysql_space_orderNo();
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
 
 def update_orderno_orderItem(request):
@@ -943,6 +947,35 @@ def update_millsheetno(request):
 	print("更新数据仓库 view.update_millsheetno 可以执行")
 	update_data_sales_new_millsheetno();
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+def update_space_comparsion(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_millsheetno 可以执行")
+	update_data_sales_new_space_comparsion();
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+
+
+def update_space_marketshare(request):
+	contentVO={
+		'title':'测试',
+		'state':'success'
+	}
+	print("更新数据仓库 view.update_space_marketshare 可以执行")
+	print(request.POST)
+	print("===========================\n")
+
+	update_data_sales_new_marketshare(request.POST.get("province"),
+									request.POST.get('orderDate'),
+									request.POST.get('salesWeight'),
+									request.POST.get('month_value'),
+									request.POST.get('year_value'))
+	
+	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
 
 
 

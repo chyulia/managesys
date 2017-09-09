@@ -168,7 +168,7 @@ def update_data_new_sales2_orderno_orderItem():
 	dictionary_name = { 0: "orderNo", 1: "orderItem", 2: "orderDate", 3: "tradeNo",4: "orderItemWeight", 
 		5: "orderPrice", 6: "custNo", 7: "custName", 8: "country", 9: "province", 10: "city",}
 	dataFrame_data_select = dataFrame_rename (dataFrame_data_select, dictionary_name) 
-	print("查询数据表orderItem 完毕\n")
+	print("查询数据表 orderItem 完毕\n")
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
@@ -379,6 +379,77 @@ def update_data_sales_new_millsheetno():
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
 	dataFrame_data_select.to_sql('data_sales_new_millsheetno', yconnect,  schema='qinggang', if_exists='append', index=False)
 	print ("将数据写入数据表 data_sales_new_millsheetno")
+
+def update_data_sales_new_space_comparsion():
+	print("清空数据表")
+	sql_delete = "Truncate Table data_sales_new_space_comparsion"
+	conn_mysql.select(sql_delete )
+	print("清空数据表完毕\n")
+	#查询数据仓库表中的数据
+	print("查询数据表 space_comparsion")
+	#sql_select = "select a.province,a.orderDate,sum(a.orderItemWeight),sum(a.orderItemWeight*10),(100 * sum(a.orderItemWeight) / sum(a.orderItemWeight*10)) from data_sales2_new_orderno_orderItem a group by a.province,a.orderDate"
+	sql_select = "select a.province,a.orderDate,sum(a.orderItemWeight),SUBSTRING(a.orderDate,5,2),SUBSTRING(a.orderDate,1,4) from data_sales2_new_orderno_orderItem a group by a.province,a.orderDate"
+	
+	data_select = conn_mysql.select(sql_select)
+	# 把上面那个查询数据库得来的 tuple 转化为 list
+	dataFrame_data_select = tuple_to_dataframe (data_select)
+	#修改列名
+	#dictionary_name = { 0: "province", 1: "orderDate", 2: "qdisSalesWeight",3: "salesWeight",4: "ratio",}
+	dictionary_name = { 0: "province", 1: "orderDate", 2: "qdisSalesWeight",3: "month",4: "year",}
+	dataFrame_data_select = dataFrame_rename (dataFrame_data_select, dictionary_name) 
+	print("查询数据表 space_comparsion 完毕\n")
+
+	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
+	# 建立数据库连接
+	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	print ("建立数据库连接")
+	# 传入数据
+	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
+	dataFrame_data_select.to_sql('data_sales_new_space_comparsion', yconnect,  schema='qinggang', if_exists='append', index=False)
+	print ("将数据写入数据表 data_sales_new_space_comparsion")
+
+
+	print("查询数据表 marketshare")
+	sql_select = "select a.province,a.orderDate,sum(a.salesWeight),a.month,a.year from data_sales_new_marketshare a group by a.province,a.orderDate"
+	data_select = conn_mysql.select(sql_select)
+	# 把上面那个查询数据库得来的 tuple 转化为 list
+	dataFrame_data_select = tuple_to_dataframe (data_select)
+	#修改列名
+	#dictionary_name = { 0: "province", 1: "orderDate", 2: "qdisSalesWeight",3: "salesWeight",4: "ratio",}
+	dictionary_name = { 0: "province", 1: "orderDate", 2: "salesWeight",3: "month",4: "year",}
+	dataFrame_data_select = dataFrame_rename (dataFrame_data_select, dictionary_name) 
+	print("查询数据表 marketshare 完毕\n")
+
+	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
+	# 建立数据库连接
+	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	print ("建立数据库连接")
+	# 传入数据
+	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
+	dataFrame_data_select.to_sql('data_sales_new_space_comparsion', yconnect,  schema='qinggang', if_exists='append', index=False)
+	print ("将数据写入数据表 data_sales_new_space_comparsion")
+
+
+def update_data_sales_new_marketshare(province_value,orderDate_value,salesWeight_value,month_value,year_value):
+	print("提取添加的数据")
+	#查询数据仓库表中的数据
+	data_select = ((province_value,orderDate_value,month_value,year_value,salesWeight_value),)
+	print(data_select)
+	# 把上面那个查询数据库得来的 tuple 转化为 list
+	dataFrame_data_select = tuple_to_dataframe (data_select)
+	#修改列名
+	dictionary_name = { 0: "province", 1: "orderDate", 2: "month",3: "year",4: "salesWeight",}
+	dataFrame_data_select = dataFrame_rename (dataFrame_data_select, dictionary_name) 
+	print("查询数据表 marketshare 完毕\n")
+
+	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
+	# 建立数据库连接
+	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	print ("建立数据库连接")
+	# 传入数据
+	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
+	dataFrame_data_select.to_sql('data_sales_new_marketshare', yconnect,  schema='qinggang', if_exists='append', index=False)
+	print ("将数据写入数据表 data_sales_new_marketshare")
 
 
 

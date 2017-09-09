@@ -49,7 +49,7 @@ def sql_stockControl(module,tradeNo,module_unit_key):
 	# select stock before  20170401
 	sqlVO={}
 	sqlVO["db_name"]="sale"
-	sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INVID <= 'B11605026005EL014' and INSTOCKDATE < '20170401' GROUP BY TRADENO";
+	sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INVID <= 'B11605026005EL014' and INSTOCKDATE < '20160201' GROUP BY TRADENO";
 	#sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INSTOCKDATE < '20170401' GROUP BY TRADENO";
 	stock_overstock=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 

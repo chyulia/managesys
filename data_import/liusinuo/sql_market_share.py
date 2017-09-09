@@ -40,7 +40,9 @@ def sql_market_share(startYear,startMonth,endYear,endMonth):
     #========================【 输 入 】===========================
     #获取数据
     #print ("开始执行 market_share_sql 函数")
-    sql_province = "select a.province,sum(a.salesWeight),sum(a.qdisSalesWeight),(sum(a.qdisSalesWeight)/sum(a.salesWeight))*100 from data_new_sales_space_comparsion a where a.year >= " + startYear + " and a.year <= " + endYear + " and a.month >= " + startMonth + " and a.month <= " + endMonth + " group by a.province"
+    startDate = str(startYear) + str(startMonth) + "00"
+    endDate = str(endYear) + str(endMonth) + "40"
+    sql_province = "select a.province,sum(a.salesWeight),sum(a.qdisSalesWeight),(sum(a.qdisSalesWeight)/sum(a.salesWeight))*100 from data_sales_new_space_comparsion a where a.orderDate >= " + startDate + " and a.year <= " + endDate + " group by a.province"
     province_salesWeight_list = conn_mysql.select(sql_province) #得到的是一个tuple
     #print (type(province_salesWeight_list))
     print (province_salesWeight_list)
@@ -50,13 +52,27 @@ def sql_market_share(startYear,startMonth,endYear,endMonth):
     qdisSalesWeight_dictionary = {}
     all_list = []
     conclusion_province = ""
-    conclusion = startYear + "年" + startMonth + "月至" + startYear + "年" + startMonth + "月内，全国各省份市场容量及占比如下：\n"
+    conclusion = startYear + "年" + startMonth + "月至" + endYear + "年" + endMonth + "月内，全国各省份市场容量及占比如下：\n"
     for province_salesWeight in province_salesWeight_list:  #所选钢种
-        ratio_dictionary[province_salesWeight[0]] = float(province_salesWeight[3])
-        salesWeight_dictionary[province_salesWeight[0]] = float(province_salesWeight[1])
-        qdisSalesWeight_dictionary[province_salesWeight[0]] = float(province_salesWeight[2])
-        all_list.append([province_salesWeight[0],float(province_salesWeight[1]),float(province_salesWeight[2]),float(province_salesWeight[3])])
-        conclusion_province = province_salesWeight[0] + "省市场容量为：" + str(province_salesWeight[1]) + "吨，我公司在该省销量为：" + str(province_salesWeight[2]) + "吨,占比：" + str(province_salesWeight[3]) + " %。\n"
+        if province_salesWeight[0] == "":
+            continue
+        if province_salesWeight[3] == None:
+            salesWeight_3 = 0
+        else:
+            salesWeight_3  = province_salesWeight[3]
+        if province_salesWeight[2] == None:
+            salesWeight_2 = 0
+        else:
+            salesWeight_2  = province_salesWeight[2]
+        if province_salesWeight[1] == None:
+            salesWeight_1 = 0
+        else:
+            salesWeight_1  = province_salesWeight[1]
+        ratio_dictionary[province_salesWeight[0]] = float(salesWeight_3)
+        salesWeight_dictionary[province_salesWeight[0]] = float(salesWeight_1)
+        qdisSalesWeight_dictionary[province_salesWeight[0]] = float(salesWeight_2)
+        all_list.append([province_salesWeight[0],float(salesWeight_1),float(salesWeight_2),float(salesWeight_3)])
+        conclusion_province = province_salesWeight[0] + " 的市场容量为：" + str(salesWeight_1) + "吨，我公司在该地区销量为：" + str(salesWeight_2) + "吨,占比：" + str(salesWeight_3) + " %。\n"
         conclusion = conclusion + conclusion_province
     print ("比例字典：\n",ratio_dictionary)
     print ("\n")

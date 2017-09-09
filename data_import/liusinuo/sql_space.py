@@ -65,11 +65,11 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 			#sql_amt = "select c.tradeNo,sum(c.realWgt * c.unitPrice) from data_import_sales_collectno a,data_import_sales_custplace b,data_import_sales_loadno c where a.effectDate >= " + sql_date1 + " and a.effectDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and c.custNo = b.custNo and a.collectNo = c.collectNo group by c.tradeNo"
 			sql_amt = "select a.tradeNo,sum(a.loadWeight * a.dispPrice) from data_sales_new_collectno a where a.collectDate >= " + sql_date1 + " and a.collectDate <= " + sql_date2 + " and a." + sql_ctry_prov_cty + " = '" + sql_space + "' group by a.tradeNo"
 		#不需要这个选项了
-		elif dateChoose == 6:  #订单存货档建立时间   ######## 数据导的不全，需要重新导这个表
-			#订单存货档建立时间、总销量
-			sql_wgt = "select a.tradeNo,sum(a.labelWgt) from data_import_sales_labelno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.createDate121 >= " + sql_date1 + " and a.createDate121 <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.orderNo = c.orderNo and a.orderItem = c.orderItem and a.customerNo = b.custNo group by a.tradeNo"
-			#订单存货档建立时间、总销售额
-			sql_amt = "select a.tradeNo,sum(a.labelWgt * c.basePrice) from data_import_sales_labelno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.createDate121 >= " + sql_date1 + " and a.createDate121 <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.orderNo = c.orderNo and a.orderItem = c.orderItem and a.customerNo = b.custNo group by a.tradeNo"
+		# elif dateChoose == 6:  #订单存货档建立时间   ######## 数据导的不全，需要重新导这个表
+		# 	#订单存货档建立时间、总销量
+		# 	sql_wgt = "select a.tradeNo,sum(a.labelWgt) from data_import_sales_labelno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.createDate121 >= " + sql_date1 + " and a.createDate121 <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.orderNo = c.orderNo and a.orderItem = c.orderItem and a.customerNo = b.custNo group by a.tradeNo"
+		# 	#订单存货档建立时间、总销售额
+		# 	sql_amt = "select a.tradeNo,sum(a.labelWgt * c.basePrice) from data_import_sales_labelno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.createDate121 >= " + sql_date1 + " and a.createDate121 <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.orderNo = c.orderNo and a.orderItem = c.orderItem and a.customerNo = b.custNo group by a.tradeNo"
 		elif dateChoose == 7:  #质保书时间
 			#质保书时间、总销量
 			#sql_wgt = "select a.tradeNo,sum(c.orderWeight) from data_import_sales_millsheetno a,data_import_sales_custplace b,data_import_sales2_orderno_orderitem c where a.reviseDate >= " + sql_date1 + " and a.reviseDate <= " + sql_date2 + " and b." + sql_ctry_prov_cty + " = '" + sql_space + "' and a.customerNo = b.custNo and c.orderNo = a.orderNo and a.item = c.orderItem group by a.tradeNo"
@@ -97,7 +97,7 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 
 		if aspect == 1 :
 			tradeNo_wgt_list = conn_mysql.select(sql_wgt)
-			print (type(tradeNo_wgt_list))
+			#print (type(tradeNo_wgt_list))
 			weight_sum = 0
 			for tradeNo in tradeNo_list:  #所选钢种
 				for tradeNo_wgt in tradeNo_wgt_list:
@@ -179,6 +179,6 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 		passOrNot = 1
 	else:
 		pass
-	#print (tradeNo_rtn_reason_print)
+
 	return space_dict,passOrNot,tradeNo_rtn_reason_print
 	#return sql_wgt,sql_amt,sql_rtn,sql_rtn_reason,sql_rtn_reason_count

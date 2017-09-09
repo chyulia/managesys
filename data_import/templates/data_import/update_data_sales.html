@@ -2,8 +2,8 @@
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
 {% block content %}
 
-<h2>青钢数据分析工具</h2>
 <br>
+
 <table>
 	<tr>
 		<td>&nbsp;====================================================================</td>
@@ -16,10 +16,10 @@
 	</tr>
 </table>
 
-<div id="loadingarea" style="float:middle;width:800px;height:30px"></div>
+<h2>数据库动态更新</h2>
 <table>
 	<tr>
-		<td>订单项次表（大约需要5s）&nbsp;&nbsp;&nbsp;</td>
+		<td>订单项次表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
 		<td><button onclick='update_orderno_orderItem()'>更新数据表</button></td>
 	</tr>
 	<tr>
@@ -47,12 +47,89 @@
 		<td>质保书表（大约需要40s）&nbsp;&nbsp;&nbsp;</td>
 		<td><button onclick='update_millsheetno()'>更新数据表</button></td>
 	</tr>
+	<tr>
+		<td>市场容量表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_space_comparsion()'>更新数据表</button></td>
+	</tr>
 
 </table>
+<br>
+<h2>添加市场容量数据</h2>
+<div id="inputarea" style="float:middle;width:800px;height:50px">
+时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-01-01'  > 
+地点: 
+<select name="select_space_province" id="select_space_province" class="xla_6"  value = '山东'>
+    <option value="江苏">江苏</option>
+    <option value="山东">山东</option>
+    <option value="黑龙江">黑龙江</option>
+    <option value="河北">河北</option>
+    <option value="辽宁">辽宁</option>
+    <option value="吉林">吉林</option>
+    <option value="甘肃">甘肃</option>
+    <option value="青海">青海</option>
+    <option value="河南">河南</option>
+    <option value="湖北">湖北</option>
+    <option value="湖南">湖南</option>
+    <option value="江西">江西</option>
+    <option value="浙江">浙江</option>
+    <option value="广东">广东</option>
+    <option value="云南">云南</option>
+    <option value="福建">福建</option>
+    <option value="台湾">台湾</option>
+    <option value="海南">海南</option>
+    <option value="山西">山西</option>
+    <option value="四川">四川</option>
+    <option value="陕西">陕西</option>
+    <option value="贵州">贵州</option>
+    <option value="安徽">安徽</option>
+    <option value="重庆">重庆</option>
+    <option value="北京">北京</option>
+    <option value="上海">上海</option>
+    <option value="天津">天津</option>
+    <option value="广西">广西</option>
+    <option value="内蒙古">内蒙古</option>
+    <option value="西藏">西藏</option>
+    <option value="新疆">新疆</option>
+    <option value="宁夏">宁夏</option>
+    <option value="澳门">澳门</option>
+    <option value="香港">香港</option>
+</select>
+市场容量
+<input type="text" name="select_weight" id="select_weight" value=0 >
 
-
+&nbsp;&nbsp;&nbsp;<button onclick='update_space_marketshare()'>添加</button>
+</div>
 
 <script type="text/javascript">
+
+
+
+    function update_space_marketshare(){
+    	var sql_date1_ = document.getElementById("select_date1").value
+	    sql_date1_1 = sql_date1_.substring(0, 4)
+	    sql_date1_2 = sql_date1_.substring(5, 7)
+	    sql_date1_3 = sql_date1_.substring(8)
+	    orderDate = sql_date1_1 + sql_date1_2 + sql_date1_3 
+	    var province = $("#select_space_province").find("option:selected").val();
+	    var salesWeight =  $("#select_weight").val();
+
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_space_marketshare" ,
+	        data: {'province':province,'orderDate':orderDate,'salesWeight':salesWeight,'month_value':sql_date1_2,'year_value':sql_date1_1,'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val()},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	            alert("添加成功！");
+	        },
+	        error: function () {
+	            alert("错误！添加数据出错！");
+            }
+         });
+    };
+
+
+
     function update_orderno_orderItem(){
         $.ajax({
 	        type: "POST",
@@ -164,6 +241,25 @@
             }
          });
     };
+
+    function update_space_comparsion(){
+        $.ajax({
+	        type: "POST",
+	        dataType:"json",
+	        url: "/update_space_comparsion" ,
+	        data: {'greet':'hello'},
+	        success: function(data){
+	            console.log("更新数据仓库的 ajax 可以执行");
+	        	alert("更新成功！");
+	        },
+	        error: function () {
+	            alert("错误！更新数据表出错！");
+            }
+         });
+    };
+
+
+
 
 
 

@@ -72,6 +72,8 @@ urlpatterns = [
     url(r'^update_receiveno',views.update_receiveno),
     url(r'^update_rtnno',views.update_rtnno),
     url(r'^update_millsheetno',views.update_millsheetno),
+    url(r'^update_space_comparsion',views.update_space_comparsion),
+    url(r'^update_space_marketshare',views.update_space_marketshare),
 
     #暴力求解
     # url(r'^violent_ananlyse',qualityzhuanlu.violent_ananlyse),
