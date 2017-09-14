@@ -17,46 +17,51 @@
 </table>
 
 <h2>数据库动态更新</h2>
-<table>
+<table  width="300px" height="250px" >
+	<tr>
+		<td><B>一键更新（大约需要6min）</B>&nbsp;&nbsp;&nbsp;</td>
+		<td><button onclick='update_all()' style='font-weight:bold;' id = "button1"  >一键更新</button></td>
+	</tr>
 	<tr>
 		<td>订单项次表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_orderno_orderItem()'>更新数据表</button></td>
+		<td><button onclick='update_orderno_orderItem()' id = "button2" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>发货表（大约需要100s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_displistno()'>更新数据表</button></td>
+		<td><button onclick='update_displistno()' id = "button3" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>派车表（大约需要140s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_loadno()'>更新数据表</button></td>
+		<td><button onclick='update_loadno()' id = "button4" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>装船表（大约需要130s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_collectno()'>更新数据表</button></td>
+		<td><button onclick='update_collectno()' id = "button5" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>外库接收表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_receiveno()'>更新数据表</button></td>
+		<td><button onclick='update_receiveno()' id = "button6" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>退货表（大约需要5s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_rtnno()'>更新数据表</button></td>
+		<td><button onclick='update_rtnno()' id = "button7" >更新数据表</button></td>
 		<td id="file_download"></td>
 	</tr>
 	<tr>
 		<td>质保书表（大约需要40s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_millsheetno()'>更新数据表</button></td>
+		<td><button onclick='update_millsheetno()' id = "button8" >更新数据表</button></td>
 	</tr>
 	<tr>
 		<td>市场容量表（大约需要10s）&nbsp;&nbsp;&nbsp;</td>
-		<td><button onclick='update_space_comparsion()'>更新数据表</button></td>
+		<td><button onclick='update_space_comparsion()' id = "button9" >更新数据表</button></td>
 	</tr>
 
 </table>
+
 <br>
 <h2>添加市场容量数据</h2>
 <div id="inputarea" style="float:middle;width:800px;height:50px">
-时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-01-01'  > 
+时间: <input name="select_date1" id="select_date1" type="date"  style="width:120px" value = '2016-01-01'  > 
 地点: 
 <select name="select_space_province" id="select_space_province" class="xla_6"  value = '山东'>
     <option value="江苏">江苏</option>
@@ -95,13 +100,25 @@
     <option value="香港">香港</option>
 </select>
 市场容量
-<input type="text" name="select_weight" id="select_weight" value=0 >
+<input type="text" name="select_weight" id="select_weight" style="width:80px" value=0 >
 
 &nbsp;&nbsp;&nbsp;<button onclick='update_space_marketshare()'>添加</button>
 </div>
 
 <script type="text/javascript">
 
+	function update_all(){
+
+		update_orderno_orderItem()
+		update_displistno()
+		update_loadno()
+		update_collectno()
+		update_receiveno()
+		update_rtnno()
+		update_millsheetno()
+		update_space_comparsion()
+
+    };
 
 
     function update_space_marketshare(){
@@ -126,11 +143,14 @@
 	            alert("错误！添加数据出错！");
             }
          });
+
+
     };
 
 
 
     function update_orderno_orderItem(){
+
         $.ajax({
 	        type: "POST",
 	        dataType:"json",
@@ -144,6 +164,8 @@
 	            alert("错误！更新数据表出错！");
             }
          });
+
+
     };
 
     function update_displistno(){

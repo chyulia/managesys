@@ -89,6 +89,26 @@ def sql_market_share(startYear,startMonth,endYear,endMonth):
     print ("结论：\n",conclusion)
     print ("\n")
 
+
+    dictionary_noZero_ratio = {} #去除为零数据的结果
+    dictionary_noZero_salesWeight = {} #去除为零数据的结果
+    dictionary_noZero_qdisSalesWeight = {} #去除为零数据的结果
+    list_noZero_key = []
+    for key in ratio_dictionary:
+        if ratio_dictionary[key] != 0:
+            dictionary_noZero_ratio[key] = ratio_dictionary[key]
+            dictionary_noZero_salesWeight[key] = salesWeight_dictionary[key]
+            dictionary_noZero_qdisSalesWeight[key] = qdisSalesWeight_dictionary[key]
+            list_noZero_key.append(key)
+        else:
+            pass
+    all_dictionary["饼图比例字典"] = dictionary_noZero_ratio
+    all_dictionary["饼图市场容量字典"] = dictionary_noZero_salesWeight
+    all_dictionary["饼图青钢销量字典"] = dictionary_noZero_qdisSalesWeight
+    all_dictionary["饼图省份名称"] = list_noZero_key
+
+
+
     return ratio_dictionary,conclusion,all_dictionary
 
 
