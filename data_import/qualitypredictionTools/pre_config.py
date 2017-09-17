@@ -2,11 +2,9 @@ from django.conf import settings
 import pandas as pd
 
 media_root = settings.MEDIA_ROOT
-<<<<<<< HEAD
-data_root = media_root + 'files/data/'
-=======
+
 data_root = media_root + '/files/data/quality/'
->>>>>>> 021477b2fb346f157f830911e1a595b865530fc4
+
 path_lf = data_root + 'LF_test3.csv'
 data = pd.read_csv(path_lf, encoding = 'gbk')
 heatno = {}
