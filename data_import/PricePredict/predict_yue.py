@@ -1,4 +1,5 @@
 from time import time
+
 import csv,datetime
 from sklearn.cluster import k_means
 import numpy as np
@@ -6,9 +7,10 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn import preprocessing
 from sklearn import linear_model
-from data_import.ironstonepriceTools.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
-from data_import.ironstonepriceTools.random_layer import RandomLayer, MLPRandomLayer, RBFRandomLayer, GRBFRandomLayer
-from math import sqrt
+from sklearn import svm
+from sklearn import ensemble
+
+from data_import.PricePredict.RegressionModels.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
 
 import math
 
@@ -19,7 +21,7 @@ data：传入的数据
 
 '''
 def predict(shuchu,data,algorithm):
-	# print('222')
+	
 	output = [shuchu]
 	Y = data[shuchu]
 	Y_array=np.array(Y)
@@ -27,7 +29,7 @@ def predict(shuchu,data,algorithm):
 	origal_std=Y_array.std(axis=0)
 	columns = list(data.columns)
 	columns_feature=columns.copy()
-	out_and_else = ['tkszs_l1','tkszs_l2','tkszs_l3']
+	out_and_else = ['qdg_l1y','qdg_l2y','qdg_l3y']
 	for col in out_and_else:
 	    columns_feature.remove(col)
 	data_scale=preprocessing.scale(np.array(data))
@@ -67,41 +69,42 @@ def predict(shuchu,data,algorithm):
 传入数据
 algorithm：选择的算法
 '''
-def predict_day(path,algorithm):
+def predict_yue(path,algorithm):
 	data = pd.read_csv(path, encoding = 'gbk')
 	# data = data.dropna()
 	data1 = data.copy()
 	if data.columns[0] == 'Unnamed: 0':
 	    data = data.drop('Unnamed: 0',axis=1)
-	data = data.drop(['date','psjgzs','feigang','haiyun_BDI','haiyun_BDTI','pugang_zhishu','tegang_zonghe_zhishu','meiyuan'],axis=1)
-	algorithm = linear_model.SGDRegressor(loss='squared_loss')
+	data = data.drop('qdg_date',axis=1)
+	# algorithm = linear_model.SGDRegressor(loss='squared_loss')	
 	# 输入的时间序列
 	data_index = data1.index
 	data_last10 = data1.loc[list(data_index)[-10:]]
-	data_last10['date'] = data_last10['date'].map(lambda x : str(x))
-	data_last10['date'] = data_last10['date'].map(lambda x : datetime.datetime.strptime(x, '%Y/%m/%d'))
-	data_last10['date'][data_last10.index[-1]+1]=data_last10['date'][data_last10.index[-1]]+datetime.timedelta(days=1)
-	data_last10['date'][data_last10.index[-1]+2]=data_last10['date'][data_last10.index[-1]+1]+datetime.timedelta(days=1)
-	data_last10['date'][data_last10.index[-1]+3]=data_last10['date'][data_last10.index[-1]+2]+datetime.timedelta(days=1)
+	data_last10['qdg_date'] = data_last10['qdg_date'].map(lambda x : str(x))
+	data_last10['qdg_date'] = data_last10['qdg_date'].map(lambda x : datetime.datetime.strptime(x, '%Y%m'))
+	data_last10['qdg_date'][data_last10.index[-1]+1]=data_last10['qdg_date'][data_last10.index[-1]]+datetime.timedelta(days=31)
+	data_last10['qdg_date'][data_last10.index[-1]+2]=data_last10['qdg_date'][data_last10.index[-1]+1]+datetime.timedelta(days=31)
+	data_last10['qdg_date'][data_last10.index[-1]+3]=data_last10['qdg_date'][data_last10.index[-1]+2]+datetime.timedelta(days=31)
 	list_time = []
-	a = data_last10['date']
+	a = data_last10['qdg_date']
 	for i in a:
-	    list_time.append(str(i)[0:10])
+	    list_time.append(str(i)[0:7])
+
 	# 历史值
 	data_tkszs_10 = data1.loc[list(data_index)[-10:]]
-	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+1]='-'
-	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+2]='-'
-	data_tkszs_10['tkszs_qdg'][data_tkszs_10.index[-1]+3]='-'
+	data_tkszs_10['qdg_price'][data_tkszs_10.index[-1]+1]='-'
+	data_tkszs_10['qdg_price'][data_tkszs_10.index[-1]+2]='-'
+	data_tkszs_10['qdg_price'][data_tkszs_10.index[-1]+3]='-'    
 	# 预测值
 	list_predict = ['-','-','-','-','-','-','-','-','-']
 	list_predict.append(0)
-	list_predict.append(round(float(predict( 'tkszs_l1',data,algorithm)),1))
-	list_predict.append(round(float(predict( 'tkszs_l2',data,algorithm)),1))
-	list_predict.append(round(float(predict( 'tkszs_l3',data,algorithm)),1))
+	list_predict.append(round(float(predict( 'qdg_l1y',data,algorithm)),1))
+	list_predict.append(round(float(predict( 'qdg_l2y',data,algorithm)),1))
+	list_predict.append(round(float(predict( 'qdg_l3y',data,algorithm)),1))
 	result = {}
 	result["score"] = 0.4
 	result["timeline"] = list_time
-	result["true_value"] = list(data_tkszs_10['tkszs_qdg'])
+	result["true_value"] = list(data_tkszs_10['qdg_price'])
 	result["predict_value"] = list_predict
 	# print(result)
 	return result

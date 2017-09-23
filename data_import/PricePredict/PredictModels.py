@@ -11,7 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 '''
 ELM
 '''
-from data_import.SteelPricePredict.RegressionModels.ExtremeLM import elm_
+from data_import.PricePredict.RegressionModels.ExtremeLM import elm_
 
 class ExtremeLM(object):
     """docstring for ExtremeLM."""
