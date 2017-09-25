@@ -42,8 +42,8 @@
 </div>
 <br>
 <div>
-    起始时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-01-01' / >
-    终止时间: <input name="select_date2" id="select_date2" type="date"  value = '2016-07-31' / >
+    起始时间: <input name="select_date1" id="select_date1" type="date"  style="width:130px" value = '2016-01-01' / >
+    终止时间: <input name="select_date2" id="select_date2" type="date"  style="width:130px" value = '2016-07-31' / >
     快捷按钮：
     <button id="btnSelectDate_oneYear" onclick="SelectDate_default()" > 默认值 </button>
     <button id="btnSelectDate_oneMonth" onclick="SelectDate_oneMonth()" > 近一月 </button>
@@ -57,9 +57,10 @@
 <div>
  地点范围:
     <select name="select_space" id="select_space" class="xla_4">
-        <option value="1">世界范围内</option>
+        
         <option value="2">中国范围内</option>
         <option value="3">山东省内</option>
+        <option value="1">世界范围内</option>
     </select><br>
 </div>
 <br>
@@ -79,14 +80,74 @@
 <!-- <button id="btnUpdateMysql" onclick="UpdateMysql()">更新数据仓库</button> -->
 <br>
 <br>
+<div>
+    展示方式： 
+    <select name="select_showStyle" id="select_showStyle" class="xla_8" " value = '月' style="display:inline;">
+        <option value="1">地图</option>
+        <option value="2">饼图</option>
+        <option value="3">漏斗图</option>
+        <option value="4">折线图</option>
+        <option value="5">柱状图</option>
+
+    </select>
+</div>
+<br>
+<br>
 <div id="main4" style="width: 800px;height:400px;"></div>
 <div id="main5" style="width: 60px;height:400px;">
+<br>
 <textarea id="txt" style="width: 800px;height:300px;"></textarea>
 </div>
 <br>
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
 <script type="text/javascript">
   
+    var data_save = {
+        result: null,
+        tradeNoNoNo: null,
+        aspect_name: null,
+        unite: null,
+        maxValue: null,
+        module_name: null,
+        sql_date1_: null,
+        sql_date2_: null,
+        dateChoose_name: null,
+        space_name: null,
+        showStyle: null,
+        pieresult: null,
+        space:null,
+    }
+ 
+
+    select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
+        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+
+        if (data_save.tradeNoNoNo.length == 0){
+            alert("错误！请选择钢种！"); //判断钢种选择是否正确
+        }else{
+            if (this.value == 1){
+                if ( data_save.space == 1 ){
+                    drawMapChartWorld(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name);
+                }else if ( data_save.space == 2 ){
+                    drawMapChartChina(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.unite);
+                }else {
+                    drawMapChartShandong(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name);
+                }
+            }else if (this.value == 2){
+                //console.log("two");
+                drawpie(data_save.pieresult,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+            }else if (this.value == 3){
+                drawfunnel(data_save.pieresult,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+            }else  if (this.value == 4){
+                //console.log("four");
+                drawTimeLineBar_normal(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+            }else {
+                //console.log("five");
+                drawBar_normal(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+            }
+        }
+    }
+
     $('#btnDrawChart').click(function(){
         //var module = $ ("#select_module").find("option:selected").val();
         var module = 1;
@@ -106,8 +167,11 @@
         sql_date2_2 = sql_date2_.substring(5, 7)
         sql_date2_3 = sql_date2_.substring(8)
         sql_date2 = sql_date2_1 + sql_date2_2 + sql_date2_3 
+        
+        var showStyle = $ ("#select_showStyle").find("option:selected").val();
 
-        var space_detail = "" 
+        var sql_cust = ''
+        var space_detail = ""
 
         var arr = new Array();
         var tradeNoNoNo = ""
@@ -122,7 +186,10 @@
                     tradeNoNoNo = tradeNoNoNo + comma + items[i].value;
                 }
             }                
-        }                 
+        }         
+
+
+
         //console.log(arr);            
         //console.log(tradeNoNoNo); 
         //console.log(tradeNo);
@@ -156,37 +223,75 @@
             space_name = '山东';
         }
 
-        //图表正在加载中
-        var myChart = echarts.init(document.getElementById('main4'));
-        myChart.showLoading({
-                    text: "图表数据正在努力加载...\n请不要点击其他按钮~"
-                });
-        
-        $.ajax({
-            type: "post",
-            url:  "/space",
-            data: {'module':module,'aspect':aspect,'dateChoose':dateChoose,'space':space,'tradeNo':tradeNoNoNo,'sql_date1':sql_date1,'sql_date2':sql_date2,'sql_cust':sql_cust,'space_detail':space_detail,'module_unit_key':module_unit_key,'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val()}
-            
-            }
-        ).done(function(data) {
-            console.log(JSON.stringify(data.result));
-            if ( space == 1 ){
-                drawMapChartWorld(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name);
-            }else if ( space == 2 ){
-                drawMapChartChina(data.result,tradeNoNoNo,data.aspect_name,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,data.unite);
-            }else {
-                drawMapChartShandong(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name);
-            }
-            //console.log(tradeNo);
-            //console.log(sql_date1)
-            //console.log(sql_date2)
-            console.log(data.unite)
 
-            $("#txt").empty();
-            $("#txt").append(data.describe); 
-             }).fail(function(){
-                console.log("wrong");
-             });
+        if (tradeNoNoNo.length == 0){
+            alert("错误！请选择钢种！"); //判断钢种选择是否正确
+        }else{
+            //图表正在加载中
+            var myChart = echarts.init(document.getElementById('main4'));
+            myChart.showLoading({
+                        text: "图表数据正在努力加载...\n请不要点击其他按钮~"
+                    });
+            
+            $.ajax({
+                type: "post",
+                url:  "/space",
+                data: {'module':module,'aspect':aspect,'dateChoose':dateChoose,'space':space,'tradeNo':tradeNoNoNo,'sql_date1':sql_date1,'sql_date2':sql_date2,'sql_cust':sql_cust,'space_detail':space_detail,'module_unit_key':module_unit_key,'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val()}
+                
+                }
+            ).done(function(data) {
+                console.log(JSON.stringify(data.result));
+                console.log(JSON.stringify(data.pieresult));
+                data_save.result = data.result;
+                data_save.tradeNoNoNo = tradeNoNoNo;
+                data_save.aspect_name = data.aspect_name;
+                data_save.unite = data.unite;
+                data_save.maxValue = data.maxValue;
+                data_save.module_name = data.module_name;
+                data_save.sql_date1_ = sql_date1_;
+                data_save.sql_date2_ = sql_date2_;
+                data_save.dateChoose_name = dateChoose_name;
+                data_save.space_name = space_name;
+                data_save.showStyle = showStyle;
+                data_save.pieresult = data.pieresult;
+                data_save.space = space
+
+
+                if ( showStyle == 1 ){
+                    if ( space == 1 ){
+                        drawMapChartWorld(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name);
+                    }else if ( space == 2 ){
+                        drawMapChartChina(data.result,tradeNoNoNo,data.aspect_name,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,data.unite);
+                    }else {
+                        drawMapChartShandong(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name);
+                    }
+                }else if ( showStyle == 2 ){
+                    drawpie(data.pieresult,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+                }else if ( showStyle == 3 ){
+                    drawfunnel(data.pieresult,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+                }else if ( showStyle == 4 ){
+                    drawTimeLineBar_normal(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+                }else {
+                    console.log("five");
+                    drawBar_normal(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+                   
+                }
+
+                
+                //console.log(tradeNo);
+                //console.log(sql_date1)
+                //console.log(sql_date2)
+                console.log(data.unite)
+
+                $("#txt").empty();
+                $("#txt").append(data.describe); 
+                 }).fail(function(){
+                    console.log("wrong");
+                 });
+                
+        } 
+        
+
     });
 
     function UpdateMysql(){

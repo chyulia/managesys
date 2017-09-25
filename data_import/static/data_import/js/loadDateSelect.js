@@ -157,7 +157,7 @@
             newMonth = 12;
             newYear = today.year - 1
         }else{
-            newMonth = today.month - 1
+            newMonth = today.month - 6
             newYear = today.year
         }
         //得到上一月日期的 日
