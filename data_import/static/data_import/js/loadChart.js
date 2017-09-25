@@ -106,7 +106,7 @@ function drawMapChartChina_ratio(all_dictionary,data,startYear,startMonth,endYea
     option = {
         title : {
             text: "市场容量分析",
-            subtext: startYear + "年" + startMonth + "月至" + startYear + "年" + startMonth + "月内，全国各省份市场容量及占比",
+            subtext: startYear + "年" + startMonth + "月至" + endYear + "年" + endMonth + "月内，全国各省份市场容量及占比",
             x:'center'
         },
         tooltip: {
