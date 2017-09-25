@@ -652,10 +652,16 @@ def space(request):
 										  								request.POST.get('module_unit_key')
 										  								)
 			rst = []
-			for key in dictionary.keys():
-				rst.append({'name': key, 'value': dictionary.get(key)})
+			for key in dictionary['地图结果']:
+				rst.append({'name': key, 'value': dictionary['地图结果'][key]})
+			pierst = []
+
+			for key in dictionary['饼图结果']:
+				pierst.append({'name': key, 'value': dictionary['饼图结果'][key]})
+
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': rst,
+				                            'pieresult': pierst,
 				                            'module_name': module_name,
 				                            'aspect_name': aspect_name,
 				                            'unite': unite,
@@ -853,11 +859,15 @@ def market_share(request):
 			all_rst = []
 			for key in all_dictionary.keys():
 				all_rst.append({'name': key, 'value': all_dictionary.get(key)})
+			pie_rst = []
+			for key in all_dictionary['饼图比例字典']:
+				pie_rst.append({'name': key, 'value': all_dictionary['饼图比例字典'][key]})
 			#print (" >>>  view.py 中的 market_share 函数 执行到这里")
 			#print (all_rst)
 			return HttpResponse(json.dumps({'describe': conclusion,
 				                            'result': ratio_rst,
-				                            'all_dictionary':all_rst}), content_type='text/json/json/')
+				                            'all_dictionary':all_rst,
+				                            'pie_rst':pie_rst}), content_type='text/json/json/')
 		except Exception as ex:
 			print(ex)
 

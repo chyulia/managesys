@@ -12,7 +12,9 @@ db_port = 1521
 single_doretrospect=0.2
 #对字段偏离程度的定性判断：表示-0.2~0.2为正常，±（0.2~0.35）为偏高/低，>0.35或<-0.35为高/低
 qualitative_standard=[0.2,0.35]
-
+#雷达图中期望上下范围的对比
+updesired=1.2#上范围
+downdesired=0.8#下范围
 
 
 #多炉次波动率

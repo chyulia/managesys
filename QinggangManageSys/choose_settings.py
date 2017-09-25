@@ -18,6 +18,8 @@ backuppwd= "xxxx"
 node = platform.node()
 print(node)
 dev_machines = ('cheng-cx','cheng-cx.local')
+win_machines = ('chyulia-PC',"TP-PC")
+
 
 if node in dev_machines:
     # folder QinggangManageSys
@@ -204,6 +206,49 @@ elif node == "hadoop01":
     ALLOWED_HOSTS = [
         '*',
     ]
+elif node in win_machines:
+    QinggangManageSys = os.path.dirname(os.path.dirname(__file__))
+    # project dir, contains static and media folder under DEV environment
+    PROJECT_DIR = os.path.dirname(QinggangManageSys)
+    DEBUG = True
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'qinggang',
+            'USER': 'root',
+            'PASSWORD': '123456',
+            # 'HOST': master_ip,
+            'HOST': '202.204.54.212',
+            'PORT': '3306',
+        },
+        'l2own': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'orcl',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
+            'PORT': '1521',
+        },
+        'sale': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME':'orcl',
+            'USER': 'meskc',
+            'PASSWORD': '123456',
+            'HOST': '202.204.54.212',
+            'PORT': '1521',
+        },
+    }
+    print(PROJECT_DIR)
+    STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+    STATIC_URL = '/static/'
+    MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+    print(MEDIA_ROOT)
+    MEDIA_URL = '/media/'
+    STATICFILES_DIRS = (
+        os.path.join(PROJECT_DIR, 'static'),
+    )
+    TEMPLATE_DIRS = [os.path.join(QinggangManageSys, 'templates')]
+    ALLOWED_HOSTS = ['*']
 else:
     DEBUG = True
     DATABASES = {

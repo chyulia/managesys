@@ -31,9 +31,51 @@
 # from . import conclusion
 # from . import save_txt
 import math
+import time
 from functools import reduce
 # import data_import.models as models
 from . import models
+
+def threeMonthAgo():
+	today = time.strftime('%Y%m%d',time.localtime(time.time()))
+	Year = today[0:4]
+	Month = today[4:6]
+	Day = today[6:]
+	print (Year,Month,Day)
+	#得到每月天数
+	daysInMonth = [0,31,28,31,30,31,30,31,31,30,31,30,31]
+
+	if int(Year)%4 == 0 and int(Year)%100 != 0 :
+		#闰年2月有29天
+		daysInMonth[2]= 29;
+	year = int(Year) 
+	Month = int(Month)
+	Day = int(Day)
+	#得到上一月月份数 与 年份数
+	if Month == 1:
+		newMonth = 10;
+		newYear = Year - 1
+	elif Month == 2:
+		newMonth = 11;
+		newYear = Year - 1
+	elif Month == 3:
+		newMonth = 12;
+		newYear = Year- 1
+	else:
+		newMonth = Month - 3
+		newYear = Year
+	#得到上一月日期的 日
+	if daysInMonth[newMonth] < Day:
+		newDay = daysInMonth[newMonth]
+	else:
+		newDay = Day
+
+	if len(str(newMonth)) == 1:
+		newMonth = "0" + str(newMonth)
+	newDate = str(newYear) + str(newMonth) + str(newDay)
+	print ("three month ago is : ",newDate)
+	return newDate
+
 	
 def sql_stockControl(module,tradeNo,module_unit_key):
 	#========================【 输 入 】===========================
@@ -47,9 +89,10 @@ def sql_stockControl(module,tradeNo,module_unit_key):
 	stock_All=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 
 	# select stock before  20170401
+	threeMonthAgoDate = threeMonthAgo()
 	sqlVO={}
 	sqlVO["db_name"]="sale"
-	sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INVID <= 'B11605026005EL014' and INSTOCKDATE < '20160201' GROUP BY TRADENO";
+	sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INVID <= 'B11605026005EL014' and INSTOCKDATE < '" + threeMonthAgoDate + "' GROUP BY TRADENO";
 	#sqlVO["sql"] = "select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INSTOCKDATE < '20170401' GROUP BY TRADENO";
 	stock_overstock=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 
