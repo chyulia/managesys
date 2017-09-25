@@ -17,7 +17,7 @@ master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local1')
+dev_machines = ('cheng-cx','cheng-cx.local')
 
 if node in dev_machines:
     # folder QinggangManageSys
@@ -32,7 +32,7 @@ if node in dev_machines:
             'USER': 'root',
             'PASSWORD': '123456',
             # 'HOST': master_ip,
-            'HOST': 'localhost',
+            'HOST': '202.204.54.108',
             'PORT': '3306',
         },
         'l2own': {
@@ -40,7 +40,7 @@ if node in dev_machines:
             'NAME':'qinggang',
             'USER': 'qinggang',
             'PASSWORD': 'qinggang',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
         'sale': {
@@ -48,7 +48,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
     }
