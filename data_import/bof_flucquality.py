@@ -201,14 +201,13 @@ def fluc_qualityfields(request):
 		scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 		# print('len(scrapy_records)',len(scrapy_records))
 
-
-		ana_describe=calaulate_describe(scrapy_records,xasis_fieldname)
 		# if ana_describe['sign']==1:
 		if len(scrapy_records)==0:
 			contentVO['state']='failure_current'
 			return HttpResponse(json.dumps(contentVO),content_type='application/json')
 
-		# print('-----------------------ana_describe',ana_describe)
+		ana_describe=calaulate_describe(scrapy_records,xasis_fieldname)
+		# print('-----------------------ana_describe[state]',ana_describe['state'])
 
 		fluc_ratio=[]#存储各相关性字段的在当前的波动率
 		for i in range(len(xasis_fieldname)):
@@ -228,12 +227,13 @@ def fluc_qualityfields(request):
 		sqlVO_history["sql"]=sentence_history
 		# print(sqlVO_history["sql"])
 		scrapy_records_history=models.BaseManage().direct_select_query_sqlVO(sqlVO_history)
-
-		ana_describe_history=calaulate_describe(scrapy_records_history,xasis_fieldname)
+		
 		# if ana_describe_history['sign']==1:
 		if len(scrapy_records_history)==0:
 			contentVO['state']='failure_history'
 			return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+		ana_describe_history=calaulate_describe(scrapy_records_history,xasis_fieldname)
 		# print('----------------------------ana_describe_history',ana_describe_history)
 
 		fluc_ratio_history=[]#存储各相关性字段的在当前的波动率
@@ -300,7 +300,7 @@ def fluc_qualityfields(request):
 	fluc_ratio_historylist=["%.3f"%(n) for n in list(fluc_ratio_history_result)]
 
 	ana_result={}
-	ana_result['time']=times
+	# ana_result['time']=times
 	ana_result['ifcache']=ifcache
 	ana_result['whichcache']=whichcache
 	ana_result['sentence_select']=sentence_select
@@ -531,7 +531,14 @@ def months(dt,months):#这里的months 参数传入的是正数表示往后 ，�
     month = dt.tm_mon - 1 + months
     year = dt.tm_year + month // 12#python3特性：//表示整数除，/除法会自动转为浮点数
     month = month % 12 + 1
-    day = dt.tm_mday#对于参数更新而言，出现20170230并不会产生影响
+    day_dic = {'1':31,'2':28,'3':31,'4':30,'5':31,'6':30,'7':31,'8':31,'9':30,'10':31,'11':30,'12':31}
+    if (year%4==0 and year%100!=0) or year%400==0:
+    	day_dic['2'] = 29
+
+    if dt.tm_mday>day_dic[str(month)]:#日期大于该月最大日期
+    	day = day_dic[str(month)]
+    else:
+    	day = dt.tm_mday
     pretime=str(year)+'-'+str(month)+'-'+str(day)#可能是2017-7-5格式
     #将2017-7-5格式转化为2017-07-05格式
     t = time.strptime(pretime, "%Y-%m-%d")
@@ -545,12 +552,13 @@ from . import zhuanlu
 def quality_multifurnace_regression_analyse(request):
 	print("Enter multifurnace_regression_analyse")
 	result = json.loads(request.POST.get("result"));
-	str_cause=multifurnace_regression_analyse_to(result)
+	str_cause,str_cause_normal=multifurnace_regression_analyse_to(result)
 
 	contentVO={
 		'title':'测试',
 		'state':'success',
-		'str_cause':str_cause
+		'str_cause':str_cause,
+		'str_cause_normal':str_cause_normal
 	}				
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')	
 
@@ -561,7 +569,9 @@ def multifurnace_regression_analyse_to(result):
 	sentence_select=result['sentence_select']#当前筛选条件
 	sentence_selecthistory=result['sentence_selecthistory']#历史筛选条件
 
-	str_cause=''#存放追溯结果
+	str_cause='【通过数据分析，超出正常范围的因素】\n'#存放追溯结果(问题字段)
+	str_cause_normal='【波动率处于正常范围内的因素】\n'#正常字段
+	m=0#n用来指示当前正常字段的个数
 	n=0#n用来指示当前问题字段的个数
 	print(ifcache)
 	print(whichcache)
@@ -571,10 +581,19 @@ def multifurnace_regression_analyse_to(result):
 	for i in range(len(fieldname_en_wrong)):#对类中的每个字段进行处理
 		#当前波动率
 		corrent_wrong_fluc_ratio=result['fluc_ratio_wrong'][i]
+		if corrent_wrong_fluc_ratio=='wrong':
+			corrent_wrong_fluc_ratio='无法计算'
+		else:
+			corrent_wrong_fluc_ratio=str(corrent_wrong_fluc_ratio)[:5]
+
 		#历史波动率
 		history_wrong_fluc_ratio=result['fluc_ratio_history_wrong'][i]
+		if history_wrong_fluc_ratio=='wrong':
+			history_wrong_fluc_ratio='无法计算'
+		else:
+			history_wrong_fluc_ratio=str(history_wrong_fluc_ratio)[:5]
 		#反馈信息
-		str_cause=str_cause+'【'+str(n+1)+'】'+str(fieldname_en_wrong[i])+'当前波动率为'+str(corrent_wrong_fluc_ratio)[:5]+',历史波动率为'+str(history_wrong_fluc_ratio)[:5]+',无法计算偏离程度！\n' 
+		str_cause=str_cause+'【'+str(n+1)+'】'+str(fieldname_en_wrong[i])+'当前波动率'+corrent_wrong_fluc_ratio+',历史波动率'+history_wrong_fluc_ratio+',无法计算偏离程度！\n' 
 		n=n+1
 
 	#(2)对正常字段进行分析或追溯
@@ -590,19 +609,20 @@ def multifurnace_regression_analyse_to(result):
 		qualitative_offset_result_single=result['qualitative_offset_result'][i]#偏离程度
 
 		if singlefield_offset <0:#当前字段波动率偏小，不需要进行追溯
-			# str_cause=str_cause+'【'+str(n+1)+'】'+singlefield_ch+'波动率降低，数值趋于稳定。\n'
-			# n=n+1
+			str_cause_normal=str_cause_normal+'【'+str(m+1)+'】'+singlefield_ch+'波动率降低，数值趋于稳定。\n'
+			m=m+1
 			continue
 		elif singlefield_offset <=bof_config.fluc_doretrospect:#偏离程度小于0.05，属于正常状态
-			# str_cause=str_cause+'【'+str(n+1)+'】'+singlefield_ch+'波动率正常。\n'
-			# n=n+1
+			str_cause_normal=str_cause_normal+'【'+str(m+1)+'】'+singlefield_ch+'波动率正常。\n'
+			m=m+1
 			continue
 		else:#正常追溯
 			#中文名、偏离程度定性描述、带百分号的偏离程度绝对值、回归系数
 			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result = analy_cof(ifcache,whichcache,singlefield_en,singlefield_offset,sentence_select,sentence_selecthistory)
 			if 	En_to_Ch_result_score==None:
 				# str_des='本炉次'+prime_cost+'的'+singlefield_ch+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
-
+				str_cause= str_cause+'【'+str(n+1)+'】'+singlefield_ch+qualitative_offset_result_single+offset_value_abs+'，相关字段数据不足，无法追溯；'
+				n=n+1
 				continue
 			else:
 				# str_des='本炉次'+prime_cost+'的'+singlefield_ch+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。通过数据相关性分析发现，导致该问题的原因是:\n'      
@@ -612,10 +632,13 @@ def multifurnace_regression_analyse_to(result):
 					str_cause=str_cause+'[原因'+str(i+1)+']'+En_to_Ch_result_score[i]+offset_result_nature[i]+offset_value_single_cof[i]+'；'
 				str_cause=str_cause+'\n'
 
-	if n==0:
-		str_cause='当前数据条件均符合要求，无需追溯。\n'
 
-	return str_cause	
+	if n==0:
+		str_cause=str_cause+'无当前历史条件下的问题字段追溯结果。\n'
+	if m==0:
+		str_cause_normal=str_cause_normal+'无当前历史条件下的正常字段分析结果。\n'
+
+	return str_cause,str_cause_normal	
 
 
 def analy_cof(ifcache,whichcache,singlefield_en,singlefield_offset,sentence_select,sentence_selecthistory):

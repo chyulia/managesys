@@ -11,6 +11,7 @@ from . import batchprocess
 from . import ironstoneprice
 from . import violent_analyse
 from . import update
+from . import dynamic_update
 urlpatterns = [
     #需要对相同业务的加载与处理写一个分发器
     url(r'^$', views.home),
@@ -179,7 +180,9 @@ urlpatterns = [
 
 
     #更新bof数据
-    url(r'^updatebof', update.updatebof),
+    url(r'^updatebof', update.updatebof),#首次全部数据重新处理
+    url(r'^batch_dyupdatebof', dynamic_update.dynamic_updatebof),#数据的定期更新
+    
 
 
 
