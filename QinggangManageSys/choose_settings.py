@@ -39,9 +39,9 @@ if node in dev_machines:
         },
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'qinggang',
-            'USER': 'qinggang',
-            'PASSWORD': 'qinggang',
+            'NAME':'orcl',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
             'HOST': '202.204.54.108',
             'PORT': '1521',
         },
@@ -65,7 +65,7 @@ if node in dev_machines:
     )
     TEMPLATE_DIRS = [os.path.join(QinggangManageSys, 'templates')]
     ALLOWED_HOSTS = ['*']
-elif node == "cheng-cx.local":
+elif node == "cheng-cx.local1":
     print("单独加了一个独立的分支,以便适应现场的环境")
     DEBUG = True
     DATABASES = {
@@ -218,7 +218,7 @@ elif node in win_machines:
             'USER': 'root',
             'PASSWORD': '123456',
             # 'HOST': master_ip,
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '3306',
         },
         'l2own': {
@@ -226,7 +226,7 @@ elif node in win_machines:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
         'sale': {
@@ -234,7 +234,7 @@ elif node in win_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
     }
@@ -257,7 +257,7 @@ else:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
         'default': {
@@ -265,7 +265,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '3306',
         },
         'mes_backup': {
@@ -289,7 +289,7 @@ else:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.108',
             'PORT': '1521',
         },
     }
