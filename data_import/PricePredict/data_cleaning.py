@@ -212,6 +212,38 @@ def get_stone_history_price(path,begin,end,yinsu_type):
 	result['price'] = list(history_price[yinsu_type])
 	return result
 
+"""
+历史钢材数据展示
+"""
+
+
+def data_pre_process(df):
+	# tradeno因空格差异导致不同
+
+	df['tradeno'] = df['tradeno'].replace('60Si2Mn（线）', '65Si2Mn(线)')
+	df['tradeno'] = df['tradeno'].replace('65Si2Mn(线）', '65Si2Mn(线)')
+	# region异常字段
+	df['region'] = df['region'].replace('（17：40）全国', '全国')
+	df['region'] = df['region'].replace('(15:24)全国', '全国')
+	# 根据时间去除之前牌号未正常记录的数据
+	df['updatetime'] = df['updatetime'].map(lambda x: datetime.datetime.strptime(str(x), '%Y-%m-%d'))
+	df = df[df['updatetime'] > datetime.datetime.strptime('2010-06-03', '%Y-%m-%d')]
+
+	return df
+
+def get_all_history_select(df):
+	df = data_pre_process(df)
+	extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark')
+	choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'factory', 'region')
+	all_select = dict()
+	for col in df.columns:
+
+		if col in extra_col:
+			print(col)
+			continue
+		all_select[col] = list(df[col].unique())
+	return all_select,choose_col
+
 if __name__ == '__main__':
 	create_models([10])
 

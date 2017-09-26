@@ -7,7 +7,9 @@ from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
-from data_import.PricePredict.data_cleaning import get_history_price,create_single_model,get_stone_history_price
+import pandas as pd
+
+from data_import.PricePredict.data_cleaning import get_history_price,create_single_model,get_stone_history_price,get_all_history_select
 import data_import.PricePredict.PredictModels as PredictModels
 from data_import.PricePredict.predict_day import predict_day
 from data_import.PricePredict.predict_yue import predict_yue
@@ -29,15 +31,30 @@ def steelprice(request):
 	if not request.user.is_authenticated():
 		return HttpResponseRedirect("/login")
 	logger.debug(media_root)
-	'''
-	加载钢材种类，及可选的预测方法
-	'''
+
 	logger.debug(steel_type)
 	logger.debug(predict_method)
 	contentVO={
 		'title':'钢材价格预测',
 		'state':'success'
 	}
+	sqlVO = dict()
+	tname = 'steelprice'
+	sql = 'SELECT * FROM {0}'.format(tname)
+	sqlVO['sql'] = sql
+	desc = models.BaseManage().direct_get_description_only(sqlVO)
+	print(desc)
+	rs = models.BaseManage().direct_select_query_sqlVO(sqlVO)
+	## rs为tuple，每一行记录也是tuple
+	if rs:
+		print(rs[:5])
+		df = pd.DataFrame(rs, columns=pd.Series(desc[0]))
+	all_select,choose_col = get_all_history_select(df)
+	# choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'factory', 'region')
+	print(all_select)
+	for col in choose_col:
+		contentVO[col] = all_select[col]
+
 	contentVO["steel_type"] = steel_type
 	contentVO["predict_method"] = predict_method
 	contentVO['time_scale'] = time_scale

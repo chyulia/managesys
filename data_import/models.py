@@ -21,6 +21,38 @@ from taggit.managers import TaggableManager
 
 
 upload_dir = 'content/ContentPost/%s/%s'
+"""
+查询字段类型
+"""
+field_type = {
+				0: 'DECIMAL',
+				1: 'TINY',
+				2: 'SHORT',
+				3: 'LONG',
+				4: 'FLOAT',
+				5: 'DOUBLE',
+				6: 'NULL',
+				7: 'TIMESTAMP',
+				8: 'LONGLONG',
+				9: 'INT24',
+				10: 'DATE',
+				11: 'TIME',
+				12: 'DATETIME',
+				13: 'YEAR',
+				14: 'NEWDATE',
+				15: 'VARCHAR',
+				16: 'BIT',
+				246: 'NEWDECIMAL',
+				247: 'INTERVAL',
+				248: 'SET',
+				249: 'TINY_BLOB',
+				250: 'MEDIUM_BLOB',
+				251: 'LONG_BLOB',
+				252: 'BLOB',
+				253: 'VAR_STRING',
+				254: 'STRING',
+				255: 'GEOMETRY'
+			}
 
 class BaseManage(models.Manager):
 	#根据传入属性dict生成增删改查的sql，使用raw方法进行查询，针对绑定了model的情况
@@ -123,9 +155,15 @@ class BaseManage(models.Manager):
 			cursor = connection.cursor()
 		try:
 			print('SQL [%s]' % sqlVO.get('sql'))
-			cursor.execute(sqlVO.get('sql'),sqlVO.get('vars'))
-		except:
+			cursor.execute(sqlVO.get('sql'),sqlVO.get('vars', None))
+		except Exception as e:
+			transaction.rollback()
 			print( 'Failed to execute SQL[%s]\n' % sqlVO.get('sql') )
+			print('error:', e)
+		else:
+			transaction.commit()
+			cursor.close()
+			return True
 
 	def direct_get_description(self,sqlVO):
 		db_name=sqlVO.get('db_name')
@@ -133,11 +171,23 @@ class BaseManage(models.Manager):
 			cursor = connections[db_name].cursor()
 		else:
 			cursor = connection.cursor()
-		cursor.execute(sqlVO.get('sql'),sqlVO.get('vars',None))
+		cursor.execute(sqlVO.get('sql'),sqlVO.get('vars', None))
 		columns = [col[0] for col in cursor.description]
 		types=[col[1].__name__ for col in cursor.description]
 		columns_type=dict(zip(columns, types))
 		return [columns,columns_type]
+
+	def direct_get_description_only(self,sqlVO):
+		db_name=sqlVO.get('db_name')
+		if sqlVO.get('db_name')!=None:
+			cursor = connections[db_name].cursor()
+		else:
+			cursor = connection.cursor()
+		cursor.execute(sqlVO.get('sql'),sqlVO.get('vars', None))
+		columns = [col[0] for col in cursor.description]
+		types = [field_type.get(col[1]) for col in cursor.description]
+		columns_type = dict(zip(columns, types))
+		return [columns, columns_type]
 
 	def direct_select_query_orignal_sqlVO(self,sqlVO):
 		#如果是多数据库
