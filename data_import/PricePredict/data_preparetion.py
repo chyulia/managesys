@@ -12,6 +12,7 @@ from QinggangManageSys.choose_settings import MEDIA_ROOT
 class Data_Preparetion(object):
     def __init__(self):
         self.data_root = os.path.join(MEDIA_ROOT, 'files', 'data')
+        print(self.data_root)
 
     def load_data(self, filename):
         csv_path = os.path.join(self.data_root, filename)
