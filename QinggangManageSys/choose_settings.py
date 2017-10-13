@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import platform
 
+lab_ip = '202.204.54.27'
 master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()
@@ -34,7 +35,7 @@ if node in dev_machines:
             'USER': 'root',
             'PASSWORD': '123456',
             # 'HOST': master_ip,
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '3306',
         },
         'l2own': {
@@ -42,7 +43,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
         'sale': {
@@ -50,7 +51,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
     }
@@ -218,7 +219,7 @@ elif node in win_machines:
             'USER': 'root',
             'PASSWORD': '123456',
             # 'HOST': master_ip,
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '3306',
         },
         'l2own': {
@@ -226,7 +227,7 @@ elif node in win_machines:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
         'sale': {
@@ -234,7 +235,7 @@ elif node in win_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
     }
@@ -257,7 +258,7 @@ else:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
         'default': {
@@ -265,7 +266,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.108',
+            'HOST': lab_ip,
             'PORT': '3306',
         },
         'mes_backup': {
