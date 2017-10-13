@@ -138,10 +138,28 @@ function drawPredictBrokenLineChart(data,figure_name,method){
     }
 
 }
+
 function history_query(){
+    var steel_type = $("#steel_type").val();
+    var steeltype = $("#steeltype").val();
+    var tradeno = $("#tradeno").val();
+    var delivery = $("#delivery").val();
+    var specification = $("#specification").val();
+    var region = $("#region").val();
+    var factory = $("#factory").val();
     var history_begin =$("#history_begin").val();
     var history_end =$("#history_end").val();
-    var params = {"history_begin":history_begin,"history_end":history_end}
+    var params = {
+                    "history_begin":history_begin,
+                    "history_end":history_end,
+                    "steel_type":steel_type,
+                    "steeltype":steeltype,
+	                "tradeno":tradeno,
+	                "delivery":delivery,
+	                "specification":specification,
+	                "factory":factory,
+	                "region":region,
+                 }
     console.log(JSON.stringify(params));
     $.ajax({
         type: "post",

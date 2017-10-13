@@ -199,10 +199,17 @@ class BaseManage(models.Manager):
 		else:
 			cursor = connection.cursor()
 		try:
-			print('SQL [%s]' % sqlVO.get('sql'))
-			cursor.execute(sqlVO.get('sql'),sqlVO.get('vars',None))
+			sql = sqlVO.get('sql')
+			print('SQL [%s]' % sql)
+			try:
+				params = sqlVO.get('vars', None)
+			except Exception as e:
+				print('ERROR:[', e , ']')
+				params = None
+			cursor.execute(sql, params)
 			return cursor.fetchall()
-		except:
+		except Exception as e:
+			print('ERROR:[', e, ']')
 			print( 'Failed to execute SQL[%s]\n' % sqlVO.get('sql') )
 			return False
 
