@@ -262,6 +262,19 @@ MAIN_OUTFIT_BASE = 'data_import/main/'
 # CRONJOBS = [
 #     ('47 11 * * *', 'django.core.management.call_command', ['aizhan_5domain_visits']),
 # ]
+
+# TODO python 执行shell脚本及命令
+
+SCRAPY_ROOT = os.path.join(choose_settings.PROJECT_DIR, 'scrapy_elements')
+print(SCRAPY_ROOT)
+
+# AllElements = (
+#     'CRU cugangyuedu fdczs feigang gcck gcjk gkkc gtcl haiyun meitan_ljm '+
+#     'meiyuan PMI PPI psjgzs pugang tegang_zonghe tiejingfen tksjkl tksykcl tkszs WTI').split(' ')
+# print(AllElements)
+#
+# AllElements = ['CRU']
+
 CRONJOBS = [
     # ('*/1 * * * *', 'QinggangManageSys.views.paralle_test1'),
     ('19 22 * * 6', 'data_import.batchprocess.batch_relation_ana'), #转炉相关性分析
