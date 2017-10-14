@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.5.2
 # -*- coding: utf-8 -*-
 steel_type = {
 	"1":"弹簧钢",

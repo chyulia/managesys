@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.5.2
 from time import time
 
 import csv,datetime
