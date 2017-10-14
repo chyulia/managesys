@@ -1,6 +1,6 @@
 
 
-<<<<<<< HEAD
+
 #实验室
 # db_host = '202.204.54.212'
 db_user = 'root'
@@ -15,8 +15,7 @@ db_host = 'localhost'
 # db_password = '123456'
 # db_name = 'qinggang'
 # db_port = 3306
-=======
->>>>>>> 021477b2fb346f157f830911e1a595b865530fc4
+
 
 #MES
 oralce_db_host = '10.xxx.17' #改为相关主机的ip地址
