@@ -14,6 +14,28 @@ import datetime
 import time
 from . import models
 
+
+# TODO 在数据库内创建dblink的语句
+"""
+drop PUBLIC database link dblink_to_l2;
+create public database link dblink_to_l2 connect to report_query identified by qdisqdis
+ using '(DESCRIPTION =
+(ADDRESS_LIST =
+(ADDRESS = (PROTOCOL = TCP)(HOST = 10.30.0.161)(PORT = 1521))
+)
+(CONNECT_DATA =
+(SERVICE_NAME =qgil2dbdg)
+)
+)';
+在实验室相关的配置应该是本机
+-- Drop existing database link 
+drop public database link DBLINK_TO_L2;
+-- Create database link 
+create public database link DBLINK_TO_L2
+  connect to QG_USER identified by "123456"
+  using '202.204.54.42:1521/orcl';
+"""
+
 def dynamic_updatebof(request):#定期更新的执行,记录上次更新时间
 	batch_dyupdatebof()
 	updateRecordbof()
@@ -27,21 +49,25 @@ def dynamic_updatebof(request):#定期更新的执行,记录上次更新时间
 def updateRecordbof():#定期更新完成后更新记录表
 	#从各个表中读取各自的最新数据时间
 	sqlVO={}
-	sqlVO["db_name"]="l2own"
-	# tableNamelist = ['PRO_BOF_HIS_PLAN','PRO_BOF_HIS_MIRON','PRO_BOF_HIS_SCRAP','PRO_BOF_HIS_POOL','PRO_BOF_HIS_EVENTS','PRO_BOF_HIS_BOCSM','PRO_BOF_HIS_TEMP','PRO_BOF_HIS_CHRGDGEN','PRO_BOF_HIS_CHRGDDAT','PRO_BOF_HIS_ANAGEN','PRO_BOF_HIS_ANADAT']
-	tableNamelist = ['PLAN','MIRON','SCRAP','POOL','EVENTS','BOCSM','TEMP','CHRGDGEN','CHRGDDAT','ANAGEN','ANADAT']
-	for singlename in tableNamelist:
-		sqlVO["sql"]= "select MAX(MSG_DATE) FROM PRO_BOF_HIS_" +singlename
-		latestTime = models.BaseManage().direct_select_query_sqlVO(sqlVO)[0].get('MAX(MSG_DATE)',None)
-		str_latestTime = datetime.datetime.strftime(latestTime,'%Y-%m-%d %H:%M:%S')
-		sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set TABLE_"+ singlename+" = to_date(' " +str_latestTime+" ','yyyy-mm-dd hh24:mi:ss')" 
-		models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm = models.BaseManage()
+	bsm.identify_db("l2own")
+	@models.transaction_decorator
+	def inner_sql(bsm):
+		# tableNamelist = ['PRO_BOF_HIS_PLAN','PRO_BOF_HIS_MIRON','PRO_BOF_HIS_SCRAP','PRO_BOF_HIS_POOL','PRO_BOF_HIS_EVENTS','PRO_BOF_HIS_BOCSM','PRO_BOF_HIS_TEMP','PRO_BOF_HIS_CHRGDGEN','PRO_BOF_HIS_CHRGDDAT','PRO_BOF_HIS_ANAGEN','PRO_BOF_HIS_ANADAT']
+		tableNamelist = ['PLAN','MIRON','SCRAP','POOL','EVENTS','BOCSM','TEMP','CHRGDGEN','CHRGDDAT','ANAGEN','ANADAT']
+		for singlename in tableNamelist:
+			sqlVO["sql"]= "select MAX(MSG_DATE) FROM PRO_BOF_HIS_" +singlename+"_MIDDLE"
+			latestTime = models.BaseManage().direct_select_query_sqlVO(sqlVO)[0].get('MAX(MSG_DATE)',None)
+			str_latestTime = datetime.datetime.strftime(latestTime,'%Y-%m-%d %H:%M:%S')
+			sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set TABLE_"+ singlename+" = to_date(' " +str_latestTime+" ','yyyy-mm-dd hh24:mi:ss')" 
+			models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
-	#最后更新记录表的更新时间
-	# time_now=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))#当前时间
-	# sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = to_date(' " +time_now+" ','yyyy-mm-dd hh24:mi:ss')"
-	sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = sysdate"; 
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+		#最后更新记录表的更新时间
+		# time_now=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))#当前时间
+		# sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = to_date(' " +time_now+" ','yyyy-mm-dd hh24:mi:ss')"
+		sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = sysdate"; 
+		models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	inner_sql(bsm)
 
 def batch_dyupdatebof():#进行更新
 	sqlVO={}
@@ -448,7 +474,7 @@ def batch_dyupdatebof():#进行更新
 
 	# --步骤一：取样信息表中获取取样类型，添加到成分信息表中
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
-	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
+	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where t2.msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
 	# --步骤二：取最新成分数据(取样类型不能为3,3表示炉前数据)
