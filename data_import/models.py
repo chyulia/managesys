@@ -3,12 +3,9 @@ import sys
 from datetime import datetime
 
 from django.db import models, connection, connections, transaction
-from . import util
-
 # for slug, get_absolute_url
 from django.template.defaultfilters import slugify
 from django.core.urlresolvers import reverse
-
 # delete md_file before delete/change model
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -18,48 +15,26 @@ import markdown2
 from unidecode import unidecode
 from taggit.managers import TaggableManager
 
+from . import util
+from QinggangManageSys import settings
+
 upload_dir = 'content/ContentPost/%s/%s'
 """
 查询字段类型
 """
-field_type = {
-    0: 'DECIMAL',
-    1: 'TINY',
-    2: 'SHORT',
-    3: 'LONG',
-    4: 'FLOAT',
-    5: 'DOUBLE',
-    6: 'NULL',
-    7: 'TIMESTAMP',
-    8: 'LONGLONG',
-    9: 'INT24',
-    10: 'DATE',
-    11: 'TIME',
-    12: 'DATETIME',
-    13: 'YEAR',
-    14: 'NEWDATE',
-    15: 'VARCHAR',
-    16: 'BIT',
-    246: 'NEWDECIMAL',
-    247: 'INTERVAL',
-    248: 'SET',
-    249: 'TINY_BLOB',
-    250: 'MEDIUM_BLOB',
-    251: 'LONG_BLOB',
-    252: 'BLOB',
-    253: 'VAR_STRING',
-    254: 'STRING',
-    255: 'GEOMETRY'
-}
+field_type = settings.FIELD_TYPES
 
 def transaction_decorator(f):
-    bsm = BaseManage()
-    try:
-        with transaction.atomic():
-            f(bsm)
-    except Exception as e:
-        print("transaction error！")
-        print('ERROR:[', e, ']')
+
+    def wrapper(*args):
+        if isinstance(args[0], BaseManage):
+            try:
+                with transaction.atomic():
+                    f(args[0])
+            except Exception as e:
+                print("transaction error！")
+                print('ERROR:[', e, ']')
+    return wrapper
 
 
 class BaseManage(models.Manager):
@@ -76,7 +51,7 @@ class BaseManage(models.Manager):
             self.__cursor = connections[db_name].cursor()
         except Exception as e:
             print("ERROR:[", e, ']')
-    # TODO 配置一个函数文档字符串模版吧
+    # TODO 配置一个函数文档字符串模版吧 FIXED defm + tab
     def execute_single(self, sqlVO):
         """数据库查询的增删改底层操作
             sqlVO: a dict which contains 'sql', 'vars'
@@ -95,6 +70,14 @@ class BaseManage(models.Manager):
         try:
             self.__cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
             return self.dictfetchall(self.__cursor)
+        except Exception as e:
+            print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
+            raise Exception(e)
+
+    def select_single_tuple(self, sqlVO):
+        try:
+            self.__cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
+            return self.__cursor.fetchall()
         except Exception as e:
             print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
             raise Exception(e)
@@ -212,12 +195,22 @@ class BaseManage(models.Manager):
             print('ERROR:[', e, ']')
             # print('start rollback...')
             # transaction.rollback()
+            raise Exception(e)
         else:  # 当未发生异常时执行else语句
             transaction.commit
             cursor.close()
             return True
 
     def direct_get_description(self, sqlVO):
+        """获取字段名及其类型
+        Args:
+            sqlVO: a dict contains key：'sql'
+        Returns:
+            columns: a list including all columns
+            columns: a dict mapping columns and type
+        remark:
+            the description of a field like this '('id', 3, None, 11, 11, 0, False)'
+        """
         db_name = sqlVO.get('db_name')
         if sqlVO.get('db_name') != None:
             cursor = connections[db_name].cursor()
@@ -225,7 +218,8 @@ class BaseManage(models.Manager):
             cursor = connection.cursor()
         cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
         columns = [col[0] for col in cursor.description]
-        types = [col[1].__name__ for col in cursor.description]
+
+        types = [field_type.get(col[1], None) for col in cursor.description]
         columns_type = dict(zip(columns, types))
         return [columns, columns_type]
 
