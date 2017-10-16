@@ -60,13 +60,13 @@ def updateRecordbof():#定期更新完成后更新记录表
 			latestTime = models.BaseManage().direct_select_query_sqlVO(sqlVO)[0].get('MAX(MSG_DATE)',None)
 			str_latestTime = datetime.datetime.strftime(latestTime,'%Y-%m-%d %H:%M:%S')
 			sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set TABLE_"+ singlename+" = to_date(' " +str_latestTime+" ','yyyy-mm-dd hh24:mi:ss')" 
-			models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+			bsm.execute_single(sqlVO)
 
 		#最后更新记录表的更新时间
 		# time_now=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))#当前时间
 		# sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = to_date(' " +time_now+" ','yyyy-mm-dd hh24:mi:ss')"
 		sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = sysdate"; 
-		models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+		bsm.execute_single(sqlVO)
 	inner_sql(bsm)
 
 def batch_dyupdatebof():#进行更新
@@ -166,7 +166,7 @@ def batch_dyupdatebof():#进行更新
 	/
 	commit;
 	'''
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.1.	炉次计划表（PRO_BOF_HIS_PLAN）
 	# --删除重复项并选取时间最晚的记录
@@ -174,26 +174,26 @@ def batch_dyupdatebof():#进行更新
 				select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists
 				(select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t2 where heat_no = t1.heat_no
 				and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.2.	炉次兑铁信息表（PRO_BOF_HIS_MIRON）
 	sqlVO["sql"]='''create table pro_bof_his_miron_Middle as
 	select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_scrapTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t2 where heat_no = t1.heat_no and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --将铁水重量减去一吨
 	sqlVO["sql"]='''update pro_bof_his_miron_Middle set  miron_wgt = miron_wgt - 1000 where  miron_wgt>1000;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.3.	炉次兑废钢信息表（PRO_BOF_HIS_SCRAP)
 	# --步骤一：删除顺序号重复项
 	sqlVO["sql"]='''create table pro_bof_his_scrap_Middle1 as
 	select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤二：取最新值
 	sqlVO["sql"]='''create table pro_bof_his_scrap_Middle2 as
 	select * from pro_bof_his_scrap_Middle1 t1 where not exists (select * from pro_bof_his_scrap_Middle1 t2 where heat_no = t1.heat_no and t2.MSG_DATE > t1.MSG_DATE)''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --行列转换（暂时不采取）
 	# --sqlVO["sql"]='''create table pro_bof_his_scrap_Middle3 as
@@ -208,30 +208,30 @@ def batch_dyupdatebof():#进行更新
 	# --                '16030101' as scrap_16030101,
 	# --                '16040101' as scrap_16040101,
 	# --                '96052501' as scrap_96052501,
-	# --)order by 1''';models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --)order by 1''';bsm.execute_single(sqlVO)
 
 	# --步骤三：直观表格转换
 	sqlVO["sql"]='''create table pro_bof_his_scrap_Middle as
 	select HEAT_NO,STATION,MSG_DATE,LDL_NO,SCRAP_NUM,SCRAP_WGT1 as scrap_96053101,SCRAP_WGT2 as scrap_96052200,SCRAP_WGT3 as scrap_16010101,SCRAP_WGT4 as scrap_16020101,SCRAP_WGT5 as scrap_16030101,SCRAP_WGT6 as scrap_16040101,SCRAP_WGT7 as scrap_96052501
 	from pro_bof_his_scrap_Middle2''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤四：删除中间过程表
 	sqlVO["sql"]='''drop table pro_bof_his_scrap_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table pro_bof_his_scrap_Middle2''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 	# --1.1.1.4.	炉次实绩表（PRO_BOF_HIS_POOL）
 	sqlVO["sql"]='''create table pro_bof_his_pool_Middle as
 	select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_poolTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t2 where heatno = t1.heatno and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.5.	炉次事件表（PRO_BOF_HIS_EVENTS）
 	# --步骤一：删除重复记录
 	sqlVO["sql"]='''create table pro_bof_his_events_Middle1 as
 	select * from QG_USER.pro_bof_his_events@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_eventsTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_events@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：行列转换(由于在事件表中所有事件混合编号，所以很难判断该事件是第几次发送，因此对下列事件均只选取了最新的记录，即一次操作)
 	# --3007测温时间节点在测温表中已处理，3009加料时间节点在加料表中已处理
@@ -258,22 +258,22 @@ def batch_dyupdatebof():#进行更新
 
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤三：删除中间过程表
 	sqlVO["sql"]='''drop table pro_bof_his_events_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 	# --1.1.1.6.	炉次吹氧记录表（PRO_BOF_HIS_BOCSM）
 	# --步骤一：根据seq_no删除重复值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle1 as
 	select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_bocsmTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：对吹氧量和吹氧时间进行加和
 	sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle2 as
 	SELECT HEAT_NO,SUM(BO_CSM)as SUM_BO_CSM,SUM(BO_DUR)as SUM_BO_DUR FROM PRO_BOF_HIS_BOCSM_Middle1 group by heat_no''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤三：其他字段的处理（吹氧开始时间。结束时间，吹氧时间等）（取6次）
 	sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle3 as
@@ -289,35 +289,35 @@ def batch_dyupdatebof():#进行更新
 	                        '6' as d6
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤四：将时间和吹氧总量合并
 	sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle as
 	Select t2.HEAT_NO,STATION,t2.SUM_BO_CSM,t2.SUM_BO_DUR,D1_BOSTRT_TIME,D1_BOEND_TIME,D1_BO_DUR,D1_BO_CSM,D2_BOSTRT_TIME,D2_BOEND_TIME,D2_BO_DUR,D2_BO_CSM,
 	D3_BOSTRT_TIME,D3_BOEND_TIME,D3_BO_DUR,D3_BO_CSM,D4_BOSTRT_TIME,D4_BOEND_TIME,D4_BO_DUR,D4_BO_CSM,D5_BOSTRT_TIME,D5_BOEND_TIME,D5_BO_DUR,
 	D5_BO_CSM,D6_BOSTRT_TIME,D6_BOEND_TIME,D6_BO_DUR,D6_BO_CSM
 	from PRO_BOF_HIS_BOCSM_Middle2 t2 JOIN PRO_BOF_HIS_BOCSM_Middle3 t3 ON t2.heat_no=t3.heat_no''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle_test as
 	# --select * from PRO_BOF_HIS_BOCSM_Middle2 t2 JOIN PRO_BOF_HIS_BOCSM_Middle3 t3 ON t2.heat_no=t3.heat_no
 	# --步骤五：删除中间过程表（可不删）
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_BOCSM_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_BOCSM_Middle2''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_BOCSM_Middle3''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.7.	炉次测温表（PRO_BOF_HIS_TEMP）
 	# --步骤一：根据seq_no删除重复值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle1 as
 	select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_tempTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤一：取最新值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle2 as
 	select * from PRO_BOF_HIS_TEMP_Middle1 t1 where not exists (select * from PRO_BOF_HIS_TEMP_Middle1 t2 where heat_no = t1.heat_no and (t2.TEMP_NO > t1.TEMP_NO or (t2.TEMP_NO = t1.TEMP_NO and t2.SEQ_NO > t1.SEQ_NO)) )''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤三：处理其他字段（每次测温时间等，取前四次测温）注：最新值并不一定是第四次测温值！！！
 	sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle3 as
@@ -331,7 +331,7 @@ def batch_dyupdatebof():#进行更新
 	                        '4' as d4
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤四：将测温最新时间和前4次测温信息合并
 	sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle as
@@ -340,22 +340,22 @@ def batch_dyupdatebof():#进行更新
 	D1_TEMP_TIME,D1_TEMP_VALUE,D1_TEMP_TYPE,D1_TEMP_ACQ,D2_TEMP_TIME,D2_TEMP_VALUE,D2_TEMP_TYPE,D2_TEMP_ACQ,D3_TEMP_TIME,
 	D3_TEMP_VALUE,D3_TEMP_TYPE,D3_TEMP_ACQ,D4_TEMP_TIME,D4_TEMP_VALUE,D4_TEMP_TYPE,D4_TEMP_ACQ
 	from PRO_BOF_HIS_TEMP_Middle2 t2 JOIN PRO_BOF_HIS_TEMP_Middle3 t3 ON t2.heat_no=t3.heat_no ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤五：删除中间过程表（可不删）
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_TEMP_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_TEMP_Middle2''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_TEMP_Middle3''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 	# --1.1.1.8.	炉次加料表A（PRO_BOF_HIS_CHRGDGEN）父表
 	# --步骤一：根据seq_no删除重复值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDGEN_Middle1 as
 	select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_chrgdgenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：行列转换（各批次加料时间等）(取了前30批)
 	sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDGEN_Middle as
@@ -396,11 +396,11 @@ def batch_dyupdatebof():#进行更新
 
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤三：删除中间过程表
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_CHRGDGEN_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 
@@ -408,7 +408,7 @@ def batch_dyupdatebof():#进行更新
 	# --步骤一：根据seq_no删除重复值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDDAT_Middle1 as
 	select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_chrgddatTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：行列转换(物料代码及加和的物料重量)（加料表B表，即子表）
 	sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDDAT_Middle as
@@ -435,16 +435,16 @@ def batch_dyupdatebof():#进行更新
 	                '1602010074' as L1602010074
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤三：删除中间过程表
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_CHRGDDAT_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.12.	取样信息记录（PRO_BOF_HIS_ANAGEN）
 	# --步骤一：根据seq_no删除重复值
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANAGEN_Middle1 as
 	select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_anagenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t2 where t2.seq_no = t1.seq_no and t2.rowid > t1.rowid)''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：取样信息记录表字段的处理（取样时间、取样类型等）（取前5次取样）一个炉次号可能对应多个站别，取消station
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANAGEN_Middle as
@@ -459,28 +459,28 @@ def batch_dyupdatebof():#进行更新
 	                        '5' as d5
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤三：删除中间过程表格
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_ANAGEN_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 	# --1.1.1.13.	成分信息记录（PRO_BOF_HIS_ANADAT）
 	# # --步骤一：根据seq_no删除重复值
 	# sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
 	# select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t1 where to_char(MSG_DATE,'yyyy-mm-dd')>='2017-06-08' and not exists (select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
-	# models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# bsm.execute_single(sqlVO)
 
 	# --步骤一：取样信息表中获取取样类型，添加到成分信息表中
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
 	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where t2.msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤二：取最新成分数据(取样类型不能为3,3表示炉前数据)
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle2 as
 	select * from PRO_BOF_HIS_ANADAT_Middle1 t1 where SAMP_TYPE !=3 AND not exists (select * from PRO_BOF_HIS_ANADAT_Middle1 t2 where t2.heat_no = t1.heat_no and t2.ELMT_CODE=t1.ELMT_CODE and t2.SAMP_NO > t1.SAMP_NO )''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --步骤三：成分信息记录的行列转换（各成分参数）
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle as# --删除了station字段，因为数据自身的问题，存在极个别情况出现一个炉次号对应多个站别的记录
@@ -516,12 +516,12 @@ def batch_dyupdatebof():#进行更新
 	                'Fe' as Fe
 	       )
 	)order by 1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --步骤四：删除中间过程表格
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_ANADAT_Middle1''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	sqlVO["sql"]='''drop table PRO_BOF_HIS_ANADAT_Middle2''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
@@ -557,11 +557,11 @@ def batch_dyupdatebof():#进行更新
 	    VALUES (b.HEAT_NO,b.MSG_DATE, b.WORK_SHOP, b.HEAT_ORDER, b.GE_NO, b.GK_NO, b."SPECIFICATION", b.PROCESS_CODE1 , b.SAMPLE_CODE , 
 	    b.HEAT_WGT, b.PLAN_DATE, b.HEAT_PATH, b.CAST_NO, b.CAST_SEQ, b.PLAN_STATUS);
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --更新完后将单独表中的工序代码(plant_diff)整合到汇总表的站别（station）
 	sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.station = (select b.plant_diff from PRO_BOF_HIS_PLAN_MIDDLE b where a.heat_no=b.heat_no) WHERE a.station is null;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	 
 	# --1.1.1.2.	炉次兑铁信息表（PRO_BOF_HIS_MIRON）	
@@ -584,14 +584,14 @@ def batch_dyupdatebof():#进行更新
 	    INSERT (HEAT_NO,MSG_DATE_MIRON,MIRON_NO_MIRON, LDL_NO_MIRON,MIRON_WGT, MIRON_TEMP,MIRON_C,MIRON_SI,MIRON_MN,MIRON_P,MIRON_S)
 	    VALUES (b.HEAT_NO,b.MSG_DATE,b.MIRON_NO, b.LDL_NO, b.MIRON_WGT, b.MIRON_TEMP,b.MIRON_C,b.MIRON_SI,b.MIRON_MN,b.MIRON_P,b.MIRON_S);
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --更新兑铁信息表后就要立即对相关的出钢量等字段进行更新，以保证数据最大程度的完整
 	# --取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，再取计算所得出钢量进行补充
 	# --1、取ccm炉坯重（TOTAL_SLAB_WGT）补充出钢量
 	# --UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE a.STEELWGT is null or a.STEELWGT=0;
 	sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_MIRON >= to_date(' '''+ table_mironTime+''' ','yyyy-mm-dd hh24:mi:ss');
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)	
+	bsm.execute_single(sqlVO)	
 	# --2、取计算所得出钢量进行补充
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_MIRON_MIDDLE) B
@@ -600,7 +600,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.STEELWGT=(a.MIRON_WGT+a.SCRAPWGT_count)*0.95 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --3、计算转炉煤气
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_MIRON_MIDDLE) B
@@ -609,7 +609,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --4、计算钢渣
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_MIRON_MIDDLE) B
@@ -620,7 +620,7 @@ def batch_dyupdatebof():#进行更新
 	nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
 	a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 	# --1.1.1.3.	炉次兑废钢信息表（PRO_BOF_HIS_SCRAP）	
@@ -644,14 +644,14 @@ def batch_dyupdatebof():#进行更新
 	    INSERT (HEAT_NO,MSG_DATE_SCRAP,LDL_NO_SCRAP, SCRAP_NUM,scrap_96053101, scrap_96052200,scrap_16010101,scrap_16020101,scrap_16030101,scrap_16040101,scrap_96052501)
 	    VALUES (b.HEAT_NO,b.MSG_DATE,b.LDL_NO, b.SCRAP_NUM,b.scrap_96053101, b.scrap_96052200,b.scrap_16010101,b.scrap_16020101,b.scrap_16030101,b.scrap_16040101,b.scrap_96052501);
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --在汇总表更新废钢总和后就需要对缺失的出钢量进行立即补充，万一废钢表的数据来的晚，仅在实绩表更新时才进行出钢量更新不严谨
 	# --取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，再取计算所得出钢量进行补充
 	# --1、取ccm炉坯重（TOTAL_SLAB_WGT）补充出钢量
 	# --UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE a.STEELWGT is null or a.STEELWGT=0;
 	sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_SCRAP >= to_date(' ''' +table_scrapTime+''','yyyy-mm-dd hh24:mi:ss');
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --2、取计算所得出钢量进行补充
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_SCRAP_MIDDLE) B
@@ -660,7 +660,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.STEELWGT=(a.MIRON_WGT+a.SCRAPWGT_count)*0.95 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --3、计算转炉煤气
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_SCRAP_MIDDLE) B
@@ -669,7 +669,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --4、计算钢渣
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_SCRAP_MIDDLE) B
@@ -680,7 +680,7 @@ def batch_dyupdatebof():#进行更新
 	nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
 	a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.4.	炉次实绩表（PRO_BOF_HIS_POOL）	
 	# --对出钢量进行补充
@@ -688,7 +688,7 @@ def batch_dyupdatebof():#进行更新
 	# --1、先在独立更新表中进行ccm炉坯重的补充
 	sqlVO["sql"]='''UPDATE PRO_BOF_HIS_POOL_MIDDLE a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heatno=b.heat_no) WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --2、将数据更新到汇总表
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_POOL_MIDDLE) B
@@ -769,7 +769,7 @@ def batch_dyupdatebof():#进行更新
 	OPERATETIME,b.ARRIVEDATE,b.ARRIVETIME ,b.DEPARTUREDATE,b.DEPARTURETIME,b.TEMPOFARRIVE ,b.TEMPOFDEPARTURE,b.OPERATORA ,b.OPERATORB,b.OPERATORC,b.OPERATORE 
 	);
 	commit'''; 
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --3、在汇总表中再对仍然缺失的出钢量进行计算补充
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_POOL_MIDDLE) B
@@ -778,7 +778,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.STEELWGT=(a.MIRON_WGT+a.SCRAPWGT_count)*0.95 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --4、计算转炉煤气
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_POOL_MIDDLE) B
@@ -787,7 +787,7 @@ def batch_dyupdatebof():#进行更新
 	    UPDATE
 	        SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --5、计算钢渣
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_POOL_MIDDLE) B
@@ -798,7 +798,7 @@ def batch_dyupdatebof():#进行更新
 	nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
 	a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.5.	炉次事件表（PRO_BOF_HIS_EVENTS）
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -820,7 +820,7 @@ def batch_dyupdatebof():#进行更新
 	    INSERT (HEAT_NO,Event_3001 ,Event_3002 ,Event_3003 ,Event_3004 ,Event_3010 ,Event_3011 ,Event_3012 ,Event_3013 ,Event_4003 ,Event_4004 )
 	    VALUES (b.HEAT_NO, b.Event_3001 ,b.EVENT_3002 ,b.EVENT_3003 ,b.EVENT_3004 ,b.EVENT_3010 ,b.EVENT_3011 ,b.EVENT_3012 ,b.EVENT_3013 ,b.EVENT_4003 ,b.EVENT_4004 );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.6.	炉次吹氧记录表（PRO_BOF_HIS_BOCSM）
 	# --由于吹氧记录表是行列转换而来，因此如果某炉次的吹氧信息被分为两拨数据，则在新数据更新时，会把空值赋给原先的非空值，这个问题需要解决。（但是这种情况可能性很小）
@@ -863,7 +863,7 @@ def batch_dyupdatebof():#进行更新
 	D3_BOEND_TIME , b.D3_BO_DUR  , b.D3_BO_CSM, b.D4_BOSTRT_TIME , b.D4_BOEND_TIME , b.D4_BO_DUR  , b.D4_BO_CSM, b.D5_BOSTRT_TIME , b.D5_BOEND_TIME , b.
 	D5_BO_DUR  , b.D5_BO_CSM, b.D6_BOSTRT_TIME , b.D6_BOEND_TIME , b.D6_BO_DUR  , b.D6_BO_CSM );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --更新吹氧表后需要连带更新钢渣字段
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_BOCSM_MIDDLE) B
@@ -874,7 +874,7 @@ def batch_dyupdatebof():#进行更新
 	nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
 	a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.7.	炉次测温表（PRO_BOF_HIS_TEMP）	
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -911,7 +911,7 @@ def batch_dyupdatebof():#进行更新
 	b.D2_TEMP_TIME ,b.D2_TEMP_VALUE ,b.D2_TEMP_TYPE ,b.D2_TEMP_ACQ ,b.D3_TEMP_TIME ,b.D3_TEMP_VALUE ,b.D3_TEMP_TYPE ,b.D3_TEMP_ACQ ,b.D4_TEMP_TIME ,
 	b.D4_TEMP_VALUE ,b.D4_TEMP_TYPE ,b.D4_TEMP_ACQ  );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.8.	炉次加料表A（PRO_BOF_HIS_CHRGDGEN）	
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -1012,7 +1012,7 @@ def batch_dyupdatebof():#进行更新
 	 b.D29_CHRGD_TIME,b.D29_CHRGD_TYPE  ,
 	 b.D30_CHRGD_TIME,b.D30_CHRGD_TYPE   );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.9.	炉次加料表B（PRO_BOF_HIS_CHRGDDAT）	
 	# --加料量需要加和，而不是直接赋值覆盖
@@ -1043,7 +1043,7 @@ def batch_dyupdatebof():#进行更新
 	    VALUES (b.HEAT_NO, b.STATION, b.L12010301,b.L12010302,b.L12010601,b.L12010701,b.L12020201,b.L12020301,
 	    b.L13010101,b.L13010301,b.L13020101,b.L13020201,b.L13020501,b.L13040400,b.L96020400,b.L96040100,b.L96040200,b.L96053601,b.L1602010074);
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --更新加料表后需要连带更新钢渣字段
 	sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 	USING(select * from PRO_BOF_HIS_CHRGDDAT_MIDDLE) B
@@ -1054,7 +1054,7 @@ def batch_dyupdatebof():#进行更新
 	nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
 	a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 
 
@@ -1080,7 +1080,7 @@ def batch_dyupdatebof():#进行更新
 	    INSERT (HEAT_NO,D1_SAMP_TIME ,D1_SAMP_TYPE ,D2_SAMP_TIME ,D2_SAMP_TYPE ,D3_SAMP_TIME ,D3_SAMP_TYPE ,D4_SAMP_TIME ,D4_SAMP_TYPE ,D5_SAMP_TIME ,D5_SAMP_TYPE )
 	    VALUES (b.HEAT_NO, b.D1_SAMP_TIME ,b.D1_SAMP_TYPE ,b.D2_SAMP_TIME ,b.D2_SAMP_TYPE ,b.D3_SAMP_TIME ,b.D3_SAMP_TYPE ,b.D4_SAMP_TIME ,b.D4_SAMP_TYPE ,b.D5_SAMP_TIME ,b.D5_SAMP_TYPE );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 
 	# --1.1.1.13.	成分信息记录（PRO_BOF_HIS_ANADAT）	
 	# --由于成分表是行列转换而来，因此如果某炉次的取样信息被分为两拨数据，则在新数据更新时，会把空值赋给原先的非空值，这个问题需要解决。（但是这种情况可能性很小）
@@ -1119,7 +1119,7 @@ def batch_dyupdatebof():#进行更新
 	    INSERT (a.HEAT_NO,C,Si,Mn,P,S,AL_T,AL_S,Ni,Cr,Cu,Mo,V,Ti,Nb,W,Pb,Sn,"AS",Bi,B,Ca,N,Co,Zr,Ce,Fe)
 	    VALUES (b.HEAT_NO, b.C,b.Si,b.Mn,b.P,b.S,b.AL_T,b.AL_S,b.Ni,b.Cr,b.Cu,b.Mo,b.V,b.Ti,b.Nb,b.W,b.Pb,b.Sn,b."AS",b.Bi,b.B,b.Ca,b.N,b.Co,b.Zr,b.Ce,b.Fe );
 	commit''';
-	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	bsm.execute_single(sqlVO)
 	# --1.1.1.14.	实时数据记录（PRO_BOF_HIS_RDATA）	跳过
 
 
