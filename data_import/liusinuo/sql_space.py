@@ -147,8 +147,10 @@ def space_sql(space_dict,sql_date1,sql_date2,sql_ctry_prov_cty,tradeNo_list,spac
 				rtn_rate = float(str(rtn_rate)[0:8])
 				print ("总退货率： %s%.5f" % (sql_space,rtn_rate),"%")
 			else:
-				print ("总退货率：",sql_space,"总销量为0，无法计算退货率！")
-				rtn_rate = "总销量为0，无法计算退货率！"
+				# print ("总退货率：",sql_space,"总销量为0，无法计算退货率！")
+				# rtn_rate = "总销量为0，无法计算退货率！"
+				print ("总退货率：",sql_space,0)
+				rtn_rate = 0
 				#rtn_rate = -2
 			#tradeNo_rtn_rsn_list = conn_mysql.select(sql_rtn_reason)
 			#print ("退货原因：\t",tradeNo_rtn_rsn_list)

@@ -1,4 +1,6 @@
+#!/usr/bin/env python3.5.2
 from time import time
+
 import csv,datetime
 from sklearn.cluster import k_means
 import numpy as np
@@ -6,11 +8,11 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn import preprocessing
 from sklearn import linear_model
-from data_import.ironstonepriceTools.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
-from data_import.ironstonepriceTools.random_layer import RandomLayer, MLPRandomLayer, RBFRandomLayer, GRBFRandomLayer
-from math import sqrt
 from sklearn import svm
 from sklearn import ensemble
+
+from data_import.PricePredict.RegressionModels.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
+
 import math
 
 '''

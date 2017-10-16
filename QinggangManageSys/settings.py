@@ -258,10 +258,54 @@ custom settings
 '''
 # 系统基本界面主目录
 MAIN_OUTFIT_BASE = 'data_import/main/'
+
+# 数据库字段类型代号
+FIELD_TYPES = {
+    0: 'DECIMAL',
+    1: 'TINY',
+    2: 'SHORT',
+    3: 'LONG',
+    4: 'FLOAT',
+    5: 'DOUBLE',
+    6: 'NULL',
+    7: 'TIMESTAMP',
+    8: 'LONGLONG',
+    9: 'INT24',
+    10: 'DATE',
+    11: 'TIME',
+    12: 'DATETIME',
+    13: 'YEAR',
+    14: 'NEWDATE',
+    15: 'VARCHAR',
+    16: 'BIT',
+    246: 'NEWDECIMAL',
+    247: 'INTERVAL',
+    248: 'SET',
+    249: 'TINY_BLOB',
+    250: 'MEDIUM_BLOB',
+    251: 'LONG_BLOB',
+    252: 'BLOB',
+    253: 'VAR_STRING',
+    254: 'STRING',
+    255: 'GEOMETRY'
+}
 #
 # CRONJOBS = [
 #     ('47 11 * * *', 'django.core.management.call_command', ['aizhan_5domain_visits']),
 # ]
+
+# TODO python 执行shell脚本及命令
+
+SCRAPY_ROOT = os.path.join(choose_settings.PROJECT_DIR, 'scrapy_elements')
+print(SCRAPY_ROOT)
+
+# AllElements = (
+#     'CRU cugangyuedu fdczs feigang gcck gcjk gkkc gtcl haiyun meitan_ljm '+
+#     'meiyuan PMI PPI psjgzs pugang tegang_zonghe tiejingfen tksjkl tksykcl tkszs WTI').split(' ')
+# print(AllElements)
+#
+# AllElements = ['CRU']
+
 CRONJOBS = [
     # ('*/1 * * * *', 'QinggangManageSys.views.paralle_test1'),
     ('19 22 * * 6', 'data_import.batchprocess.batch_relation_ana'), #转炉相关性分析

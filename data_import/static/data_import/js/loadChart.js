@@ -44,7 +44,7 @@ function drawMapChartChina(data,tradeNo,aspect_name,maxValue,module_name,sql_dat
             y: 'center',
             feature : {
                 //mark : {show: true},
-                dataView : {show: true, readOnly: false},
+                // dataView : {show: true, readOnly: false},
                 //restore : {show: true},
                 saveAsImage : {show: true}
             }
@@ -83,25 +83,36 @@ function drawMapChartChina_ratio(all_dictionary,data,startYear,startMonth,endYea
     // echarts.registerMap('china', data.chinaJson);
     var myChart = echarts.init(document.getElementById('main4'));
 
-    console.log(data)
-    console.log(all_dictionary)
+    //console.log(data)
+    //console.log(all_dictionary)
+    //console.log(all_dictionary[0].name)
     //获取月/日的数据
-    for (var i=0;i<4;i++)
+    for (var i=0;i<8;i++)
     {
+        //console.log(all_dictionary[i]);
         if(all_dictionary[i].name == '市场容量字典'){
             salesWeight_dictionary = all_dictionary[i].value;
-            console.log(salesWeight_dictionary);
+            //console.log(salesWeight_dictionary);
         }else if (all_dictionary[i].name == '全部信息list'){
             all_list = all_dictionary[i].value;
         }else if (all_dictionary[i].name == '比例字典'){
             ratio_dictionary = all_dictionary[i].value;
         }else if(all_dictionary[i].name == '青钢销量字典'){
             qdisSalesWeight_dictionary = all_dictionary[i].value;
+        }else if(all_dictionary[i].name == '饼图比例字典'){
+            pie_ratio = all_dictionary[i].value;
+        }else if(all_dictionary[i].name == '饼图市场容量字典'){
+            pie_salesWeigh = all_dictionary[i].value;
+        }else if(all_dictionary[i].name == '饼图青钢销量字典'){
+            pie_qdisSalesWeight = all_dictionary[i].value;
+        }else if(data[i].name == '饼图省份名称'){
+            pie_nameList = data[i].value;
         }else {
             ratio_rst = all_dictionary[i].value;
         }
     }
     
+
         // 指定图表的配置项和数据
     option = {
         title : {
@@ -138,7 +149,7 @@ function drawMapChartChina_ratio(all_dictionary,data,startYear,startMonth,endYea
             y: 'center',
             feature : {
                 //mark : {show: true},
-                dataView : {show: true, readOnly: false},
+                // dataView : {show: true, readOnly: false},
                 //restore : {show: true},
                 saveAsImage : {show: true}
             }
@@ -205,7 +216,7 @@ function drawMapChartWorld(data,tradeNo,aspect_name,unite,maxValue,module_name,s
             y: 'center',
             feature : {
                 //mark : {show: true},
-                dataView : {show: true, readOnly: false},
+                // dataView : {show: true, readOnly: false},
                 //restore : {show: true},
                 saveAsImage : {show: true}
             }
@@ -431,18 +442,230 @@ function drawTimeLineBar(data,tradeNo,aspect_name,unite,maxValue,module_name,sql
 }
 
 
+//普通折线图 (Echarts 2)
+function drawTimeLineBar_normal(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust){
+
+    var myChart = echarts.init(document.getElementById('main4'));
+    console.log(data);
+    console.log(data[0]);
+    console.log(data[0].name);
+    console.log(data[0].value);
+
+//     myChart.showLoading({
+//                     text: "图表数据正在努力加载..."
+//                 });
+    lineName = []
+    lineValue = []
+    for (var i=0;i<data.length;i++)
+    {       
+        lineName.push(data[i].name);  
+        lineValue.push(data[i].value);
+    }
+
+    if (module_name == "空间分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+ 
+    }else if (module_name == "时间分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+    }else{
+        title = module_name + '——' + aspect_name + '（客户：' + sql_cust + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的，客户' + sql_cust + '范围内' + aspect_name;
+    }
+
+    option = {
+    title : {
+        text: title,
+        subtext: subtext,
+        x:'center'
+    },
+    tooltip : {
+        trigger: 'axis', 
+        formatter : function (params) {
+                //console.log(params);
+                //console.log(params[0].name);
+                //console.log(params[0].value);
+                if (params[0].value == "总销量为0，无法计算退货率！"){
+                    return params[0].name + "<br/>" +  "所选钢种" + aspect_name + " : " + params[0].value;
+                }else{
+                    return params[0].name + "<br/>" +  "所选钢种" + aspect_name + " : " + params[0].value + unite;
+                }
+                
+            }
+    },
+    toolbox: {   //这个不用改
+        show : true,
+        feature : {
+            //dataView : {show: true, readOnly: false},
+            saveAsImage : {show: true}
+        }
+    },
+    dataZoom: {            //这个不用改，下面日期默认缩放区域大小,0-100指最前与最后
+        show : true,
+        //realtime : true,
+        // start : 30,
+        // end : 70
+
+    },
+    legend : {
+        orient: 'vertical',
+        x:'left',
+        data : [tradeNo]
+    },
+    grid: {  //这个不用改，图所占区域竖直方向长度
+        y2: 80
+    },
+    xAxis : [   //这个不用改
+        {
+            type : 'category',
+            //boundaryGap : false,
+            data : lineName,
+            //data : [1,2,3,4,5],
+            axisLabel: {
+                interval:0,//横轴信息全部显示
+                //rotate: 90,//60度角倾斜显示
+                formatter:function(val){
+                    return val.split("").join("\n"); //横轴信息文字竖直显示
+                }
+            }
+        }
+    ],
+    yAxis : [ //这个不用改
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name: tradeNo,
+            type: 'line',
+            data:lineValue
+            //data:[5,6,4,6,5],
+        }
+    ]
+};
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+}
+
+
+//普通柱状图 (Echarts 2)
+function drawBar_normal(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust){
+
+    var myChart = echarts.init(document.getElementById('main4'));
+    console.log(data);
+    console.log(data[0]);
+    console.log(data[0].name);
+    console.log(data[0].value);
+
+//     myChart.showLoading({
+//                     text: "图表数据正在努力加载..."
+//                 });
+    lineName = []
+    lineValue = []
+    for (var i=0;i<data.length;i++)
+    {       
+        lineName.push(data[i].name);  
+        lineValue.push(data[i].value);
+    }
+
+    if (module_name == "空间分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+ 
+    }else if (module_name == "时间分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+    }else{
+        title = module_name + '——' + aspect_name + '（客户：' + sql_cust + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的，客户' + sql_cust + '范围内' + aspect_name;
+    }
+
+    option = {
+        title : {
+            text: title,
+            subtext: subtext,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'axis'
+        },
+        legend: {
+            orient: 'vertical',
+            x:'left',
+            data:[tradeNo]
+        },
+        toolbox: {
+            show : true,
+            feature : {
+                mark : {show: true},
+                //dataView : {show: true, readOnly: false},
+                //magicType: {show: true, type: ['line', 'bar']},
+                //restore : {show: true},
+                saveAsImage : {show: true}
+            }
+        },
+        // dataZoom: {            //这个不用改，下面日期默认缩放区域大小,0-100指最前与最后
+        //     show : true,
+        //     //realtime : true,
+        //     start : 30,
+        //     end : 70
+
+        // },
+        calculable : true,
+        xAxis : [
+            {
+                type : 'category',
+                //boundaryGap : [0, 0.01]
+                data: lineName,
+                axisLabel: {
+                    interval:0,//横轴信息全部显示
+                    //rotate: 90,//60度角倾斜显示
+                    formatter:function(val){
+                        return val.split("").join("\n"); //横轴信息文字竖直显示
+                    }
+                }
+            }
+
+        ],
+        yAxis : [
+            {
+                
+                type : 'value',
+                //data : lineValue
+            }
+        ],
+        series : [
+            {
+                name:tradeNo,
+                type:'bar',
+                data:lineValue
+            }
+        ]
+    };
+                    
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+}
+
+
 //钢种分析饼图 (Echarts 2)
 function drawpie(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust){
 
     var myChart = echarts.init(document.getElementById('main4'));
-    console.log(data);
-    //console.log(tradeNo);
-    //console.log(data[0]);
-    //console.log(data[0].name);
-    //console.log(data[0].value);
-    if (module_name == "钢种分析"){
+    // console.log(data);
+     console.log(tradeNo);
+    // console.log(data[0]);
+    // console.log(data[0].name);
+    // console.log(data[0].value);
+    if (module_name == "空间分析"){
         title = module_name + '——' + aspect_name + '（' + space_name + '）';
         subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+    }else if (module_name == "钢种分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+
     }else{
         title = module_name + '——' + aspect_name + '（客户：' + sql_cust + '）';
         subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的，客户' + sql_cust + '范围内' + aspect_name;
@@ -456,18 +679,18 @@ function drawpie(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,s
     },
     tooltip : {
         trigger: 'item',
-        formatter: aspect_name + "占比 <br/>{b} : {c} ({d}%)"
+        formatter: aspect_name + "占比 <br/>{b} : {c} " + unite + "({d}%)"
     },
-    legend: {
-        orient : 'vertical',
-        x : 'left',
-        data:[tradeNo]
-    },
+    // legend: {
+    //     orient : 'vertical',
+    //     x : 'left',
+    //     data:[tradeNo]
+    // },
     toolbox: {
         show : true,
         feature : {
             mark : {show: true},
-            dataView : {show: true, readOnly: false},
+            // dataView : {show: true, readOnly: false},
             saveAsImage : {show: true}
         }
     },
@@ -487,22 +710,137 @@ function drawpie(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,s
 }
 
 
+//钢种分析饼图 (Echarts 2)
+function drawpie_marketShare(pie_data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust,data){
+
+    var myChart = echarts.init(document.getElementById('main4'));
+    // console.log(data);
+    // console.log(tradeNo);
+    // console.log(data[0]);
+    // console.log(data[0].name);
+    // console.log(data[0].value);
+    
+    for (var i=0;i<8;i++)
+    {
+        if(data[i].name == '市场容量字典'){
+            salesWeight_dictionary = data[i].value;
+            console.log(salesWeight_dictionary);
+        }else if (data[i].name == '全部信息list'){
+            all_list = data[i].value;
+        }else if (data[i].name == '比例字典'){
+            ratio_dictionary = data[i].value;
+        }else if(data[i].name == '青钢销量字典'){
+            qdisSalesWeight_dictionary = data[i].value;
+        }else if(data[i].name == '饼图比例字典'){
+            pie_ratio = data[i].value;
+        }else if(data[i].name == '饼图市场容量字典'){
+            pie_salesWeigh = data[i].value;
+        }else if(data[i].name == '饼图青钢销量字典'){
+            pie_qdisSalesWeight = data[i].value;
+        }else if(data[i].name == '饼图省份名称'){
+            pie_nameList = data[i].value;
+        }else {
+            ratio_rst = data[i].value;
+        }
+    }
+    // console.log(pie_nameList);
+    // var list_pie_nameList = new Array();
+    // for (var i=0;i<pie_nameList.length;i++)
+    // {
+    //     list_pie_nameList[i] = pie_nameList[i].name
+    // }
+    // console.log(pie_ratio)
+
+    option = {
+    title : {
+        text: module_name,
+        subtext: sql_date1 + '至' + sql_date2 + '内，全国各省份市场容量及占比',
+        x:'center'
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: "{b} <br/>市场容占比 : {c}% <br/>市场容量占比占全国百分比:{d}%"
+        // formatter : function (params) {
+        //     console.log(params);
+        //     return  params.name + ':<br/>市场容量：' + pie_salesWeigh[params.name] + '吨<br/>我公司销量：' + pie_qdisSalesWeight[params.name] + '吨<br/>市场容量占比：' + params.value + '%<br/>({d}%)';
+        // }
+    },
+    // legend: {
+    //     orient : 'vertical',
+    //     x : 'left',
+    //     data:['各省份市场容量及占比']
+    // },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            // dataView : {show: true, readOnly: false},
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    series : [
+        {
+            name:"饼状图",
+            type:'pie',
+            radius : '55%',
+            center: ['50%', '60%'],
+            data:pie_data
+        }
+    ]
+};
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+}
+
+
+
 //钢种分析漏斗图 (Echarts 2)
 function drawfunnel(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust){
 
-    var myChart = echarts.init(document.getElementById('main7'));
+    var myChart = echarts.init(document.getElementById('main4'));
     console.log(data);
     //console.log(tradeNo);
-    //console.log(data[0]);
+    console.log(data[0]);
     //console.log(data[0].name);
     //console.log(data[0].value);
-    if (module_name == "钢种分析"){
+    widthValue = "40%";
+    xValue = '30%';
+    yValue = '30%';
+    maxValue = 0;
+    if (module_name == "空间分析"){
         title = module_name + '——' + aspect_name + '（' + space_name + '）';
         subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+        widthValue = "40%";
+        for(var i=0; i<data.length; i++)  {  
+            if(data[i].value > maxValue){
+                maxValue = data[i].value;
+            }else{
+                maxValue = maxValue;
+            }
+        }  
+    }else if (module_name == "钢种分析"){
+        title = module_name + '——' + aspect_name + '（' + space_name + '）';
+        subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的' + space_name + '范围内' + aspect_name;
+        for(var i=0; i<data.length; i++)  {  
+            if(data[i].value > maxValue){
+                maxValue = data[i].value;
+            }else{
+                maxValue = maxValue;
+            }
+        }
     }else{
         title = module_name + '——' + aspect_name + '（客户：' + sql_cust + '）';
         subtext = sql_date1 + '至' + sql_date2 + '内，以' + dateChoose_name + '为依据的，客户' + sql_cust + '范围内' + aspect_name;
+        for(var i=0; i<data.length; i++)  {  
+            if(data[i].value > maxValue){
+                maxValue = data[i].value;
+            }else{
+                maxValue = maxValue;
+            }
+        }
     }
+
     
     option = {
     title : {
@@ -512,18 +850,102 @@ function drawfunnel(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date
     },
     tooltip : {
         trigger: 'item',
-        formatter: aspect_name + "<br/>{b} : {c}"
+        formatter: aspect_name + "<br/>{b} : {c}" + unite
     },
-    legend: {
-        // orient : 'vertical',
-        // x : 'left',
-        data:[tradeNo]
-    },
+    // legend: {
+    //     orient : 'vertical',
+    //     x : 'left',
+    //     data:[tradeNo]
+    // },
     toolbox: {
         show : true,
         feature : {
             mark : {show: true},
-            dataView : {show: true, readOnly: false},
+            // dataView : {show: true, readOnly: false},
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    series : [
+        {
+            name:'漏斗图',
+            type:'funnel',
+            width: widthValue,
+            x : xValue,
+            y : yValue,
+            data:data,
+            max: maxValue
+        },
+
+    ]
+};
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+}
+
+
+//钢种分析饼图 (Echarts 2)
+function drawpie_marketShare(pie_data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date1,sql_date2,dateChoose_name,space_name,sql_cust,data){
+
+    var myChart = echarts.init(document.getElementById('main4'));
+    // console.log(data);
+    // console.log(tradeNo);
+    // console.log(data[0]);
+    // console.log(data[0].name);
+    // console.log(data[0].value);
+    
+    for (var i=0;i<8;i++)
+    {
+        if(data[i].name == '市场容量字典'){
+            salesWeight_dictionary = data[i].value;
+            console.log(salesWeight_dictionary);
+        }else if (data[i].name == '全部信息list'){
+            all_list = data[i].value;
+        }else if (data[i].name == '比例字典'){
+            ratio_dictionary = data[i].value;
+        }else if(data[i].name == '青钢销量字典'){
+            qdisSalesWeight_dictionary = data[i].value;
+        }else if(data[i].name == '饼图比例字典'){
+            pie_ratio = data[i].value;
+        }else if(data[i].name == '饼图市场容量字典'){
+            pie_salesWeigh = data[i].value;
+        }else if(data[i].name == '饼图青钢销量字典'){
+            pie_qdisSalesWeight = data[i].value;
+        }else if(data[i].name == '饼图省份名称'){
+            pie_nameList = data[i].value;
+        }else {
+            ratio_rst = data[i].value;
+        }
+    }
+    // console.log(pie_nameList);
+    // var list_pie_nameList = new Array();
+    // for (var i=0;i<pie_nameList.length;i++)
+    // {
+    //     list_pie_nameList[i] = pie_nameList[i].name
+    // }
+    // console.log(pie_ratio)
+
+    option = {
+    title : {
+        text: module_name,
+        subtext: sql_date1 + '至' + sql_date2 + '内，全国各省份市场容量及占比',
+        x:'center'
+    },
+
+    tooltip : {
+        trigger: 'item',
+        formatter: aspect_name + "<br/>{b} : {c}" + unite
+    },
+    // legend: {
+    //     orient : 'vertical',
+    //     x : 'left',
+    //     data:[tradeNo]
+    // },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            // dataView : {show: true, readOnly: false},
             saveAsImage : {show: true}
         }
     },
@@ -535,10 +957,19 @@ function drawfunnel(data,tradeNo,aspect_name,unite,maxValue,module_name,sql_date
             width: '40%',
             x : '30%',
             y : '30%',
-            data:data
+            data:pie_data,
+            max: maxValue
         },
 
     ]
+
+
+
+
+
+
+
+
 };
     // 使用刚指定的配置项和数据显示图表。
     myChart.setOption(option);
@@ -781,7 +1212,7 @@ function drawStockControl(data,module_unit_key){
         show : true,
         feature : {
             mark : {show: true},
-            dataView : {show: true, readOnly: false},
+            // dataView : {show: true, readOnly: false},
             magicType: {show: true, type: ['line', 'bar']},
             saveAsImage : {show: true}
         }

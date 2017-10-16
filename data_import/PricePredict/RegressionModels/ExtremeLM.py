@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn import preprocessing
 
-from data_import.SteelPricePredict.RegressionModels.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
-from data_import.SteelPricePredict.RegressionModels.random_layer import RandomLayer, MLPRandomLayer, RBFRandomLayer, GRBFRandomLayer
+from data_import.PricePredict.RegressionModels.elm import ELMClassifier, ELMRegressor, GenELMClassifier, GenELMRegressor
+from data_import.PricePredict.RegressionModels.random_layer import RandomLayer, MLPRandomLayer, RBFRandomLayer, GRBFRandomLayer
 
 
 

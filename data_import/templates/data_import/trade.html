@@ -48,8 +48,8 @@
 </div>
 <br>
 <div>
-    起始时间: <input name="select_date1" id="select_date1" type="date"  value = '2016-05-01' / >
-    终止时间: <input name="select_date2" id="select_date2" type="date"  value = '2016-07-31' / >
+    起始时间: <input name="select_date1" id="select_date1" type="date" style="width:120px" value = '2016-05-01' / >
+    终止时间: <input name="select_date2" id="select_date2" type="date" style="width:120px" value = '2016-07-31' / >
     快捷按钮：
     <button id="btnSelectDate_oneYear" onclick="SelectDate_default()" > 默认值 </button>
     <button id="btnSelectDate_oneMonth" onclick="SelectDate_oneMonth()" > 近一月 </button>
@@ -189,18 +189,18 @@ style="visibility: hidden;"
 </div>
 
 <br>
-<!-- <div>
+<div>
     展示方式： 
     <select name="select_showStyle" id="select_showStyle" class="xla_8" " value = '月' style="display:inline;">
         <option value="1">饼状图</option>
         <option value="2">漏斗图</option>
     </select>
 </div>
-<br> -->
+<br>
 
 <div id="main4" style="width: 800px;height:400px;"></div>
-<div id="main7" style="width: 800px;height:400px;"></div>
-
+<!-- <div id="main7" style="width: 800px;height:400px;"></div>
+ -->
 
 <div id="main5" style="width: 60px;height:400px;">
 <textarea id="txt" style="width: 800px;height:300px;"></textarea>
@@ -240,15 +240,15 @@ style="visibility: hidden;"
         sql_cust:null
     }
 
-    // select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
-    //     //var showStyle = $ ("#select_showStyle").find("option:selected").val();
-    //     if (this.value == 1){
-    //          drawpie(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
-    //     }else{
-    //          drawfunnel(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
-    //     }
+    select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
+        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+        if (this.value == 1){
+             drawpie(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+        }else{
+             drawfunnel(data_save.result,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+        }
        
-    // }
+    }
 
 
     $('#btnDrawChart').click(function(){ //点击绘图按钮后，绘制相应图形
@@ -262,8 +262,8 @@ style="visibility: hidden;"
         console.log(tradeNo);
 
 
-        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
-        var showStyle = 1
+        var showStyle = $ ("#select_showStyle").find("option:selected").val();
+        //var showStyle = 1
 
         var sql_cust = ''
         var module_unit_key = ''
@@ -379,15 +379,15 @@ style="visibility: hidden;"
             data_save.space_name = space_name;
             data_save.showStyle = showStyle;
             data_save.sql_cust = sql_cust;
-            // if ( showStyle == 1 ){
-            //     drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
-            // }else {
-            //     drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
-            // }
+            if ( showStyle == 1 ){
+                drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            }else {
+                drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            }
 
-            drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
             
-            drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
             
             
             console.log(tradeNoNoNo)

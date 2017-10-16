@@ -5,10 +5,9 @@ from . import bof_singlecost
 from . import bof_fluccost
 from . import bof_singlequality
 from . import bof_flucquality
-from data_import.SteelPricePredict import steelprice
+from data_import.PricePredict import price_predict
 from . import quality_prediction
 from . import batchprocess
-from . import ironstoneprice
 from . import violent_analyse
 from . import update
 from . import dynamic_update
@@ -81,16 +80,16 @@ urlpatterns = [
 
     #钢铁价格预测
     #price-predict
-    url(r'^steelprice$',steelprice.steelprice),#加载价格预测界面，并初始化参数
-    url(r'^price_history$', steelprice.price_history),#价格历史数据
+    url(r'^steelprice$', price_predict.steelprice),#加载价格预测界面，并初始化参数
+    url(r'^price_history$', price_predict.price_history),#价格历史数据
 
-    url(r'^price_predict$', steelprice.price_predict),#价格预测
+    url(r'^price_predict$', price_predict.price_predict),#价格预测
 
     #铁矿石价格预测
-    url(r'^ironstoneprice',ironstoneprice.ironstoneprice),
+    url(r'^ironstoneprice',price_predict.ironstoneprice),
     # url(r'^iron_price_history', ironstoneprice.iron_price_history),stone_price_predict
-    url(r'^stone_price_history',ironstoneprice.price_history),
-    url(r'^stone_price_predict',ironstoneprice.price_predict),
+    url(r'^stone_price_history',price_predict.stone_price_history),
+    url(r'^stone_price_predict',price_predict.stone_price_predict),
 
     url(r'^violent_analyse$',violent_analyse.violent_analyse),
 
@@ -183,7 +182,5 @@ urlpatterns = [
     url(r'^updatebof', update.updatebof),#首次全部数据重新处理
     url(r'^batch_dyupdatebof', dynamic_update.dynamic_updatebof),#数据的定期更新
     
-
-
 
 ]

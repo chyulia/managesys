@@ -72,9 +72,21 @@
 <br>
 
 <button onclick='markerShartCompute()'">分析结果绘图</button>
+<br>
+<br>
+<!-- <div>
+    展示方式： 
+    <select name="select_showStyle" id="select_showStyle" class="xla_8" " value = '月' style="display:inline;">
+        <option value="1">地图</option>
+        <option value="2">饼图</option>
+        <option value="3">漏斗图</option>
+        <option value="4">折线图</option>
+        <option value="5">柱状图</option>
 
+    </select>
+</div>
 <br>
-<br>
+<br> -->
 <div id="main4" style="width: 800px;height:400px;"></div>
 <div id="main5" style="width: 60px;height:400px;">
 <textarea id="txt" style="width: 800px;height:300px;"></textarea>
@@ -83,7 +95,55 @@
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
 <script type="text/javascript">
 
+    var data_save = {
+        startYear: null,
+        startMonth: null,
+        endYear: null,
+        endMonth: null,
+        all_dictionary: null,
+        result: null,
 
+        tradeNoNoNo: '-',
+        aspect_name: '-',
+        unite: '-',
+        maxValue: '-',
+        module_name: "市场容量分析",
+        sql_date1_: null,
+        sql_date2_: null,
+        dateChoose_name: '-',
+        space_name: '-',
+        showStyle: null,
+        pieresult: '-',
+        space:'-',
+        sql_cust :'-',
+        pie_rst: null,
+    }
+ 
+
+    // select_showStyle.onchange = function(){  //修改展示方式时，不用重新跑程序，使得层序更加快速
+    //     //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+
+    //     if (data_save.tradeNoNoNo.length == 0){
+    //         alert("错误！请选择钢种！"); //判断钢种选择是否正确
+    //     }else{
+    //         if (this.value == 1){
+    //             drawMapChartChina_ratio(data.all_dictionary,data.result,data_save.startYear,data_save.startMonth,data_save.endYear,data_save.endMonth);
+    //         }else if (this.value == 2){
+    //             //console.log("two");
+    //             drawpie_marketShare(data_save.pie_rst,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust,data_save.all_dictionary);
+    //         }
+    //         //else if (this.value == 3){
+    //         //     drawfunnel(data_save.all_dictionary,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+    //         // }else  if (this.value == 4){
+    //         //     //console.log("four");
+    //         //     drawTimeLineBar_normal(data_save.all_dictionary,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+    //         // }
+    //         else {
+    //             console.log("five");
+    //             //drawBar_normal(data_save.all_dictionary,data_save.tradeNoNoNo,data_save.aspect_name,data_save.unite,data_save.maxValue,data_save.module_name,data_save.sql_date1_,data_save.sql_date2_,data_save.dateChoose_name,data_save.space_name,data_save.sql_cust);
+    //         }
+    //     }
+    // }
   
     function markerShartCompute(){
 
@@ -91,10 +151,24 @@
         var startMonth = document.getElementById("select_startMonth").value
         var endYear = document.getElementById("select_endYear").value
         var endMonth = document.getElementById("select_endMonth").value
+        //var showStyle = $ ("#select_showStyle").find("option:selected").val();
+        var showStyle = 1;
         console.log(startYear)
         console.log(startMonth)
         console.log(endYear)
         console.log(endMonth)
+        var tradeNoNoNo =  '-'
+        var aspect_name =  '-'
+        var unite =  '-'
+        var maxValue =  '-'
+        var dateChoose_name =  '-'
+        var space_name =  '-'
+        var pieresult =  '-'
+        var space = '-'
+        var module_name =  "市场容量分析"
+        var sql_date1_ =  String(startYear) + "年" + String(startMonth) + "月";
+        var sql_date2_ = String(endYear) + "年" + String(endMonth) + "月";
+        var sql_cust = '-';
 
 
 //         //图表正在加载中
@@ -111,7 +185,32 @@
         ).done(function(data) {
             console.log(JSON.stringify(data.result));
             console.log(JSON.stringify(data.all_dictionary));
+            data_save.result = data.result;
+            data_save.all_dictionary = data.all_dictionary;
+            data_save.startYear = startYear;
+            data_save.startMonth = startMonth;
+            data_save.endYear = endYear;
+            data_save.endMonth = endMonth;
+            data_save.sql_date1_ = sql_date1_;
+            data_save.sql_date2_ = sql_date2_;
+            data_save.pie_rst = data.pie_rst;
+
             drawMapChartChina_ratio(data.all_dictionary,data.result,startYear,startMonth,endYear,endMonth);
+            // if ( showStyle == 1 ){
+            //     drawMapChartChina_ratio(data.all_dictionary,data.result,startYear,startMonth,endYear,endMonth);
+            // }else if ( showStyle == 2 ){
+            //     drawpie_marketShare(data.pie_rst,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust,data.all_dictionary);
+            // }else if ( showStyle == 3 ){
+            //     drawfunnel(data.all_dictionary,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // }
+            // //else if ( showStyle == 4 ){
+            // //     drawTimeLineBar_normal(data.all_dictionary,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+            // // }
+            // else {
+            //     console.log("five");
+            //     //drawBar_normal(data.all_dictionary,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
+               
+            // }
 
             $("#txt").empty();
             $("#txt").append(data.describe); 
