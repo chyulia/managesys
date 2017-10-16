@@ -31,7 +31,7 @@ def updateRecordbof():#定期更新完成后更新记录表
 	# tableNamelist = ['PRO_BOF_HIS_PLAN','PRO_BOF_HIS_MIRON','PRO_BOF_HIS_SCRAP','PRO_BOF_HIS_POOL','PRO_BOF_HIS_EVENTS','PRO_BOF_HIS_BOCSM','PRO_BOF_HIS_TEMP','PRO_BOF_HIS_CHRGDGEN','PRO_BOF_HIS_CHRGDDAT','PRO_BOF_HIS_ANAGEN','PRO_BOF_HIS_ANADAT']
 	tableNamelist = ['PLAN','MIRON','SCRAP','POOL','EVENTS','BOCSM','TEMP','CHRGDGEN','CHRGDDAT','ANAGEN','ANADAT']
 	for singlename in tableNamelist:
-		sqlVO["sql"]= "select MAX(MSG_DATE) FROM PRO_BOF_HIS_" +singlename
+		sqlVO["sql"]= "select MAX(MSG_DATE) FROM PRO_BOF_HIS_" +singlename+"_MIDDLE"
 		latestTime = models.BaseManage().direct_select_query_sqlVO(sqlVO)[0].get('MAX(MSG_DATE)',None)
 		str_latestTime = datetime.datetime.strftime(latestTime,'%Y-%m-%d %H:%M:%S')
 		sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set TABLE_"+ singlename+" = to_date(' " +str_latestTime+" ','yyyy-mm-dd hh24:mi:ss')" 
@@ -448,7 +448,7 @@ def batch_dyupdatebof():#进行更新
 
 	# --步骤一：取样信息表中获取取样类型，添加到成分信息表中
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
-	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
+	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where t2.msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
 	# --步骤二：取最新成分数据(取样类型不能为3,3表示炉前数据)
