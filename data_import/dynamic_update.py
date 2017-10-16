@@ -136,7 +136,7 @@ def batch_dyupdatebof():#进行更新
 	      if   num=1   then 
 	          execute immediate 'DROP TABLE PRO_BOF_HIS_ANADAT_MIDDLE'; 
 	      end   if;   
-	end;;
+	end;
 	'''
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
