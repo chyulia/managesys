@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 from . import choose_settings
 
-
+lab_ip = choose_settings.lab_ip
 ROW_NUM=10000
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = choose_settings.DEBUG

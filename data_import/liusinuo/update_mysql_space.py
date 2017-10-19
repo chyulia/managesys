@@ -12,6 +12,7 @@ conn_mysql = models.BaseManage()
 from pandas import DataFrame
 import pandas as pd
 from sqlalchemy import create_engine
+from QinggangManageSys.settings import lab_ip
 
 #=====================【 SQL 语 句 查 询 】==================================
 '''
@@ -143,7 +144,7 @@ def update_mysql_space_orderNo():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.75:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -172,7 +173,7 @@ def update_data_new_sales2_orderno_orderItem():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -200,7 +201,7 @@ def update_data_new_sales_displistno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -229,7 +230,7 @@ def update_data_new_sales_loadno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -258,7 +259,7 @@ def update_data_sales_new_loadno_collectno_receiveno():  # not right
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -287,7 +288,7 @@ def update_data_sales_new_collectno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -316,7 +317,7 @@ def update_data_sales_new_receiveno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -344,7 +345,7 @@ def update_data_sales_new_rtnno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -373,7 +374,7 @@ def update_data_sales_new_millsheetno():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -401,7 +402,7 @@ def update_data_sales_new_space_comparsion():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -422,7 +423,7 @@ def update_data_sales_new_space_comparsion():
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
@@ -444,7 +445,7 @@ def update_data_sales_new_marketshare(province_value,orderDate_value,salesWeight
 
 	# 将数据写入mysql的数据库，但需要先通过sqlalchemy.create_engine建立连接,且字符编码设置为utf8，否则有些latin字符不能处理
 	# 建立数据库连接
-	yconnect = create_engine('mysql+mysqldb://root:123456@202.204.54.212:3306/qinggang?charset=utf8')
+	yconnect = create_engine('mysql+mysqldb://root:123456@' + lab_ip + ':3306/qinggang?charset=utf8')
 	print ("建立数据库连接")
 	# 传入数据
 	#pd.io.sql.to_sql(dataFrame_data_space_orderNo,'data_new_sales_space_orderno', yconnect, schema='qinggang', if_exists='append')
