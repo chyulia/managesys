@@ -1,6 +1,6 @@
 function drawHistoryPriceBrokenLineChart(data){
         var myChart = echarts.init(document.getElementById('history_figure'));
-        var line_mark = data.timeline[1000];
+        var line_mark = data.timeline[1];
         console.log(line_mark);
         option = {
             title: {
@@ -136,10 +136,10 @@ function drawPredictBrokenLineChart(data,figure_name,method){
         option.series[1].data = fill_new.concat(predict_new);
         myChart.setOption(option, true);
     }
-
 }
 
 function history_query(){
+    $("#dataerror").addClass("hide");
     var steel_type = $("#steel_type").val();
     var steeltype = $("#steeltype").val();
     var tradeno = $("#tradeno").val();
@@ -170,7 +170,18 @@ function history_query(){
         },
         success: function(data) {
             console.log(data);
-            drawHistoryPriceBrokenLineChart(data);
+            if(data.state == 100002){
+                $("#dataerror").removeClass("hide");
+                $("#ele_info").html(data.ele_info)
+                $("#dataerror").html(data.his_warnning);
+                $("#history_figure").addClass("hide");
+            }
+            else if (data.state == 0){
+                $("#history_figure").removeClass("hide");
+                $("#ele_info").html(data.ele_info)
+                drawHistoryPriceBrokenLineChart(data);
+            }
+
         }
     })
 }
@@ -284,20 +295,34 @@ function layouttest(){
         drawPredictBrokenLineChart(value,"",name);
     });
 }
+
 function predict_query(){
     $("#waitwarning").removeClass("hide");
-    var steelType = $("#steel_type").val();
-    console.log(steelType);
-    var timeScale = $("#time_scale").val();
-    console.log(time_scale);
+    var timeScale = $("#time_scale_predict").val();
+    console.log(timeScale);
     var type_array=new Array();
     $('input[name="predict_method"]:checked').each(function(){
         type_array.push($(this).val());//向数组中添加元素
     });
     var typestr=type_array.join(',');//将数组元素连接起来以构建一个字符串
     console.log(typestr);
-    var params = {"steelType":steelType,"typestr":typestr,"timeScale":timeScale}
-    console.log(params);
+    var steel_type = $("#steel_type_predict").val();
+    var steeltype = $("#steeltype_predict").val();
+    var tradeno = $("#tradeno_predict").val();
+    var delivery = $("#delivery_predict").val();
+    var specification = $("#specification_predict").val();
+    var factory = $("#factory_predict").val();
+    var params = {
+                    "steel_type":steel_type,
+                    "steeltype":steeltype,
+	                "tradeno":tradeno,
+	                "delivery":delivery,
+	                "specification":specification,
+	                "factory":factory,
+	                "typestr":typestr,
+	                "timeScale":timeScale
+                 }
+    console.log(JSON.stringify(params));
 
     $.ajax({
         type: "post",

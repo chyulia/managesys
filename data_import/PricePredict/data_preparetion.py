@@ -298,12 +298,12 @@ class DataCleaning(object):
         # df = df[df['updatetime'] > datetime.datetime.strptime('2010-06-03', '%Y-%m-%d')]
         return df
 
-    def first_ele(self, params):
+    def first_ele(self, params, pop_no_op=[]):
         """
         :param params: 通过POST获取的参数字典，包含非筛选因素,key-value对应的值是列表
         :return: 条件选择因素及时间约束
         """
-        pop_no_op = ['csrfmiddlewaretoken', 'steel_type']
+        # pop_no_op = ['csrfmiddlewaretoken', 'steel_type']
         history_end, history_begin = (None, None)
         for key, value in params.items():
             if key not in ('history_end', 'history_begin', 'csrfmiddlewaretoken'):
@@ -312,10 +312,10 @@ class DataCleaning(object):
                 except Exception as e:
                     print('[', e, ']')
                     pop_no_op.append(key)
-
-        history_begin = params.pop('history_begin')[0]
-        history_end = params.pop('history_end')[0]
-        for ele in pop_no_op:
+        if 'history_begin' in params and 'history_end' in params:
+            history_begin = params.pop('history_begin')[0]
+            history_end = params.pop('history_end')[0]
+        for ele in pop_no_op: # items遍历字典时操作的是视图，不能对字典的key值进行操作
             params.pop(ele)
         return params, history_begin, history_end
 
@@ -331,7 +331,7 @@ class DataCleaning(object):
         print(sql, vars)
         return sqlVO
 
-    def format_data(self, params, history_begin, history_end):
+    def format_data(self, params, history_begin='2010-06-03', history_end=time.strftime("%Y-%m-%d", time.localtime(time.time()))):
         attrs = util.get_model_attrs(models.steelprice)
         print(attrs)
         sqlVO = util.create_select_sqlVO(models.steelprice, params)

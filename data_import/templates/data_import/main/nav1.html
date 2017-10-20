@@ -2,53 +2,48 @@
 {% load static %}
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
 {% block pagejs %}
-<!-- <script type="text/javascript" src="{% static 'data_import/index/js/jQuery.blockUI.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/index/js/jquery.pack.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/index/js/jquery.SuperSlide.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/js/jquery-1.12.4.js' %}"></script> -->
+
 {% endblock %}
 
 {% block pagecss %}
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/normalize.css' %}"> -->
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/demo.css' %}"> -->
+
 <link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/set.css' %}">
 {% endblock %}
 
 {% block content %}
  <!-- start slider Section -->
  <div id="blank"></div>
-<section id="module_sec">
+
+<section id="lts_sec">
 <div class="container">
-    <div class="row">
-      <!-- <div class="zzsc-container">
-      	<section>
-      		<h2><span>生产过程成本与质量分析</span></h2>
-      		<div class="ribbon"><span class="ribbon1"><span><a class="page-scroll" href="/chen">转炉数据分析</a>1</span></span></div>
-      		<div class="ribbon"><span class="ribbon2"><a class="page-scroll" href="/fluctuation">波动率分析</a</span></div>
-      		<div class="ribbon"><span class="ribbon3"><a class="page-scroll" href="/ha">转炉数据预处理</a></span></div>
-      		<div class="ribbon"><span class="ribbon4"><a class="page-scroll" href="/product_quality">转炉单炉次质量回溯</a></span></div>
-      		<div class="ribbon"><span class="ribbon5"><a class="page-scroll" href="/w_fluc_quality">转炉多炉次质量回溯</a></span></div>
-      	</section>
-      </div> -->
-      <!-- works -->
-      <div id="works"  class=" clearfix grid">
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
+			<div class="title_sec">
+				<h1>生产过程与质量成本分析</h1>
+				<h2>成本分析包括质量分析，波动率分析；质量分析包括转炉数据预处理，单炉质量回溯和多炉质量回溯</h2>
+			</div>
+		</div>
         {% for infotype,infos in infost.items %}
           {% if infotype == '4' %}
             {% for info in infos %}
-          <figure class="effect-oscar  wowload fadeIn">
-              <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-              <figcaption>
-                  <h2>{{info.title}}</h2>
-                  <p><br>
-                  <a class="page-scroll" href="{{info.link}}">{{info.title}}</a></p>
-              </figcaption>
-          </figure>
+          <div class="col-lg-4 col-md-4 col-sm-12">
+              <!--<img src="{% static 'data_import/skin1/img/portfolio/5.jpg' %}" alt="img01"/>-->
+              <div class="lts_pst">
+                  <!--<h2>{{info.title}}</h2>-->
+                  <p></p>
+                  <a class="page-scroll" href="{{info.link}}">{{info.title}}<i class="fa fa-long-arrow-right"></i></a></p>
+              </div>
+          </div>
           {% endfor %}
         {% endif %}
       {% endfor %}
-      </div>
-      <!-- works -->
-    </div>
+		<div class="post_btn">
+			<div class="hover_effect_btn" id="hover_effect_btn">
+				<a href="/module_nav?module_type=2" data-hover="view more post"><span>销售分析与价格预测</span></a>
+			</div>
+		</div>
+
+	</div>
 </div>
 </section>
 

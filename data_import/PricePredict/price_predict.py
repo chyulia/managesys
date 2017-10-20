@@ -12,12 +12,11 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
 from data_import import const
-from data_import.PricePredict.data_cleaning import get_history_price, create_single_model, get_stone_history_price, \
-    get_all_history_select
+from data_import.PricePredict.data_cleaning import create_single_model, get_stone_history_price
 import data_import.PricePredict.PredictModels as PredictModels
 from data_import.PricePredict.predict_day import predict_day
 from data_import.PricePredict.predict_yue import predict_yue
-from data_import.PricePredict.pre_config import steel_type, predict_method, time_scale, \
+from data_import.PricePredict.pre_config import ELE_INFOS, steel_type, predict_method, time_scale, \
     INFO, WARNING, model_classname, iron_type, stone_predict_method, yinsu_type, choose_col_meaning, all_select
 from data_import import models, util
 from data_import.PricePredict import data_preparetion
@@ -32,10 +31,6 @@ except:
 
 media_root = settings.MEDIA_ROOT
 data_root = os.path.join(media_root, 'files', 'data')
-
-
-
-
 
 def steelprice(request):
     if not request.user.is_authenticated():
@@ -53,54 +48,24 @@ def steelprice(request):
     #  从数据库里读取,可以写到配置文件里，减少读取时间，增加缓存，减少参数初始化时间
     all_select,choose_col = dc.get_all_history_select()
     # choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'region', 'factory')
-
+    predict_all_select = all_select.copy()
+    predict_all_select.pop('region')
     for col in choose_col:
         contentVO[col] = all_select[col]
+    # model_selcet_eles = ['steeltype', 'tradeno', 'delivery','specification']
     contentVO['all_select'] = all_select
+    contentVO['predict_all_select'] = predict_all_select
     contentVO["steel_type"] = steel_type
     contentVO['choose_col'] = choose_col
     contentVO['choose_col_meaning'] = choose_col_meaning
     contentVO["predict_method"] = predict_method
     contentVO['time_scale'] = time_scale
     contentVO['info'] = INFO
+
+
     contentVO['warning'] = WARNING
     return render(request, 'data_import/steelprice.html', contentVO)
 
-
-def first_ele(params):
-    """
-    :param params: 通过POST获取的参数字典，包含非筛选因素
-    :return: 条件选择因素及时间约束
-    """
-    pop_no_op = ['csrfmiddlewaretoken', 'steel_type']
-    history_end, history_begin = (None, None)
-    for key, value in params.items():
-        if key not in ('history_end', 'history_begin', 'csrfmiddlewaretoken'):
-            try:
-                params[key] = value[0]
-            except Exception as e:
-                print('[', e, ']')
-                pop_no_op.append(key)
-
-    history_begin = params.pop('history_begin')[0]
-    history_end = params.pop('history_end')[0]
-    for ele in pop_no_op:
-        params.pop(ele)
-    return params, history_begin, history_end
-
-
-def time_limit(sqlVO, history_begin, history_end):
-    sql = sqlVO.get('sql', None)
-    vars = sqlVO.get('vars', None)
-    sql = sql + ' and updatetime >= %s and updatetime <= %s'
-    vars.append(datetime.datetime.strptime(history_begin, '%Y-%m-%d'))
-    vars.append(datetime.datetime.strptime(history_end, '%Y-%m-%d'))
-    sqlVO['sql'] = sql
-    sqlVO['vars'] = vars
-    print(sql, vars)
-    return sqlVO
-
-# TODO 按条件检索价格历史数据，数据缺失或本身太少处理
 def price_history(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
@@ -109,12 +74,10 @@ def price_history(request):
     }
     dc = data_preparetion.DataCleaning()
     if request.method == 'POST':
+        pop_no_op = ['csrfmiddlewaretoken', 'steel_type']
         print(dict(request.POST))
-
-        params, history_begin, history_end = dc.first_ele(dict(request.POST))
+        params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
     print(params)
-
-
     rs = dc.format_data(params, history_begin, history_end)
     #
     if rs is not None:
@@ -122,12 +85,14 @@ def price_history(request):
         prices_ = dc.data_to_display(rs)
         contentVO['timeline'] = prices_[0]
         contentVO['price'] = prices_[1]
+        contentVO['state'] = const.OK.get('code', 0)  # 前端检测state状态，匹配message信息进行相应处理
     else:
-        contentVO["warnning"] = "该筛选条件下无合适数据"
+        contentVO["his_warnning"] = "该筛选条件下无合适数据"
+        contentVO['state'] = const.COMMON.INVALID_PARAM.get('code', None)
 
     # contentVO['timeline'] = prices.get('timeline', None)
     # contentVO['price'] = prices.get('price', None)
-    contentVO['state'] = const.COMMON.INVALID_PARAM #前端检测state状态，匹配message信息进行相应处理
+    contentVO['ele_info'] = ELE_INFOS.get('steel')
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 
 
@@ -153,6 +118,18 @@ def init_models(modelname):
 def price_predict(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
+
+    dc = data_preparetion.DataCleaning()
+
+    if request.method == 'POST':
+        pop_no_op = ['csrfmiddlewaretoken', 'steel_type', 'timeScale']
+        print(dict(request.POST))
+        steelType = request.POST.get('steelType', '')
+        timeScale = request.POST.get('timeScale', '')
+        params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
+    print(params)
+    rs = dc.format_data(params)
+
     if request.method == 'POST':
         '''
         获取对应参数,增加钢厂，牌号参数
@@ -239,6 +216,7 @@ def stone_price_history(request):
         'title': '铁矿石历史价格',
         'state': 'success'
     }
+    contentVO['ele_info'] = ELE_INFOS.get(yinsu_type, None)
     contentVO['timeline'] = prices.get('timeline', None)
     contentVO['price'] = prices.get('price', None)
     return HttpResponse(json.dumps(contentVO), content_type='application/json')

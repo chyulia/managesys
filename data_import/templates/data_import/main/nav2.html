@@ -2,43 +2,50 @@
 {% load static %}
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
 {% block pagejs %}
-<!-- <script type="text/javascript" src="{% static 'data_import/index/js/jQuery.blockUI.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/index/js/jquery.pack.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/index/js/jquery.SuperSlide.js' %}"></script>
-<script type="text/javascript" src="{% static 'data_import/js/jquery-1.12.4.js' %}"></script> -->
+
 {% endblock %}
 
 {% block pagecss %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/set.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'data_import/skin1/css/animate.css' %}">
 {% endblock %}
 
 {% block content %}
  <!-- start slider Section -->
 
-<section id="module_sec">
+<section id="lts_sec">
 <div class="container">
-    <div class="row">
-      <div id="works"  class=" clearfix grid">
-      {% for infotype,infos in infost.items %}
-        {% if infotype == '3' %}
-          {% for info in infos %}
-      <figure class="effect-oscar  wowload fadeInUp">
-         <img src="{% static 'data_import/skin1/img/portfolio/1-1.jpg' %}" alt="img01"/>
-         <figcaption>
-             <h2>{{info.title}}</h2>
-             <p><br>
-             <a class="page-scroll" href="{{info.link}}">{{info.title}}</a></p>
-         </figcaption>
-     </figure>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
+			<div class="title_sec">
+				<h1>销售分析与价格预测</h1>
+				<h2>空间分析、时间分析、客户分析、钢种分析；选择种类、影响因素、预测时间、尺度，给出相应的价格预测曲线，包括历史价格展示和未来价格预测两部分</h2>
+			</div>
+		</div>
+          {% for infotype,infos in infost.items %}
+            {% if infotype == '3' %}
+              {% for info in infos %}
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                      <!--<img src="{% static 'data_import/skin1/img/portfolio/5.jpg' %}" alt="img01"/>-->
+                      <div class="lts_pst">
+                          <!--<h2>{{info.title}}</h2>-->
+                          <p></p>
+                          <a class="page-scroll" href="{{info.link}}">{{info.title}}<i class="fa fa-long-arrow-right"></i></a></p>
+                      </div>
+                </div>
+             {% endfor %}
+           {% endif %}
          {% endfor %}
-       {% endif %}
-     {% endfor %}
-   </div>
-    </div>
+        <div class="post_btn">
+            <div class="hover_effect_btn" id="hover_effect_btn">
+                <a href="/module_nav?module_type=1" data-hover="view more post"><span>生产过程与质量成本分析</span></a>
+            </div>
+        </div>
+
+	</div>
 </div>
 </section>
+
 
 
 <!-- End module Section -->

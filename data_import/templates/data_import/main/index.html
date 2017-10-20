@@ -9,9 +9,6 @@
 {% endblock %}
 
 {% block pagecss %}
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/normalize.css' %}"> -->
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/demo.css' %}"> -->
-<link rel="stylesheet" type="text/css" href="{% static 'data_import/index/css/style.css' %}">
 {% endblock %}
 
 {% block indexcontent %}
@@ -66,23 +63,32 @@
 
 <!-- End slider Section -->
 <!-- start Service Section -->
-<section id="pr_sec">
+
+
+<section id="lts_sec">
 <div class="container">
 	<div class="row">
-  		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
-  			<div class="title_sec">
-  				<h1>核心模块</h1>
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs12 ">
+			<div class="title_sec">
+				<h1>核心模块</h1>
   				<h2>常用模块的快捷入口</h2>
-  			</div>
-  		</div>
+			</div>
+		</div>
+        {% for infotype,infos in infost.items %}
+          {% if infotype == '2' %}
+            {% for info in infos %}
+          <div class="col-lg-4 col-md-4 col-sm-12">
+              <!--<img src="{% static 'data_import/skin1/img/portfolio/5.jpg' %}" alt="img01"/>-->
+              <div class="lts_pst">
+                  <!--<h2>{{info.title}}</h2>-->
+                  <p></p>
+                  <a class="page-scroll" href="{{info.link}}">{{info.title}}<i class="fa fa-long-arrow-right"></i></a></p>
+              </div>
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
 
-    {% for infotype,infos in infost.items %}
-      {% if infotype == '2' %}
-        {% for info in infos %}
-        <div class="ribbon"><div class="wrap"><span class="ribbon6"><a class="page-scroll" href='{{info.link}}'>{{info.subtitle}}</a></span></div></div>
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
 	</div>
 </div>
 </section>

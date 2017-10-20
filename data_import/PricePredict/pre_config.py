@@ -5,10 +5,9 @@ steel_type = {
     # "2": "冷墩拉丝",
 }
 predict_method = {
-    "linear_regression": "线性回归",
-    "random_forest": "随机森林",
-    "elm": "超限学习机elm",
-    "svm": "支持向量机svm",
+    "RandomForest": "随机森林",
+    "ExtremeLM": "超限学习机elm",
+    "SVR_": "支持向量回归svr",
     # "BP":"BP神经网络",
 }
 # time_scale = {
@@ -22,6 +21,9 @@ predict_method = {
 # }
 
 INFO = "描述信息：以2016年1月以前的历史数据外延预测2016年1月之后的价格数据。"
+ELE_INFOS = {
+    'steel':"描述信息：数据爬取自<a href='http://search.mysteel.com/market/list.ms'>我的钢铁</a>",
+}
 
 WARNING = "数据处理耗时较长，请耐心等待..."
 
@@ -45,7 +47,7 @@ stone_predict_method = {
     "svm": "支持向量机svm",
 }
 time_scale = {
-    "day": "日",
+    # "day": "日",
     "month": "月",
 }
 
