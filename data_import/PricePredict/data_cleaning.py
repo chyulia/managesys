@@ -4,21 +4,18 @@ import datetime, time
 
 import numpy as np
 import pandas as pd
-
+from data_import.PricePredict import pre_config
 
 # from sklearn.cross_validation import train_test_split
 
 
-#
+#TODO 根据牌号，规格，钢厂选择数据训练模型
 
 
 def get_history_price(path, begin, end):
     dfori = pd.read_csv(path, encoding='gbk')
     cols = list(dfori.columns)
-    cols_len = len(cols)
-    print(path)
-    print(begin)
-    print(end)
+
     '''
     时间字符串转时间格式
     '''
@@ -246,6 +243,14 @@ def get_all_history_select(df):
             continue
         all_select[col] = list(df[col].unique())
     return all_select, choose_col
+
+
+def get_table_name():
+    return pre_config.table_name
+
+
+def get_table_meanings():
+    return pre_config.table_name_meanings
 
 
 if __name__ == '__main__':

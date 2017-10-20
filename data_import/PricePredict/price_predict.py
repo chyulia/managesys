@@ -1,16 +1,17 @@
 #!/usr/bin/env python3.5.2
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import logging
+import os
 import sys
-import datetime
+
 
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
-import pandas as pd
-
+from data_import import const
 from data_import.PricePredict.data_cleaning import get_history_price, create_single_model, get_stone_history_price, \
     get_all_history_select
 import data_import.PricePredict.PredictModels as PredictModels
@@ -19,6 +20,7 @@ from data_import.PricePredict.predict_yue import predict_yue
 from data_import.PricePredict.pre_config import steel_type, predict_method, time_scale, \
     INFO, WARNING, model_classname, iron_type, stone_predict_method, yinsu_type, choose_col_meaning, all_select
 from data_import import models, util
+from data_import.PricePredict import data_preparetion
 
 '''
 预测相关方法在SteelPricePredict文件夹中
@@ -29,24 +31,12 @@ except:
     pass
 
 media_root = settings.MEDIA_ROOT
-data_root = media_root + '/files/data/'
+data_root = os.path.join(media_root, 'files', 'data')
 
 
-def select_allprice():
-    sqlVO = dict()
-    tname = 'steelprice'
-    sql = 'SELECT * FROM {0}'.format(tname)
-    sqlVO['sql'] = sql
-    desc = models.BaseManage().direct_get_description_only(sqlVO)
-    print(desc)
-    rs = models.BaseManage().direct_select_query_sqlVO(sqlVO)
-    ## rs为tuple，每一行记录也是tuple
-    if rs:
-        print(rs[:5])
-        df = pd.DataFrame(rs, columns=pd.Series(desc[0]))
-    return df
 
-# TODO 增加缓存，减少参数初始化时间
+
+
 def steelprice(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
@@ -54,17 +44,18 @@ def steelprice(request):
 
     logger.debug(steel_type)
     logger.debug(predict_method)
+    dc = data_preparetion.DataCleaning()
     contentVO = {
         'title': '钢材价格预测',
         'state': 'success'
     }
-    # df = select_allprice()
-    # all_select,choose_col = get_all_history_select(df)
-    choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'region', 'factory')
-    print(all_select)
+    # df = dc.valid_steel_data_by_time()
+    #  从数据库里读取,可以写到配置文件里，减少读取时间，增加缓存，减少参数初始化时间
+    all_select,choose_col = dc.get_all_history_select()
+    # choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'region', 'factory')
+
     for col in choose_col:
         contentVO[col] = all_select[col]
-    # TODO allselect直接写到配置文件里了，之后需要从数据库里读取
     contentVO['all_select'] = all_select
     contentVO["steel_type"] = steel_type
     contentVO['choose_col'] = choose_col
@@ -73,7 +64,7 @@ def steelprice(request):
     contentVO['time_scale'] = time_scale
     contentVO['info'] = INFO
     contentVO['warning'] = WARNING
-    return render(request, 'data_import/steelprice_temp.html', contentVO)
+    return render(request, 'data_import/steelprice.html', contentVO)
 
 
 def first_ele(params):
@@ -113,28 +104,30 @@ def time_limit(sqlVO, history_begin, history_end):
 def price_history(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
+    contentVO = {
+        'title': '钢材历史价格',
+    }
+    dc = data_preparetion.DataCleaning()
     if request.method == 'POST':
         print(dict(request.POST))
 
-        params, history_begin, history_end = first_ele(dict(request.POST))
+        params, history_begin, history_end = dc.first_ele(dict(request.POST))
+    print(params)
 
-    path = data_root + 'tegang.csv'
-    prices = get_history_price(path, history_begin, history_end)
 
-    attrs = util.get_model_attrs(models.steelprice)
-    print(attrs)
-    sqlVO = util.create_select_sqlVO(models.steelprice, params)
-    sqlVO = time_limit(sqlVO, history_begin, history_end)
-    print(sqlVO)
-    rs = models.BaseManage().direct_select_query_orignal_sqlVO(sqlVO)
-    print(len(rs))
-    logger.debug(type(prices.get('price', None)[0]))
-    contentVO = {
-        'title': '钢材历史价格',
-        'state': 'success'
-    }
-    contentVO['timeline'] = prices.get('timeline', None)
-    contentVO['price'] = prices.get('price', None)
+    rs = dc.format_data(params, history_begin, history_end)
+    #
+    if rs is not None:
+        print(len(rs))
+        prices_ = dc.data_to_display(rs)
+        contentVO['timeline'] = prices_[0]
+        contentVO['price'] = prices_[1]
+    else:
+        contentVO["warnning"] = "该筛选条件下无合适数据"
+
+    # contentVO['timeline'] = prices.get('timeline', None)
+    # contentVO['price'] = prices.get('price', None)
+    contentVO['state'] = const.COMMON.INVALID_PARAM #前端检测state状态，匹配message信息进行相应处理
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 
 
@@ -155,14 +148,14 @@ def init_models(modelname):
         print('no such key name', modelname)
     return {modelname: model}
 
-# TODO 完善数据模型
+
 # FIXME
 def price_predict(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
     if request.method == 'POST':
         '''
-        获取对应参数
+        获取对应参数,增加钢厂，牌号参数
         '''
         steelType = request.POST.get('steelType', '')
         timeScale = request.POST.get('timeScale', '')
@@ -182,22 +175,19 @@ def price_predict(request):
     models_result = {}
 
     # TODO 根据日月的预测选择，生成输入预测模型的数据
-    path = data_root + 'tegang.csv'
-    PRE_DAYS = [5]
-    models_data = create_single_model(path, PRE_DAYS)
 
+    models_data = None
     logger.debug(len(models_data))
     models = map(init_models, types)
     models = list(models)
-    logger.debug(models)
     # TODO 得到每个模型的预测结果就好了
     for index in range(len(models)):
         for method, model in models[index].items():
             if model is not None:
-                result = model().predict(models_data[0], 0.4)
+                result = model().predict(models_data)
                 models_result[method] = result
     # logger.debug(models_result)
-
+    print(models_result.keys())
     contentVO = {
         'title': '钢材价格预测',
         'state': 'success'
@@ -230,7 +220,7 @@ def ironstoneprice(request):
     contentVO['time_scale'] = time_scale
     return render(request, 'data_import/steelprice_temp.html', contentVO)
 
-
+# TODO 根据yinsu_type选取相应描述
 def stone_price_history(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
@@ -327,3 +317,6 @@ def stone_price_predict(request):
 if __name__ == '__main__':
     types = []
     types.append('elm')
+# {'sql': 'SELECT * FROM steelprice where region=%s and tradeno=%s and factory=%s '
+#         'and specification=%s and delivery=%s and steeltype=%s and updatetime >= %s and updatetime <= %s',
+#  'vars': ['全国', '65Mn', '鞍钢', 'Φ6.5-25', '热轧', '弹簧钢', datetime.datetime(2010, 6, 3, 0, 0), datetime.datetime(2017, 9, 22, 0, 0)]}

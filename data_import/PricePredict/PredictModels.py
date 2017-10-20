@@ -24,7 +24,7 @@ class BaseModel(object, metaclass=ABCMeta):
     _model_pkl_path = os.path.join(_model_pkl_dir, "default.pkl")
     _model_name_plk = dict()
 
-    # TODO 更新模型，应该实现的机制是实例化具体类，调用本方法进行更新，而部分操作应该是同样的，可以考虑使用装饰器decorator.
+    # 更新模型，应该实现的机制是实例化具体类，调用本方法进行更新，而部分操作应该是同样的，可以考虑使用装饰器decorator.
     @abstractmethod
     def update_model(self, data_train, data_test, label_train, label_test):
         pass
@@ -106,7 +106,7 @@ class ExtremeLM(BaseModel):
 
 
 class SVR_(BaseModel):
-    """docstring for SVR."""
+    """docstring for SVR_."""
     def __init__(self):
         self._model_pkl_path = os.path.join(self._model_pkl_dir, "svr.pkl")
         print(self._model_pkl_path)

@@ -27,13 +27,18 @@ field_type = settings.FIELD_TYPES
 def transaction_decorator(f):
 
     def wrapper(*args):
-        if isinstance(args[0], BaseManage):
-            try:
-                with transaction.atomic():
-                    f(args[0])
-            except Exception as e:
-                print("transaction error！")
-                print('ERROR:[', e, ']')
+        bsm = None
+        for arg in args:
+            if isinstance(arg, BaseManage):
+                bsm = arg
+                break
+        try:
+            with transaction.atomic():
+                f(bsm)
+        except Exception as e:
+            print("transaction error！")
+            print('ERROR:[', e, ']')
+
     return wrapper
 
 
@@ -51,7 +56,7 @@ class BaseManage(models.Manager):
             self.__cursor = connections[db_name].cursor()
         except Exception as e:
             print("ERROR:[", e, ']')
-    # TODO 配置一个函数文档字符串模版吧 FIXED defm + tab
+    # 配置一个函数文档字符串模版吧 FIXED defm + tab
     def execute_single(self, sqlVO):
         """数据库查询的增删改底层操作
             sqlVO: a dict which contains 'sql', 'vars'
@@ -62,6 +67,7 @@ class BaseManage(models.Manager):
             self.__cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
         except Exception as e:
             print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
+            print("ERROR:[", e, ']')
             raise Exception(e) # 上层捕获异常，回滚事务
         else: # 若无异常执行else，该条语句返回True，不提交事务，最后上层调用提交事务
             return True
@@ -72,6 +78,7 @@ class BaseManage(models.Manager):
             return self.dictfetchall(self.__cursor)
         except Exception as e:
             print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
+            print("ERROR:[", e, ']')
             raise Exception(e)
 
     def select_single_tuple(self, sqlVO):
@@ -81,6 +88,29 @@ class BaseManage(models.Manager):
         except Exception as e:
             print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
             raise Exception(e)
+
+    def direct_get_description(self, sqlVO):
+        """获取字段名及其类型
+        Args:
+            sqlVO: a dict contains key：'sql'
+        Returns:
+            columns: a list including all columns
+            columns: a dict mapping columns and type
+        remark:
+            the description of a field like this '('id', 3, None, 11, 11, 0, False)'
+        """
+        try:
+            self.__cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
+            columns = [col[0] for col in self.__cursor.description]
+
+            types = [field_type.get(col[1], None) for col in self.__cursor.description]
+            columns_type = dict(zip(columns, types))
+            return [columns, columns_type]
+        except Exception as e:
+            print('Failed to execute SQL[%s]\n' % sqlVO.get('sql'))
+            print("ERROR:[", e, ']')
+            raise Exception(e)
+
 
     def raw_query_sqlVO(self, sqlVO):
         return self.raw(sqlVO.get('sql'), sqlVO.get('vars'))
@@ -200,28 +230,6 @@ class BaseManage(models.Manager):
             transaction.commit
             cursor.close()
             return True
-
-    def direct_get_description(self, sqlVO):
-        """获取字段名及其类型
-        Args:
-            sqlVO: a dict contains key：'sql'
-        Returns:
-            columns: a list including all columns
-            columns: a dict mapping columns and type
-        remark:
-            the description of a field like this '('id', 3, None, 11, 11, 0, False)'
-        """
-        db_name = sqlVO.get('db_name')
-        if sqlVO.get('db_name') != None:
-            cursor = connections[db_name].cursor()
-        else:
-            cursor = connection.cursor()
-        cursor.execute(sqlVO.get('sql'), sqlVO.get('vars', None))
-        columns = [col[0] for col in cursor.description]
-
-        types = [field_type.get(col[1], None) for col in cursor.description]
-        columns_type = dict(zip(columns, types))
-        return [columns, columns_type]
 
     def direct_get_description_only(self, sqlVO):
         db_name = sqlVO.get('db_name')
