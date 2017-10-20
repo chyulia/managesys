@@ -1216,3 +1216,8 @@ def test_update_plan(request):
 		'state':'success'
 	}
 	return HttpResponse(json.dumps(contentVO),content_type='application-json')
+
+def batch_dynamic_updatebof():#定期更新的执行,记录上次更新时间
+	with transaction.atomic():
+		batch_dyupdatebof()
+		updateRecordbof()
