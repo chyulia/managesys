@@ -1,0 +1,20 @@
+label {
+    font-size: 12px;
+}
+
+.input-lg {
+    font-size: 12px;
+}
+
+select.input-lg {
+    height: 24px;
+    line-height: 54px;
+}
+
+.form-group {
+    margin-bottom: 3px;
+}
+
+.form-control {
+    width: 60%;
+}
