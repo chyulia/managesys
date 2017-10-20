@@ -220,8 +220,7 @@ print(SCRAPY_ROOT)
 
 CRONJOBS = [
     ('19 22 * * 6', 'data_import.batchprocess.batch_relation_ana'), #转炉相关性分析 每周六22：19分更新转炉相关性系数
-    ('59 23 * * *', 'QinggangManageSys.views.scrapy_elements') # 每天的23：59分开始爬取前一天的新的数据
-    ('59 23 * * 5', 'QinggangManageSys.views.scrapy_elements') # 每周五23：59分开更新LF炉精炼数据
-    ('59 23 * * 5', 'data_import.update.batch_updatebof') # 每周五23：59分开更新bof炉精炼数据
-    ('59 23 * * 5', 'data_import.dynamic_update.batch_dynamic_updatebof') # 每周五23：59分开重新汇总转炉数据
+    ('59 23 * * *', 'QinggangManageSys.views.scrapy_elements'), # 每天的23：59分开始爬取前一天的新的数据
+    ('59 23 * * 5', 'data_import.update.batch_updatebof'), # 每周五23：59分开更新bof炉精炼数据
+    ('59 23 * * 5', 'data_import.dynamic_update.batch_dynamic_updatebof'), # 每周五23：59分开重新汇总转炉数据
 ]
