@@ -49,7 +49,7 @@ class Data_Preparetion(object):
         print(BASE_DIR)
         self._table_names = table_names
 
-    def intergrate_data_from_db(self):
+    def intergrate_data_from_db(self, sqlVO=dict()):
 
         """
 
@@ -57,13 +57,11 @@ class Data_Preparetion(object):
             table_names: a list contains tablenames need to be intergrated
 
         Returns:
-            train_data: a dataframe contains training data
-            train_label: a series contains labels data
-
+            model_prepared: the dataframe which merges elements and price by updatetime after data preprocess
         """
         # TODO 注意更新价格和时间列名
         # table_names.remove("tiejingfen")
-        dfs = self.integrate_db_dataframe()
+        dfs = self.integrate_db_dataframe(sqlVO_=sqlVO)
         # 按时间生成模型数据
         model = self.create_model_data(dfs)
         model.to_csv('model.csv', encoding='utf-8')
@@ -71,7 +69,9 @@ class Data_Preparetion(object):
         model_prepared.to_csv('model_prepared.csv', encoding='utf-8')
         return model_prepared
 
-    def integrate_db_dataframe(self):
+    def integrate_db_dataframe(self, sqlVO_=dict()):
+        """从数据库根据因素列表取出相应因素
+        """
         dfs = dict()
         sqlVO = dict()
         bsm = models.BaseManage()
@@ -80,7 +80,10 @@ class Data_Preparetion(object):
         def inner_exe(bsm):
             for tname in self._table_names:
                 if tname == 'steelprice':
-                    desc, rs = self._steelprice_custom(bsm)
+                    if sqlVO_:
+                        desc, rs = self._steelprice_custom(bsm, sqlVO_)
+                    else:
+                        desc, rs = self._steelprice_custom(bsm)
                     print(desc)
                 else:
                     sqlVO['sql'] = 'SELECT * FROM {0}'.format(tname)
@@ -98,6 +101,15 @@ class Data_Preparetion(object):
         return dfs
 
     def create_data_label(self, model_data):
+        """
+
+        Args:
+            model_data:
+
+        Returns:
+            model_fill_scaler_tr: a dataframe contains elements already being scaled
+            train_label: a series contains label data(price without scaling)
+        """
         labels = model_data['steelprice']
         cols = list(model_data.columns)
         cols.remove('steelprice')
@@ -174,28 +186,28 @@ class Data_Preparetion(object):
                 print("ERROR:[", e, ']')
         return model_fill
 
-    # @models.transaction_decorator
-    def _steelprice_custom(self, bsm):
+    def _steelprice_custom(self, bsm, sqlVO=dict()):
         """定制steelprice选择条件，方便后续方法测试
         
         Args:
             bsm： models.BaseManage object
+            sqlVO:如果根据前台已经返回筛选条件，则根据筛选条件生成数据，否则生成测试数据
         Returns:
             desc：a list contains clumns
             rs: sql resulte
         """
         @models.transaction_decorator
         def inner_exe(bsm):
-            sqlVO = dict()
-            sqlVO['sql'] = 'SELECT * FROM steelprice where region=%s and factory=%s and delivery=%s and steeltype=%s\
-                    and tradeno=%s and specification=%s  and updatetime >= %s and updatetime <= %s'
-            history_begin = "2010-06-03"
-            history_end = "2017-10-14"
-            params = ['全国', '鞍钢', '热轧', '弹簧钢', '65Mn', 'Φ6.5-25']
-            params.append(datetime.datetime.strptime(history_begin, '%Y-%m-%d'))
-            params.append(datetime.datetime.strptime(history_end, '%Y-%m-%d'))
-            sqlVO['vars'] = params
-            global desc, rs
+            if not sqlVO:
+                sqlVO['sql'] = 'SELECT * FROM steelprice where region=%s and factory=%s and delivery=%s and steeltype=%s\
+                        and tradeno=%s and specification=%s  and updatetime >= %s and updatetime <= %s'
+                history_begin = "2010-06-03"
+                history_end = "2017-10-14"
+                params = ['全国', '鞍钢', '热轧', '弹簧钢', '65Mn', 'Φ6.5-25']
+                params.append(datetime.datetime.strptime(history_begin, '%Y-%m-%d'))
+                params.append(datetime.datetime.strptime(history_end, '%Y-%m-%d'))
+                sqlVO['vars'] = params
+                global desc, rs
             desc = bsm.direct_get_description(sqlVO)
             rs = bsm.select_single(sqlVO)
 
@@ -329,6 +341,7 @@ class DataCleaning(object):
         sqlVO['sql'] = sql
         sqlVO['vars'] = vars
         print(sql, vars)
+        # print(sql % vars)
         return sqlVO
 
     def format_data(self, params, history_begin='2010-06-03', history_end=time.strftime("%Y-%m-%d", time.localtime(time.time()))):
@@ -338,7 +351,7 @@ class DataCleaning(object):
         sqlVO = self.time_limit(sqlVO, history_begin, history_end)
         try:
             rs_df = self.transform_dataframe(sqlVO)
-            return rs_df
+            return sqlVO, rs_df
         except Exception as e:
             print("ERROR:[", e, "]")
             return None
@@ -359,7 +372,7 @@ class DataCleaning(object):
         df["updatetime"] = df['updatetime'].map(lambda x: str(x))
         df['prices'] = df['price'].map(lambda x: float(x))
         timeline = list(df['updatetime'])
-        price = list(df['price'])
+        price = list(df['price']) # 字段名
         return timeline, price
 
 

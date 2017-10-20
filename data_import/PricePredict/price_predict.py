@@ -49,7 +49,7 @@ def steelprice(request):
     all_select,choose_col = dc.get_all_history_select()
     # choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'region', 'factory')
     predict_all_select = all_select.copy()
-    predict_all_select.pop('region')
+    # predict_all_select.pop('region')
     for col in choose_col:
         contentVO[col] = all_select[col]
     # model_selcet_eles = ['steeltype', 'tradeno', 'delivery','specification']
@@ -79,8 +79,9 @@ def price_history(request):
         params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
     print(params)
     rs = dc.format_data(params, history_begin, history_end)
+    dfs = rs[1]
     #
-    if rs is not None:
+    if dfs is not None:
         print(len(rs))
         prices_ = dc.data_to_display(rs)
         contentVO['timeline'] = prices_[0]
@@ -118,57 +119,73 @@ def init_models(modelname):
 def price_predict(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect("/login")
-
+    contentVO = {
+        'title': '钢材价格预测',
+    }
     dc = data_preparetion.DataCleaning()
 
     if request.method == 'POST':
-        pop_no_op = ['csrfmiddlewaretoken', 'steel_type', 'timeScale']
+        pop_no_op = ['csrfmiddlewaretoken', 'steel_type', 'timeScale', 'typestr']
         print(dict(request.POST))
-        steelType = request.POST.get('steelType', '')
-        timeScale = request.POST.get('timeScale', '')
-        params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
-    print(params)
-    rs = dc.format_data(params)
-
-    if request.method == 'POST':
-        '''
-        获取对应参数,增加钢厂，牌号参数
-        '''
-        steelType = request.POST.get('steelType', '')
-        timeScale = request.POST.get('timeScale', '')
+        # TODO 如果前端js取值为空，js是不会把这个值打包进参数传递给后台的
+        if 'steel_type' not in dict(request.POST):
+            pop_no_op.pop('steel_type')
+        steel_type = request.POST.get('steelType', '')
+        time_scale = request.POST.get('timeScale', '')
         typestr = request.POST.get('typestr', '')
         if typestr != "":
             types = typestr.split(',')
-    # TODO 设定有限的缓存模型，比如钢种，地区，规格，钢厂，提前生成csv文件会不会是一个比较好的处理方式？
-    # TODO 根据参数选择缓存的模型，获取系统时间检索数据，代入回归模型获得预测值
-    # FIXME
-    ''' 
-    根据参数选择模型
-    结果返回预测数据时间跨度，预测值，真实值，score值
-    对应不同的模型，每个模型存放在一张字典表中
-    外层是由模型名为key的字典表result={"ELM":{"timeline":xxx,"predict_value":xxxx,\
-    "true_value":xxxx,"score":xxxx},"SVM":{},"linear_regression":{}}
-    '''
-    models_result = {}
+            print(types)
+        params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
+    print(params)
+    sqlVO, rs = dc.format_data(params)
 
-    # TODO 根据日月的预测选择，生成输入预测模型的数据
+    dp = data_preparetion.Data_Preparetion()
+    model_prepared = dp.intergrate_data_from_db(sqlVO=sqlVO)
+    model_prepared['time'] = model_prepared['time'].map(lambda x: str(x))
+    timeline = list(model_prepared['time'])
+    true_value = model_prepared['steelprice'].map(lambda x: float(x)) # 表名标示数据
+    contentVO['timeline'] = timeline
+    if time_scale == "day":
+        pass
+    elif time_scale == "month":
 
-    models_data = None
-    logger.debug(len(models_data))
-    models = map(init_models, types)
-    models = list(models)
-    # TODO 得到每个模型的预测结果就好了
-    for index in range(len(models)):
-        for method, model in models[index].items():
-            if model is not None:
-                result = model().predict(models_data)
-                models_result[method] = result
-    # logger.debug(models_result)
-    print(models_result.keys())
-    contentVO = {
-        'title': '钢材价格预测',
-        'state': 'success'
-    }
+        # TODO 设定有限的缓存模型，比如钢种，地区，规格，钢厂，提前生成csv文件会不会是一个比较好的处理方式？
+        # TODO 根据参数选择缓存的模型，获取系统时间检索数据，代入回归模型获得预测值
+        # FIXME
+        ''' 
+        根据参数选择模型
+        结果返回预测数据时间跨度，预测值，真实值，score值
+        对应不同的模型，每个模型存放在一张字典表中
+        外层是由模型名为key的字典表result={"ELM":{"timeline":xxx,"predict_value":xxxx,\
+        "true_value":xxxx,"score":xxxx},"SVM":{},"linear_regression":{}}
+        '''
+        models_result = {}
+
+        model_data, model_label = dp.create_data_label(model_prepared)
+        models = map(init_models, types)
+        models = list(models)
+        # TODO 得到每个模型的预测结果就好了
+        single_result={}
+        single_result['timeline'] = timeline
+        single_result['true_value'] = list(true_value)
+        for index in range(len(models)):
+            for method, model in models[index].items():
+                if model is not None:
+                    special_model = model()
+
+                    # 目前在数据量不大的情况下还是均作保留模型的实时训练
+                    # data_train, data_test, label_train, label_test = special_model.standard_split_train_test(model_data, model_label)
+                    # model().update_model(data_train, data_test, label_train, label_test)
+                    result = special_model.predict(model_data)
+                    if result is not None:
+                        result = list(result)
+                    single_result['predict_value'] = result
+                    models_result[method] =single_result
+        # logger.debug(models_result)
+        print(models_result.keys())
+
+        contentVO['state'] = const.OK.get('code', 0)
     contentVO["result"] = models_result
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 

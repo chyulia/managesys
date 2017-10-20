@@ -28,11 +28,9 @@ ELE_INFOS = {
 WARNING = "数据处理耗时较长，请耐心等待..."
 
 model_classname = {
-    "elm": "ExtremeLM",
-    "svm": "SVM",
-    "BP": "BP",
-    "linear_regression": "LR",
-    "random_forest": "RandomForest",
+    "ExtremeLM": "ExtremeLM",
+    "SVR_": "SVR_",
+    "RandomForest": "RandomForest",
 }
 
 # 铁矿石参数

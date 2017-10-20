@@ -119,7 +119,7 @@ class SVR_(BaseModel):
         svm_mse = mean_squared_error(label_test, data_prediction)
         score = svm_reg.score(data_test, label_test)
         svm_rmse = np.sqrt(svm_mse)
-        print(svm_rmse)
+        # print(svm_rmse)
         print(score)
         self._model = svm_reg
         self.save_model_pkl()
@@ -137,7 +137,7 @@ class RandomForest(BaseModel):
         data_prediction = forest_reg.predict(data_test)
         forest_mse = mean_squared_error(label_test, data_prediction)
         forest_rmse = np.sqrt(forest_mse)
-        print(forest_rmse)
+        # print(forest_rmse)
         score = forest_reg.score(data_test, label_test)
         print(score)
         self._model = forest_reg
