@@ -82,10 +82,10 @@ def price_history(request):
     dfs = rs[1]
     #
     if dfs is not None:
-        print(len(rs))
-        prices_ = dc.data_to_display(rs)
-        contentVO['timeline'] = prices_[0]
-        contentVO['price'] = prices_[1]
+        print(len(dfs))
+        timeline, price = dc.data_to_display(dfs)
+        contentVO['timeline'] = timeline
+        contentVO['price'] = price
         contentVO['state'] = const.OK.get('code', 0)  # 前端检测state状态，匹配message信息进行相应处理
     else:
         contentVO["his_warnning"] = "该筛选条件下无合适数据"

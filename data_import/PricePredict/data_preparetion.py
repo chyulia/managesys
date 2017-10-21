@@ -370,9 +370,9 @@ class DataCleaning(object):
 
     def data_to_display(self, df):
         df["updatetime"] = df['updatetime'].map(lambda x: str(x))
-        df['prices'] = df['price'].map(lambda x: float(x))
+        df['price'] = df['price'].map(lambda x: float(x))
         timeline = list(df['updatetime'])
-        price = list(df['price']) # 字段名
+        price = list(df['price'])
         return timeline, price
 
 
