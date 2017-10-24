@@ -166,14 +166,12 @@ def price_predict(request):
         models = map(init_models, types)
         models = list(models)
         # TODO 得到每个模型的预测结果就好了
-        single_result={}
-        single_result['timeline'] = timeline
-        single_result['true_value'] = list(true_value)
+
         for index in range(len(models)):
             for method, model in models[index].items():
                 if model is not None:
+                    single_result = {}
                     special_model = model()
-
                     # 目前在数据量不大的情况下还是均作保留模型的实时训练
                     # data_train, data_test, label_train, label_test = special_model.standard_split_train_test(model_data, model_label)
                     # model().update_model(data_train, data_test, label_train, label_test)
@@ -184,8 +182,11 @@ def price_predict(request):
                     models_result[method] =single_result
         # logger.debug(models_result)
         print(models_result.keys())
-
+        for method in models_result:
+            models_result[method]['timeline'] = timeline
+            models_result[method]['true_value'] = list(true_value)
         contentVO['state'] = const.OK.get('code', 0)
+
     contentVO["result"] = models_result
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 
@@ -212,7 +213,7 @@ def ironstoneprice(request):
     contentVO["iron_type"] = iron_type
     contentVO["predict_method"] = stone_predict_method
     contentVO['time_scale'] = time_scale
-    return render(request, 'data_import/steelprice_temp.html', contentVO)
+    return render(request, 'data_import/ironstoneprice.html', contentVO)
 
 # TODO 根据yinsu_type选取相应描述
 def stone_price_history(request):
@@ -222,9 +223,10 @@ def stone_price_history(request):
         history_begin = request.POST.get('history_begin', '')
         history_end = request.POST.get('history_end', '')
         yinsu_type = request.POST.get('yinsu_type', '')
-    path = data_root + 'tkszs_yinsu.csv'
+    path = data_root + '/tkszs_yinsu.csv'
     # path = data_root + 'tegang.csv'
     prices = get_stone_history_price(path, history_begin, history_end, yinsu_type)
+
     # prices['timeline'] = []
     # prices['price'] = []
     # print(type(prices.get('price',None)[0]))
@@ -233,7 +235,8 @@ def stone_price_history(request):
         'title': '铁矿石历史价格',
         'state': 'success'
     }
-    contentVO['ele_info'] = ELE_INFOS.get(yinsu_type, None)
+    contentVO['state'] = const.OK.get('code', 0)  # 前端检测state状态，匹配message信息进行相应处理
+    contentVO['ele_info'] = ELE_INFOS.get(yinsu_type, "数据来源不详")
     contentVO['timeline'] = prices.get('timeline', None)
     contentVO['price'] = prices.get('price', None)
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
@@ -263,8 +266,8 @@ def stone_price_predict(request):
     "true_value":xxxx,"score":xxxx},"SVM":{},"LR":{}}
     '''
     # path = data_root + 'tegang.csv'
-    path_iron = data_root + 'tkszs_yinsu.csv'
-    path_iron_yue = data_root + 'qdg_time.csv'
+    path_iron = data_root + '/tkszs_yinsu.csv'
+    path_iron_yue = data_root + '/qdg_time.csv'
     # PRE_DAYS = [5]
     # models_data = create_single_model(path,PRE_DAYS)
     # print(len(models_data))
@@ -275,32 +278,32 @@ def stone_price_predict(request):
             if types[i] == "elm":
                 print(types[i])
                 result = predict_day(path_iron, types[i])
-                models_result["zhi"] = result
+                models_result["elm"] = result
             if types[i] == "logistic_regression":
                 result = predict_day(path_iron, types[i])
-                models_result["zhi"] = result
+                models_result["logistic_regression"] = result
             if types[i] == "svm":
                 result = predict_day(path_iron, types[i])
-                models_result["zhi"] = result
+                models_result["svm"] = result
             if types[i] == "random_forest":
                 result = predict_day(path_iron, types[i])
-                models_result["zhi"] = result
+                models_result["random_forest"] = result
     if timeScale == "month":
         for i in range(len(types)):
             # print(types[i])
             if types[i] == "elm":
                 print(types[i])
                 result = predict_yue(path_iron_yue, types[i])
-                models_result["zhi"] = result
+                models_result["elm"] = result
             if types[i] == "logistic_regression":
                 result = predict_yue(path_iron_yue, types[i])
-                models_result["zhi"] = result
+                models_result["logistic_regression"] = result
             if types[i] == "svm":
                 result = predict_yue(path_iron_yue, types[i])
-                models_result["zhi"] = result
+                models_result["svm"] = result
             if types[i] == "random_forest":
                 result = predict_yue(path_iron_yue, types[i])
-                models_result["zhi"] = result
+                models_result["random_forest"] = result
     contentVO = {
         'title': '钢材价格预测',
         'state': 'success'
