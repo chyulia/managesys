@@ -324,7 +324,6 @@ function iron_history_query(){
             console.log("404");
         },
         success: function(data) {
-            // console.log('123');
             console.log(data);
             if(data.state == 100002){
                 $("#dataerror").removeClass("hide");
@@ -333,7 +332,6 @@ function iron_history_query(){
                 $("#history_figure").addClass("hide");
             }
             else if (data.state == 0){
-                alert(data.ele_info);
                 $("#history_figure").removeClass("hide");
                 $("#ele_info").html(data.ele_info)
                 drawHistoryPriceBrokenLineChart(data);
