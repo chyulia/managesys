@@ -37,8 +37,9 @@
                 <div class="col-sm-12  col-lg-12 col-md-12 col-xs-12 ">
                     <div class="single-portfolio price-history">
                       <div class="col-xs-5">
+                      <div class="col-md-6">
                         <form role="form" id="history_form" action="">
-                            <div class="col-md-6">
+
                                 <div class="form-group">
                                   <label>钢材种类（大类）</label>
                                     <!--在大类的选择下增加onchange函数，一代大类选择完毕，相应的选项会相应发生变化-->
@@ -73,18 +74,9 @@
                                   <label>终止时间</label>
                                   <input id="history_end" name="history_end" type="date" value="2017-10-20">
                                 </div>
-                            </div>
 
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                  <div class="alert alert-info" role="alert">
-                                    <label>数据爬取来源：</label>
-                                      <div class="alert alert-info" role="alert" id="ele_info"></div>
-                                  </div>
-                              </div>
-                              <!--<div class="alert alert-info" role="alert">{{ ele_info }}</div>-->
-                              <div class="alert alert-warning hide" id ="dataerror"role="alert"></div>
-                            </div>
+
+
 
                             <div class="form-group">
                               <input class="btn btn-primary"  type="submit" value="查询">
@@ -92,6 +84,18 @@
                         </form>
                       </div>
 
+
+                        <div class="col-md-6">
+                          <div class="form-group">
+                              <div class="alert alert-info" role="alert">
+                                <label>数据爬取来源：</label>
+                                  <div class="alert alert-info" role="alert" id="ele_info"></div>
+                              </div>
+                          </div>
+                          <!--<div class="alert alert-info" role="alert">{{ ele_info }}</div>-->
+                          <div class="alert alert-warning hide" id ="dataerror"role="alert"></div>
+                        </div>
+                        </div>
                       <div class="col-xs-7">
                         <div id="history_figure" style="width: 500px;height:400px;"></div>
                       </div>
