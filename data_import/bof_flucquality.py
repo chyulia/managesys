@@ -69,15 +69,15 @@ def fluc_qualityfields(request):
 	thistime=time.localtime(time.time())
 	#当前时间
 	# time_now=time.strftime('%Y-%m-%d',thistime)
-	time_now=months(thistime,-3)
+	time_now=months(thistime,-5)
 	#一个月前
-	time_lastone=months(thistime,-4)
+	time_lastone=months(thistime,-6)
 	#两个月前
-	time_lasttwo=months(thistime,-5)
+	time_lasttwo=months(thistime,-7)
 	#三个月前
-	time_lastthree=months(thistime,-6)
+	time_lastthree=months(thistime,-8)
 	#四个月前
-	time_lastfour=months(thistime,-7)
+	time_lastfour=months(thistime,-9)
 
 
 	#判断是否执行缓存
@@ -216,7 +216,12 @@ def fluc_qualityfields(request):
 				continue
 			describe=[ele for ele in ana_describe[xasis_fieldname[i]]]
 			#value接受计算完成的字段波动率值
-			value=describe[2]/describe[1]
+			try:
+				value=describe[2]/describe[1]
+				if math.isnan(value):
+					value='wrong'
+			except:
+				value='wrong'
 			fluc_ratio.append(value)
 		print("-------------------------fluc_ratio",fluc_ratio)
 
@@ -243,7 +248,12 @@ def fluc_qualityfields(request):
 				continue
 			describe=[ele for ele in ana_describe_history[xasis_fieldname[i]]]
 			#value接收计算完成的字段波动率值：标准差/期望
-			value=describe[2]/describe[1]
+			try:
+				value=describe[2]/describe[1]
+				if math.isnan(value):
+					value='wrong'
+			except:
+				value='wrong'
 			fluc_ratio_history.append(value)
 		print("--------------------------fluc_ratio_history",fluc_ratio_history)
 

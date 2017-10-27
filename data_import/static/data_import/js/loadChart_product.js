@@ -1144,7 +1144,7 @@
                     var fieldname = result[classification_en_single].xname;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i], max:result[classification_en_single].updesired[i]*1.2
+                            name: fieldname[i], max:result[classification_en_single].updesired[i]*1.6
                         });
                     };
                     
@@ -1201,13 +1201,16 @@
     }
 
 //单炉次质量分析：------------------
-    // 条形图（含量）(多Y轴直方图)
+    // 条形图（含量）(多Y轴直方图)-尺寸：1400
     function drawBarChart_quality(result){
         var myChart = echarts.getInstanceByDom(document.getElementById('main1'));
         myChart.clear();
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#e02222', '#2367d9','#f39646','#e02222'];
         // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
         var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
+        var barWidth_value=80;
+        var barGap_value='100%';
+        var barCategoryGap_value='60%';
             // 指定图表的配置项和数据
             var option = {
                 color:colors,
@@ -1339,7 +1342,7 @@
                 {
                     type: 'value',
                     name: '温度',
-                    min: 1000,
+                    min: 0,
                     max: 2000,
                     position: 'left',
                     offset: -1000,
@@ -1354,9 +1357,9 @@
                 series: [{
                     name: 'C',
                     type: 'bar',
-                    barWidth : 80,//柱条（K线蜡烛）宽度
-                    barGap: '100%',//柱间距离，默认为柱形宽度的30%，可设固定值
-                    barCategoryGap:'60%',//类目间柱形距离，默认为类目间距的20%，可设固定值
+                    barWidth : barWidth_value,//柱条（K线蜡烛）宽度
+                    barGap: barGap_value,//柱间距离，默认为柱形宽度的30%，可设固定值
+                    barCategoryGap:barCategoryGap_value,//类目间柱形距离，默认为类目间距的20%，可设固定值
                     barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
                     data: [result.yvalue[0]],
                     itemStyle: {
@@ -1370,9 +1373,9 @@
                 {
                     name:'SI',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 1,
                     data:[result.yvalue[1]],
@@ -1387,9 +1390,9 @@
                 {
                     name:'MN',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 2,
                     data:[result.yvalue[2]],
@@ -1404,9 +1407,9 @@
                 {
                     name:'P',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 3,
                     data:[result.yvalue[3]],
@@ -1421,9 +1424,9 @@
                 {
                     name:'S',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 4,
                     data:[result.yvalue[4]],
@@ -1438,9 +1441,9 @@
                 {
                     name:'重量',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 5,
                     data:[result.yvalue[5]],
@@ -1455,9 +1458,9 @@
                 {
                     name:'温度',
                     type:'bar',
-                    barWidth : 80,
-                    barGap: '100%',
-                    barCategoryGap:'60%',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
                     barMinHeight:10,
                     yAxisIndex: 6,
                     data:[result.yvalue[6]],
@@ -1493,6 +1496,302 @@
             // 使用刚指定的配置项和数据显示图表。
     };
 
+        // 条形图（含量）(多Y轴直方图)-尺寸：700
+    function drawBarChart_quality_700(result){
+        var myChart = echarts.getInstanceByDom(document.getElementById('main1'));
+        myChart.clear();
+        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#e02222', '#2367d9','#f39646','#e02222'];
+        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
+        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
+        var barWidth_value=40;
+        var barGap_value='100%';
+        var barCategoryGap_value='60%';
+            // 指定图表的配置项和数据
+            var option = {
+                color:colors,
+                title: {
+                    text: '炉次号'+result.heat_no+'的钢水含量组成',
+                    x:'center'
+                },
+                tooltip: {
+                    // trigger: 'axis',
+                    // axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    //     type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        trigger:'item',
+                        formatter: function (params){
+                            var res = result.xname[params.seriesIndex]+':</br>实际值：'+params.value+ '<br/>偏离程度：'+result.offset_result[params.seriesIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.seriesIndex];
+                            return res;
+
+                     }
+                },
+                toolbox: {
+                    feature: {
+                        dataView: {show: true, readOnly: false},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                        }
+                },
+                legend: {
+                    data:['']
+                },
+                xAxis: {
+                    type: 'category',
+                    axisTick: {
+                    alignWithLabel: true
+                    },
+                    data: ['单炉次字段']
+                },
+                yAxis: [{
+                    type: 'value',
+                    name: 'C',
+                    min: 0,
+                    max: 0.9905,
+                    position: 'left',
+                    offset:-20,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[0]
+                        }
+                    },
+                    // axisLabel: {
+                    //     formatter: '{value} Kg'
+                    // }
+                },
+                {
+                    type: 'value',
+                    name: 'SI',
+                    min: 0,
+                    max: 0.4200,
+                    position: 'left',
+                    offset: -100,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[1]
+                        }
+                    },
+                    // axisLabel: {
+                    //     formatter: '{value} NM3'
+                    // }
+                },
+                {
+                    type: 'value',
+                    name: 'MN',
+                    min: 0,
+                    max: 0.8970,
+                    position: 'left',
+                    splitLine:{show: false},//去除网格线
+                    offset: -180,
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[2]
+                        }
+                    },
+                    // axisLabel: {
+                    //     formatter: '{value} Kg'
+                    // }
+                },
+                {
+                    type: 'value',
+                    name: 'P',
+                    min: 0,
+                    max: 0.0180,
+                    position: 'left',
+                    offset: -260,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[3]
+                        }
+                    },
+                },
+                {
+                    type: 'value',
+                    name: 'S',
+                    min: 0,
+                    max: 0.0180,
+                    position: 'left',
+                    offset: -340,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[4]
+                        }
+                    },
+                },
+                {
+                    type: 'value',
+                    name: '重量',
+                    min: 0,
+                    max: 113000,
+                    position: 'left',
+                    offset: -420,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[5]
+                        }
+                    },
+                },
+                {
+                    type: 'value',
+                    name: '温度',
+                    min: 1000,
+                    max: 2000,
+                    position: 'left',
+                    offset: -500,
+                    splitLine:{show: false},//去除网格线
+                    axisLine: {
+                        lineStyle: {
+                            color: colors[6]
+                        }
+                    },
+                },
+                ],
+                series: [{
+                    name: 'C',
+                    type: 'bar',
+                    barWidth : barWidth_value,//柱条（K线蜡烛）宽度
+                    barGap: barGap_value,//柱间距离，默认为柱形宽度的30%，可设固定值
+                    barCategoryGap:barCategoryGap_value,//类目间柱形距离，默认为类目间距的20%，可设固定值
+                    barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
+                    data: [result.yvalue[0]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'SI',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 1,
+                    data:[result.yvalue[1]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'MN',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 2,
+                    data:[result.yvalue[2]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'P',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 3,
+                    data:[result.yvalue[3]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'S',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 4,
+                    data:[result.yvalue[4]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'重量',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 5,
+                    data:[result.yvalue[5]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                {
+                    name:'温度',
+                    type:'bar',
+                    barWidth : barWidth_value,
+                    barGap: barGap_value,
+                    barCategoryGap:barCategoryGap_value,
+                    barMinHeight:10,
+                    yAxisIndex: 6,
+                    data:[result.yvalue[6]],
+                    itemStyle: {
+                        normal: {
+                            label : {
+                                show: true, position: 'top'
+                            }
+                        }
+                    }
+                },
+                ]
+            };
+
+            var ecConfig = echarts.config;
+            myChart.on('click', function (params) {
+            if (typeof params.seriesIndex != 'undefined') {
+                //mes += '  seriesIndex : ' + param.seriesIndex;
+                //mes += '  dataIndex : ' + param.dataIndex+result.xEnglishname[param.dataIndex];
+                fieldname_chinese=result.xname[params.seriesIndex];
+                fieldname_english=result.xEnglishname[params.seriesIndex];
+                probability_normal(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value,result.str_select);
+
+                $("#hidden_inform1").val(fieldname_english);//字段英文名
+                $("#hidden_inform2").val(fieldname_chinese);//字段中文名
+                $("#hidden_inform3").val(params.value);//实际值
+                $("#hidden_inform4").val(result.offset_result[params.seriesIndex]);//偏离程度
+                            }
+            console.log(params);
+            });
+
+            myChart.setOption(option,true);
+            // 使用刚指定的配置项和数据显示图表。
+    };
+
+
     // 雷达图
     function drawRadarMap_quality(result){
         // var myChart = echarts.init(document.getElementById('main4'));
@@ -1525,7 +1824,7 @@
                     var fieldname = result.xname;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i], max:result.updesired[i]*1.2
+                            name: fieldname[i], max:result.updesired[i]*1.6
                         });
                     };
                     
@@ -2042,7 +2341,7 @@
                     var fieldname = result.result[classification].fieldname_ch;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i],max:result.result[classification].fluc_ratio_history[i]*1.2
+                            name: fieldname[i],max:result.result[classification].fluc_ratio_history[i]*1.4
                         });
                     };
                     
@@ -2394,7 +2693,7 @@
                     var fieldname = result.result.fieldname_ch;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i],max:result.result.fluc_ratio_history[i]*1.2
+                            name: fieldname[i],max:result.result.fluc_ratio_history[i]*1.4
                         });
                     };
                     

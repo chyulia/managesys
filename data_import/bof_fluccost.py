@@ -72,15 +72,15 @@ def fluc_cost_produce(request):
 	thistime=time.localtime(time.time())
 	#当前时间
 	# time_now=time.strftime('%Y-%m-%d',thistime)
-	time_now=months(thistime,-3)
+	time_now=months(thistime,-5)
 	#一个月前
-	time_lastone=months(thistime,-4)
+	time_lastone=months(thistime,-6)
 	#两个月前
-	time_lasttwo=months(thistime,-5)
+	time_lasttwo=months(thistime,-7)
 	#三个月前
-	time_lastthree=months(thistime,-6)
+	time_lastthree=months(thistime,-8)
 	#四个月前
-	time_lastfour=months(thistime,-7)
+	time_lastfour=months(thistime,-9)
 
 
 	#判断是否执行缓存
@@ -246,8 +246,14 @@ def fluc_cost_produce(request):
 					fluc_ratio.append('wrong')
 					continue
 				describe=[ele for ele in ana_describe[xasis_fieldname[i]]]
-				#value接受计算完成的字段波动率值
-				value=describe[2]/describe[1]
+				#value接受计算完成的字段波动率值：标准差/期望
+				try:
+					value=describe[2]/describe[1]
+					if math.isnan(value):
+						value='wrong'
+				except:
+					value='wrong'
+
 				fluc_ratio.append(value)
 			print("-------------------------fluc_ratio",fluc_ratio)
 
@@ -274,7 +280,12 @@ def fluc_cost_produce(request):
 					continue
 				describe=[ele for ele in ana_describe_history[xasis_fieldname[i]]]
 				#value接收计算完成的字段波动率值：标准差/期望
-				value=describe[2]/describe[1]
+				try:
+					value=describe[2]/describe[1]
+					if math.isnan(value):
+						value='wrong'
+				except:
+					value='wrong'
 				fluc_ratio_history.append(value)
 			print("--------------------------fluc_ratio_history",fluc_ratio_history)
 
@@ -554,11 +565,12 @@ def calaulate_describe(scrapy_records,fieldname):
 
 
 	# --------------------------------------------------------------------------------------------------------------
-#更新数据库转炉表结构本月及上月的期望等参数：daily_updatevalue+Calculation_Parameters-----------------------------------------------------------------------------------------------------------------
+#更新数据库转炉表结构本月、上月、上两月、上三月、近半年、近一年的期望等参数：daily_updatevalue+Calculation_Parameters-----------------------------------------------------------------------------------------------------------------
 import cx_Oracle
 import time
 #定期更新数据库转炉字段统计值
 def daily_updatevalue(request):
+	# print("enter daily_updatevalue")
 	#当前时间
 	# thistime1=time.strftime('%Y-%m-%d',time.localtime(time.time()))
 	thistime=time.localtime(time.time())
@@ -575,19 +587,27 @@ def daily_updatevalue(request):
 	# time_lastthree=months(thistime,-3)
 	# #四个月前
 	# time_lastfour=months(thistime,-4)
+	# #半年前
+	# time_lastsix=months(thistime,-6)
+	# #一年前
+	# time_lastyear=months(thistime,-12)
 
 	############################################################
 	#测试用，由于数据库数据截止2017年5月，因此将时间倒推三个月
 	#当前时间
-	time_now=months(thistime,-3)
+	time_now=months(thistime,-5)
 	#一个月前
-	time_lastone=months(thistime,-4)
+	time_lastone=months(thistime,-6)
 	#两个月前
-	time_lasttwo=months(thistime,-5)
+	time_lasttwo=months(thistime,-7)
 	#三个月前
-	time_lastthree=months(thistime,-6)
+	time_lastthree=months(thistime,-8)
 	#四个月前
-	time_lastfour=months(thistime,-7)
+	time_lastfour=months(thistime,-9)
+	#半年前
+	time_lastsix=months(thistime,-11)
+	#一年前
+	time_lastyear=months(thistime,-17)
 	############################################################
 
 
@@ -626,8 +646,12 @@ def daily_updatevalue(request):
 			max_value=str(dataclean_result["clean_max"])#最大值
 			average_value=str(dataclean_result['avg_value'])#期望值
 			standard_value=str(dataclean_result['std_value'])#标准差
-			volatility=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
-
+			try:
+				volatility=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':#当计算得的volatility为无穷大值时，为nan
+					volatility='null'
+			except:
+				volatility='null'		
 			#更新数据库
 			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_THISMONTH ="+max_value+", MIN_VALUE_THISMONTH="+min_value+", DESIRED_VALUE_THISMONTH="+average_value+", STAN_DEVIATION_THISMONTH="+standard_value+", VOLATILITY_THISMONTH= "+volatility+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
 			# print(sql_str)
@@ -647,7 +671,12 @@ def daily_updatevalue(request):
 			average_value_last=str(dataclean_result['avg_value'])#期望值
 			standard_value_last=str(dataclean_result['std_value'])#标准差
 			volatility_last=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
-
+			try:
+				volatility_last=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':
+					volatility_last='null'
+			except:
+				volatility_last='null'
 			#更新数据库
 			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_LASTMONTH ="+max_value_last+", MIN_VALUE_LASTMONTH="+min_value_last+", DESIRED_VALUE_LASTMONTH="+average_value_last+", STAN_DEVIATION_LASTMONTH="+standard_value_last+", VOLATILITY_LASTMONTH= "+volatility_last+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
 			# print(sql_str)
@@ -666,8 +695,12 @@ def daily_updatevalue(request):
 			max_value_last2=str(dataclean_result["clean_max"])#最大值
 			average_value_last2=str(dataclean_result['avg_value'])#期望值
 			standard_value_last2=str(dataclean_result['std_value'])#标准差
-			volatility_last2=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
-
+			try:
+				volatility_last2=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':
+					volatility_last2='null'
+			except:
+				volatility_last2='null'
 			#更新数据库
 			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_LAST2MONTH ="+max_value_last2+", MIN_VALUE_LAST2MONTH="+min_value_last2+", DESIRED_VALUE_LAST2MONTH="+average_value_last2+", STAN_DEVIATION_LAST2MONTH="+standard_value_last2+", VOLATILITY_LAST2MONTH= "+volatility_last2+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
 			# print(sql_str)
@@ -686,8 +719,12 @@ def daily_updatevalue(request):
 			max_value_last3=str(dataclean_result["clean_max"])#最大值
 			average_value_last3=str(dataclean_result['avg_value'])#期望值
 			standard_value_last3=str(dataclean_result['std_value'])#标准差
-			volatility_last3=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
-
+			try:
+				volatility_last3=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':
+					volatility_last3='null'
+			except:
+				volatility_last3='null'
 			#更新数据库
 			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_LAST3MONTH ="+max_value_last3+", MIN_VALUE_LAST3MONTH="+min_value_last3+", DESIRED_VALUE_LAST3MONTH="+average_value_last3+", STAN_DEVIATION_LAST3MONTH="+standard_value_last3+", VOLATILITY_LAST3MONTH= "+volatility_last3+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
 			# print(sql_str)
@@ -695,6 +732,54 @@ def daily_updatevalue(request):
 				cur.execute(sql_str)
 			except:
 				print(rs["DATA_ITEM_EN"]+" of last3month update failed!")
+				pass
+
+		#计算近半年参数
+		dataclean_result=Calculation_Parameters(rs["DATA_ITEM_EN"],rs["IF_FIVENUMBERSUMMARY"],rs["NUMERICAL_LOWER_BOUND"],rs["NUMERICAL_UPPER_BOUND"],time_lastsix,time_now);
+		if dataclean_result["IF_ANALYSE_TEMP"] == 0:
+			pass
+		else:
+			min_value=str(dataclean_result["clean_min"])#最小值
+			max_value=str(dataclean_result["clean_max"])#最大值
+			average_value=str(dataclean_result['avg_value'])#期望值
+			standard_value=str(dataclean_result['std_value'])#标准差
+			try:
+				volatility=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':
+					volatility='null'
+			except:
+				volatility='null'
+			#更新数据库
+			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_THISSIXMONTH ="+max_value+", MIN_VALUE_THISSIXMONTH="+min_value+", DESIRED_VALUE_THISSIXMONTH="+average_value+", STAN_DEVIATION_THISSIXMONTH="+standard_value+", VOLATILITY_THISSIXMONTH= "+volatility+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
+			# print(sql_str)
+			try:
+				cur.execute(sql_str)
+			except:
+				print(rs["DATA_ITEM_EN"]+" of thissixmonth update failed!")
+				pass
+
+		#计算近一年参数
+		dataclean_result=Calculation_Parameters(rs["DATA_ITEM_EN"],rs["IF_FIVENUMBERSUMMARY"],rs["NUMERICAL_LOWER_BOUND"],rs["NUMERICAL_UPPER_BOUND"],time_lastyear,time_now);
+		if dataclean_result["IF_ANALYSE_TEMP"] == 0:
+			pass
+		else:
+			min_value=str(dataclean_result["clean_min"])#最小值
+			max_value=str(dataclean_result["clean_max"])#最大值
+			average_value=str(dataclean_result['avg_value'])#期望值
+			standard_value=str(dataclean_result['std_value'])#标准差
+			try:
+				volatility=str(dataclean_result['std_value']/dataclean_result['avg_value'])#波动率
+				if volatility=='nan':
+					volatility='null'
+			except:
+				volatility='null'
+			#更新数据库
+			sql_str="UPDATE PRO_BOF_HIS_ALLSTRUCTURE SET MAX_VALUE_THISYEAR ="+max_value+", MIN_VALUE_THISYEAR="+min_value+", DESIRED_VALUE_THISYEAR="+average_value+", STAN_DEVIATION_THISYEAR="+standard_value+", VOLATILITY_THISYEAR= "+volatility+" WHERE DATA_ITEM_EN = \'"+rs["DATA_ITEM_EN"]+"\'";
+			# print(sql_str)
+			try:
+				cur.execute(sql_str)
+			except:
+				print(rs["DATA_ITEM_EN"]+" of thisyear update failed!")
 				pass
 
 		db.commit()

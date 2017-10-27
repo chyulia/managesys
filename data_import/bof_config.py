@@ -1,5 +1,6 @@
+from QinggangManageSys import choose_settings
 #工作站
-db_host = '202.204.54.212'
+db_host = choose_settings.lab_ip
 db_user = 'qg_user'
 db_password = '123456'
 db_name = 'orcl'

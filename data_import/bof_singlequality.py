@@ -38,7 +38,7 @@ def qualityfields(request):
 	#先查出当前炉次实际所属钢种及班别
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	sqlVO["sql"]="SELECT HEAT_NO,SPECIFICATION,STATION,OPERATECREW FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO='"+heat_no+"'";
+	sqlVO["sql"]="SELECT HEAT_NO,SPECIFICATION,STATION,OPERATECREW,PLAN_DATE FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO='"+heat_no+"'";
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	if len(scrapy_records)==0:#无该炉次号
 			contentVO['state']='error'
@@ -47,10 +47,12 @@ def qualityfields(request):
 	actual_SPECIFICATION=scrapy_records[0].get('SPECIFICATION',None)
 	actual_OPERATECREW=scrapy_records[0].get('OPERATECREW',None)
 	actual_STATION=scrapy_records[0].get('STATION',None)
+	actual_PLAN_DATE=scrapy_records[0].get('PLAN_DATE',None)
 
 	contentVO['actual_SPECIFICATION']=actual_SPECIFICATION
 	contentVO['actual_OPERATECREW']=actual_OPERATECREW
 	contentVO['actual_STATION']=actual_STATION
+	contentVO['actual_PLAN_DATE']=actual_PLAN_DATE
 	#确认实际筛选语句		
 	str_select=""
 	if SPECIFICATION_ask=='native' and actual_SPECIFICATION !=None:#本钢种且本钢种不为空
@@ -64,20 +66,41 @@ def qualityfields(request):
 		str_select=str_select+" and OPERATECREW = '"+OPERATECREW_ask+"'"
 
 
-	# 当前时间
-	time_now=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+	thistime=time.localtime(time.time())
+	#当前时间
+	# time_now=time.strftime('%Y-%m-%d',thistime)
+	time_now=months(thistime,0)
+	#半年前
+	time_lastsixmonth=months(thistime,-6)
+	#一年前
+	time_lastyear=months(thistime,-12)
+	#历史初始时间
+	time_origin='2016-01-01'
+
 	#将时间为空时的值进行转换
 	if time1=='':
 		time1='2016-01-01'
 	if time2=='':
 		time2=time_now
 
-	# print(time1,time2)
-	#时间筛选条件
-	if time1=='2016-01-01' and time2==time_now:#走缓存
-		pass
-	else:#执行普通分析
-		str_select=str_select+" and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')>='"+time1+"' and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')<='"+time2+"'"
+	print(time1,time2)
+	#判断是否执行缓存
+	ifcache=( str_select=='' and time2==time_now and (time1==time_lastsixmonth or time1==time_lastyear or time1==time_origin))
+	print('是否执行缓存',ifcache)
+
+	#判断执行哪项缓存,若不执行缓存则为0
+	if ifcache:
+		if time1==time_lastsixmonth:
+			whichcache=1
+		elif time1==time_lastyear:
+			whichcache=2
+		else:
+			whichcache=3
+	else:
+		whichcache=0
+
+
+	str_select=str_select+" and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')>='"+time1+"' and to_char(MSG_DATE_PLAN,'yyyy-mm-dd')<='"+time2+"'"
 
 
 	#对任意个数字段进行字符串拼接
@@ -103,7 +126,7 @@ def qualityfields(request):
 
 	print('xasis_fieldname',xasis_fieldname)
 	print('yaxis',yaxis)
-	desired,offset_result=offset(xasis_fieldname,yaxis,str_select)#计算偏离程度函数的返回值
+	desired,offset_result=offset(xasis_fieldname,yaxis,str_select,ifcache,whichcache)#计算偏离程度函数的返回值
 
 	updesired_result=[]#存储期望*1.05
 	downdesired_result=[]#存储期望*0.95
@@ -129,6 +152,8 @@ def qualityfields(request):
 
 	ana_result={}
 	ana_result['heat_no']=heat_no#炉次号
+	ana_result['ifcache']=ifcache
+	ana_result['whichcache']=whichcache
 	ana_result['xname']=xasis_fieldname_ch#字段中文名字
 	ana_result['xEnglishname']=xasis_fieldname#字段英文名字
 	ana_result['danwei']=danwei#字段的数值单位
@@ -143,19 +168,19 @@ def qualityfields(request):
 	contentVO['result']=ana_result
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
 
-def offset(xasis_fieldname,yaxis,str_select):
+def offset(xasis_fieldname,yaxis,str_select,ifcache,whichcache):
 	offset_result=[]
 	desired=[]
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	# print('len(xasis_fieldname)',len(xasis_fieldname))
 
-	parameters=["MAX_VALUE","MIN_VALUE","DESIRED_VALUE","STANDARD_DEVIATION",'NUMERICAL_LOWER_BOUND','NUMERICAL_UPPER_BOUND','IF_FIVENUMBERSUMMARY']
+	parameters=["MAX_VALUE","MIN_VALUE","DESIRED_VALUE","STANDARD_DEVIATION","MAX_VALUE_THISSIXMONTH","MIN_VALUE_THISSIXMONTH","DESIRED_VALUE_THISSIXMONTH","STAN_DEVIATION_THISSIXMONTH","VOLATILITY_THISSIXMONTH","MAX_VALUE_THISYEAR","MIN_VALUE_THISYEAR","DESIRED_VALUE_THISYEAR","STAN_DEVIATION_THISYEAR","VOLATILITY_THISYEAR",'NUMERICAL_LOWER_BOUND','NUMERICAL_UPPER_BOUND','IF_FIVENUMBERSUMMARY']
 	for i in range (len(xasis_fieldname)):#实际计算范围为从0到len(xasis_fieldname)-1
 		# if yaxis[i]==0 or yaxis[i] is None:
 		# 	offset_result.append(None)
 		# 	continue;
-		sqlVO["sql"]="SELECT MAX_VALUE,MIN_VALUE,DESIRED_VALUE,STANDARD_DEVIATION,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND,IF_FIVENUMBERSUMMARY FROM qg_user.PRO_BOF_HIS_ALLSTRUCTURE where DATA_ITEM_EN = \'"+xasis_fieldname[i]+"\'"
+		sqlVO["sql"]="SELECT * FROM qg_user.PRO_BOF_HIS_ALLSTRUCTURE where DATA_ITEM_EN = \'"+xasis_fieldname[i]+"\'"
 		print(sqlVO["sql"])
 
 		scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
@@ -168,26 +193,56 @@ def offset(xasis_fieldname,yaxis,str_select):
 			if value != None and value != 'null':
 				scrapy_records[0][parameters[j]] = float(value)
 
-		print("期望",scrapy_records[0]['DESIRED_VALUE'])
-		if str_select=='':#相当于无筛选条件,直接根据最大最小值计算偏离程度
-			print('enter 缓存')
-			#如果实际值大于最大值，则按最大值计算，偏离程度为50% ; 如果实际值小于最小值，则按最小值处理。偏离程度为-50%
-			if float(yaxis[i])>scrapy_records[0]['MAX_VALUE']:
-				adjusted_yaxis=scrapy_records[0]['MAX_VALUE']
-			elif float(yaxis[i])<scrapy_records[0]['MIN_VALUE']:
-				adjusted_yaxis=scrapy_records[0]['MIN_VALUE']
-			else :
-				adjusted_yaxis=float(yaxis[i])
+		if ifcache:#执行缓存,直接根据最大最小值计算偏离程度
+			if whichcache==1:#近半年缓存
+				#如果实际值大于最大值，则按最大值计算，偏离程度为50% ; 如果实际值小于最小值，则按最小值处理。偏离程度为-50%
+				if float(yaxis[i])>scrapy_records[0]['MAX_VALUE_THISSIXMONTH']:
+					adjusted_yaxis=scrapy_records[0]['MAX_VALUE_THISSIXMONTH']
+				elif float(yaxis[i])<scrapy_records[0]['MIN_VALUE_THISSIXMONTH']:
+					adjusted_yaxis=scrapy_records[0]['MIN_VALUE_THISSIXMONTH']
+				else :
+					adjusted_yaxis=float(yaxis[i])
 
+				try:
+					# temp_value=(float(yaxis[i])-scrapy_records[0]['DESIRED_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])
+					temp_value=(adjusted_yaxis-scrapy_records[0]['MIN_VALUE_THISSIXMONTH'])/(scrapy_records[0]['MAX_VALUE_THISSIXMONTH']-scrapy_records[0]['MIN_VALUE_THISSIXMONTH'])-0.5
+				except:
+					temp_value=None
+				desired.append(scrapy_records[0]['DESIRED_VALUE_THISSIXMONTH'])
+				offset_result.append(temp_value)
 
-			try:
-				# temp_value=(float(yaxis[i])-scrapy_records[0]['DESIRED_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])
-				temp_value=(adjusted_yaxis-scrapy_records[0]['MIN_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])-0.5
-			except:
-				temp_value=None
-			desired.append(scrapy_records[0]['DESIRED_VALUE'])
+			elif whichcache==2:#近一年缓存
+				#如果实际值大于最大值，则按最大值计算，偏离程度为50% ; 如果实际值小于最小值，则按最小值处理。偏离程度为-50%
+				if float(yaxis[i])>scrapy_records[0]['MAX_VALUE_THISYEAR']:
+					adjusted_yaxis=scrapy_records[0]['MAX_VALUE_THISYEAR']
+				elif float(yaxis[i])<scrapy_records[0]['MIN_VALUE_THISYEAR']:
+					adjusted_yaxis=scrapy_records[0]['MIN_VALUE_THISYEAR']
+				else :
+					adjusted_yaxis=float(yaxis[i])
 
-			offset_result.append(temp_value)
+				try:
+					# temp_value=(float(yaxis[i])-scrapy_records[0]['DESIRED_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])
+					temp_value=(adjusted_yaxis-scrapy_records[0]['MIN_VALUE_THISYEAR'])/(scrapy_records[0]['MAX_VALUE_THISYEAR']-scrapy_records[0]['MIN_VALUE_THISYEAR'])-0.5
+				except:
+					temp_value=None
+				desired.append(scrapy_records[0]['DESIRED_VALUE_THISYEAR'])
+				offset_result.append(temp_value)
+			else:#全部数据
+				#如果实际值大于最大值，则按最大值计算，偏离程度为50% ; 如果实际值小于最小值，则按最小值处理。偏离程度为-50%
+				if float(yaxis[i])>scrapy_records[0]['MAX_VALUE']:
+					adjusted_yaxis=scrapy_records[0]['MAX_VALUE']
+				elif float(yaxis[i])<scrapy_records[0]['MIN_VALUE']:
+					adjusted_yaxis=scrapy_records[0]['MIN_VALUE']
+				else :
+					adjusted_yaxis=float(yaxis[i])
+
+				try:
+					# temp_value=(float(yaxis[i])-scrapy_records[0]['DESIRED_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])
+					temp_value=(adjusted_yaxis-scrapy_records[0]['MIN_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])-0.5
+				except:
+					temp_value=None
+				desired.append(scrapy_records[0]['DESIRED_VALUE'])
+				offset_result.append(temp_value)
 
 		else:#有筛选条件,需要动态经过上下限、五数等清洗后计算最大最小值
 			print('执行普通程序，不走缓存')
@@ -251,14 +306,15 @@ def offset(xasis_fieldname,yaxis,str_select):
 
 			try:
 				temp_value=(adjusted_yaxis-avg_value)/(clean.max()-clean.min())
+				if math.isnan(temp_value):
+					temp_value=None
 			except:
 				temp_value=None
-				avg_value=None
 			offset_result.append(temp_value)
 			desired.append(avg_value)
 
 
-	print('offset_result',offset_result)
+	# print('offset_result',offset_result)
 	return desired,offset_result
 
 #去括号取左侧的数（计算概率分布时需要用到）
@@ -293,10 +349,6 @@ def union_section(section_point,sections):
             section='('+str(section_point[i])+','+str(section_point[i+1])+']'
             sections.append(section)
     return sections 
-
-
-
-
 
 
 #对偏离程度进行定性判断：高，偏高，正常范围，偏低，低，极端异常
@@ -341,6 +393,25 @@ def getGrape(request):
 	#print(grape)
 	contentVO['result']=grape
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')
+
+#计算时间的向前或向后数月的时间
+def months(dt,months):#这里的months 参数传入的是正数表示往后 ，负数表示往前
+    month = dt.tm_mon - 1 + months
+    year = dt.tm_year + month // 12#python3特性：//表示整数除，/除法会自动转为浮点数
+    month = month % 12 + 1
+    day_dic = {'1':31,'2':28,'3':31,'4':30,'5':31,'6':30,'7':31,'8':31,'9':30,'10':31,'11':30,'12':31}
+    if (year%4==0 and year%100!=0) or year%400==0:
+    	day_dic['2'] = 29
+
+    if dt.tm_mday>day_dic[str(month)]:#日期大于该月最大日期
+    	day = day_dic[str(month)]
+    else:
+    	day = dt.tm_mday
+    pretime=str(year)+'-'+str(month)+'-'+str(day)#可能是2017-7-5格式
+    #将2017-7-5格式转化为2017-07-05格式
+    t = time.strptime(pretime, "%Y-%m-%d")
+    resulttime=time.strftime('%Y-%m-%d',t)
+    return resulttime
 
 #进行五数分析法
 def Wushu(x):
@@ -595,6 +666,8 @@ def quality_singlefurnace_regression_analyse(request):
 def quality_regression_analyse_to(result):  
 	prime_cost = result['heat_no'];
 	str_select = result['str_select'];#筛选条件 
+	ifcache=result['ifcache']
+	whichcache=result['whichcache']#判断执行哪一项缓存，0为不执行缓存
 
 	n=0#n用来指示当前问题字段的个数
 	m=0#m用来指示正常字段的个数
@@ -645,7 +718,7 @@ def quality_regression_analyse_to(result):
 			continue
 
 		#中文名、偏离程度定性描述、带百分号的偏离程度绝对值、回归系数
-		En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value,str_select);		
+		En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value,str_select,ifcache,whichcache);		
 		if 	En_to_Ch_result_score==None:
 			# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
 			str_cause=str_cause+'【'+str(n+1)+'】'+xaxis_chinese+'，相关字段数据不足，无法追溯；！\n'
@@ -666,7 +739,7 @@ def quality_regression_analyse_to(result):
 	return 	str_cause,str_cause_normal	
 
 from . import zhuanlu
-def  analy_cof(prime_cost,field,single_value,offset_value,str_select):
+def  analy_cof(prime_cost,field,single_value,offset_value,str_select,ifcache,whichcache):
 	#从数据库读取相关字段并按照相关系数绝对值由大到小排序
 	print('进行%s炉次下的%s字段的追溯'%(prime_cost,field))
 	sqlVO={}
@@ -706,7 +779,7 @@ def  analy_cof(prime_cost,field,single_value,offset_value,str_select):
 	# print("frame",frame)	
 	print("yaxis",yaxis)
 
-	desired,offset_degree=offset(xasis_fieldname,yaxis,str_select)
+	desired,offset_degree=offset(xasis_fieldname,yaxis,str_select,ifcache,whichcache)
 	# print("字段名字：")
 	# print(xasis_fieldname)
 	# print("相关性：")
