@@ -40,10 +40,10 @@ if node in dev_machines:
         },
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'qinggang',
-            'USER': 'qinggang',
-            'PASSWORD': 'qinggang',
-            'HOST': '202.204.54.42',
+            'NAME':'orcl',
+            'USER': 'qg_user',
+            'PASSWORD': '123456',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
         'sale': {
@@ -51,7 +51,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.42',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
     }
