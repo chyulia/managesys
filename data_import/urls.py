@@ -62,6 +62,8 @@ urlpatterns = [
     url(r'^market_share',views.market_share),
     #钢种自动加载
     url(r'^GetTradeNo',views.getAllTradeNo_time),
+    #销售部分自动加载钢种
+    url(r'^getGrape2',bof_singlecost.getGrape),
     #数据仓库更新
     url(r'^update_mysql_space',views.update_mysql_space),
     url(r'^update_data_sales',views.update_data_sales),

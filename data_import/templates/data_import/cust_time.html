@@ -72,17 +72,24 @@
    
 </div>
 <br>
-<div>
-    钢种选择:
+<div >
+    钢种选择: <a id="showtext" onClick="showdiv('moreTrade','showtext')">&nbsp;&nbsp;显示更多钢种</a>
+    
+</div>
+<div id="lessTrade" class="none" style="display:block">
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=45>45
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=50>50
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=C82DA>C82DA
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=60Si2Mn>60Si2Mn
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=C82A>C82A
-    <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=C82D2>C82D2
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=ER50-6E>ER50-6E
+    
+</div>
+<div id="moreTrade" class="none" style="display:none">
+
 </div>
 <br>
+
 <div>
 <button id="btnDrawChart" >分析结果绘图</button>
 </div>
@@ -107,6 +114,27 @@
 
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
 <script type="text/javascript">
+
+    function showdiv(targetid,objN){
+   
+      var target=document.getElementById(targetid);
+      var target2=document.getElementById('lessTrade');
+      var clicktext=document.getElementById(objN);
+      loadGrape();
+
+            if (target.style.display=="block"){
+                target.style.display="none";
+                clicktext.innerText="显示更多钢种";
+                target2.style.display="block";
+  
+
+            } else {
+                target.style.display="block";
+                clicktext.innerText='关闭更多钢种';
+                target2.style.display="none";
+            }
+   
+    }
 
 
     var data_save = {
@@ -234,6 +262,8 @@
             data_save.sql_cust = sql_cust;
             data_save.N = N;
             drawTimeLineBar_average(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,showStyle,sql_cust,N);
+            var myChart = echarts.getInstanceByDom(document.getElementById('main4'));
+            myChart.hideLoading();
             //console.log(sql_date1)
             //console.log(data.unite)
             $("#txt").empty();
@@ -246,37 +276,35 @@
     });
     
 
-    // //自动加载钢种
-    // function loadOption_select_tradeNo(){ 
-    //     $.ajax({
-    //     type: "POST",
-    //     dataType:"json",
-
-    //     url: "/timeGetTradeNo" ,
-    //     data: {'greet':'hello'},
-    //     success: function(data){
-    //         alert(data.result);
-    //         alert(data.result.length);
-    //         tradeNos=data.result;
-    //         $(".xla_8").append("<option value='blank' selected =\"selected\"></option>");
-    //         for(var tradeNo in tradeNos){
-    //             console.log(tradeNos[tradeNo]) 
-    //             $(".xla_8").append("<option value='"+tradeNos[tradeNo]+"'>"+tradeNos[tradeNo]+"</option>");
-
-    //         }
-    //     },
-    //     error: function () {
-    //         alert("error");
-    //         }
-    //      });
-    //     };
-
-    // //初始化
-    // $(function(){
-    //         //loadOption_select_tradeNo(); //动态加载全部钢种
-
-
-    //     })
+//自动加载钢种
+    function loadGrape(){ 
+        $.ajax({
+        type: "POST",
+        dataType:"json",
+        url: "/getGrape" ,
+        data: {'greet':'hello'},
+        success: function(data){
+            $("#moreTrade").empty();
+            pnames=data.result;
+            // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
+            //var target=document.getElementById('moreTrade');
+            countTrade = 0;
+            for(var pname in pnames){
+                console.log(pnames[pname]) 
+                test = "<input type='checkbox' name='select_tradeNo' id='select_tradeNo' value="+pnames[pname]+"><a>"+pnames[pname]+"</a>"
+                console.log(test)
+                $("#moreTrade").append("<input type='checkbox' name='select_tradeNo' id='select_tradeNo' value="+pnames[pname]+"><a>"+pnames[pname]+"&nbsp;&nbsp;&nbsp;&nbsp;</a>");
+                countTrade = countTrade + 1;
+                if(countTrade == 10||countTrade == 20 ||countTrade == 30||countTrade == 40||countTrade == 50||countTrade == 60 ||countTrade == 70||countTrade == 80||countTrade == 90||countTrade == 100||countTrade == 110||countTrade == 120 ||countTrade == 130||countTrade == 140||countTrade == 150||countTrade == 160 ||countTrade == 170||countTrade == 180||countTrade == 190||countTrade == 200||countTrade == 210||countTrade == 220 ||countTrade == 230||countTrade == 240||countTrade == 250||countTrade == 260 ||countTrade == 270||countTrade == 280||countTrade == 290){
+                    $("#moreTrade").append("<br>");
+                }
+            }
+        },
+        error: function () {
+            alert("error");
+            }
+         });
+        };
 
 </script>
 <script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>

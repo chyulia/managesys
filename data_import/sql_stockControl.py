@@ -84,9 +84,12 @@ def sql_stockControl(module,tradeNo,module_unit_key):
 	# select all stock
 	sqlVO={}
 	sqlVO["db_name"]="sale"
+	print('---------------------------')
 	sqlVO["sql"]="select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' and INVID <= 'B11605026005EL014' GROUP BY TRADENO";
 	#sqlVO["sql"]="select TRADENO,sum(WEIGHT) from DB.TBID102 where ISINSTOCK = 'Y'  and STATUS <= '41' GROUP BY TRADENO";
+	print('lllllllllllllllllllllllllllllll')
 	stock_All=models.BaseManage().direct_select_query_sqlVO(sqlVO)
+	print("==========================")
 
 	# select stock before  20170401
 	threeMonthAgoDate = threeMonthAgo()

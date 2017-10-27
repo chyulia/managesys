@@ -205,6 +205,8 @@
             }else {
                 drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
             }
+            var myChart = echarts.getInstanceByDom(document.getElementById('main4'));
+            myChart.hideLoading();
 
             // drawpie(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
             // drawfunnel(data.result,tradeNoNoNo,data.aspect_name,data.unite,data.maxValue,data.module_name,sql_date1_,sql_date2_,dateChoose_name,space_name,sql_cust);
@@ -221,37 +223,6 @@
     });
     
 
-    // //自动加载钢种
-    // function loadOption_select_tradeNo(){ 
-    //     $.ajax({
-    //     type: "POST",
-    //     dataType:"json",
-
-    //     url: "/timeGetTradeNo" ,
-    //     data: {'greet':'hello'},
-    //     success: function(data){
-    //         alert(data.result);
-    //         alert(data.result.length);
-    //         tradeNos=data.result;
-    //         $(".xla_8").append("<option value='blank' selected =\"selected\"></option>");
-    //         for(var tradeNo in tradeNos){
-    //             console.log(tradeNos[tradeNo]) 
-    //             $(".xla_8").append("<option value='"+tradeNos[tradeNo]+"'>"+tradeNos[tradeNo]+"</option>");
-
-    //         }
-    //     },
-    //     error: function () {
-    //         alert("error");
-    //         }
-    //      });
-    //     };
-
-    // //初始化
-    // $(function(){
-    //         //loadOption_select_tradeNo(); //动态加载全部钢种
-
-
-    //     })
 
 </script>
 <script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>

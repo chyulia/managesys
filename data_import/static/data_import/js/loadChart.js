@@ -1169,7 +1169,7 @@ function EXPMA(data,N){//  N 为周期天数  data 为全部数据的list
 function drawStockControl(data,module_unit_key){
 
     //var myChart = echarts.init(document.getElementById('main4'));
-    //console.log("正在绘图");
+    console.log("正在绘图");
     console.log(data);
 
     for (var i=0;i<4;i++)

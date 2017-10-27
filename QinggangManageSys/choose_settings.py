@@ -40,7 +40,7 @@ if node in dev_machines:
             'NAME':'qinggang',
             'USER': 'qinggang',
             'PASSWORD': 'qinggang',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
         'sale': {
@@ -48,7 +48,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
     }
@@ -212,7 +212,7 @@ else:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
         'default': {
@@ -220,7 +220,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.42',
             'PORT': '3306',
         },
         'mes_backup': {
@@ -244,7 +244,7 @@ else:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.212',
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
     }
