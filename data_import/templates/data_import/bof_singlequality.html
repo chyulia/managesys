@@ -8,7 +8,7 @@
 <h2>青钢转炉数据分析-转炉-质量-单炉次</h2>
 <!-- <h7><a href='/fluctuation'>To波动率分析页面  </a><a href='/test'>  To时间插件测试</a></h7> -->
 <div style="width:1500px">
-    <div style="width:1000px">
+    <div style="width:1400px">
 
         <!-- 隐藏域 -->
         <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
@@ -57,7 +57,7 @@
 
 <div style="width:1550px">
     <div id="loadingarea" style="float:middle;width:1000px;height:30px"></div>
-    <div id="main1" style="float:left;width:1400px;height:300px"></div>
+    <div id="main1" style="float:middle;width:1400px;height:400px"></div>
     <div id='cause_area' style="float:left;width:700px;height:250px;margin-top:5px">
         <p><strong>转炉工序单炉次字段质量追溯结果：</strong></p>
         <textarea id="cause_txt" style="width: 700px;height:250px;"></textarea>
@@ -168,9 +168,10 @@
                     errorHeatNo(heat_no);
                     $("#coloum_div").hide();
                     $('#loadingarea').hide();
+                    $("#cause_area").hide();
 
                 }else{
-                    $("#actualInform").text("注：当前炉次所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
+                    $("#actualInform").text("注：当前炉次计划时间："+data.actual_PLAN_DATE+"；所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
                     var chart_imformation = JSON.stringify(data);
                     // alert(chart_imformation);
                     $("#hidden_inform5").val(chart_imformation);

@@ -191,7 +191,6 @@
                 }
                 else{
                     var chart_imformation = JSON.stringify(data);
-                    // alert(chart_imformation);
                     $("#hidden_inform1").val(chart_imformation);
                     var chartform = $("#chart_form").val();
                     selectChart(data,chartform);
@@ -297,10 +296,10 @@
                 direction: 1
             });
             //设置默认时间
-            $('#datepicker-example7-start').val(moment().subtract('month', 4).format('YYYY-MM-DD'));
-            $('#datepicker-example7-end').val(moment().subtract('month', 3).format('YYYY-MM-DD'));
-            $('#datepicker-example7-start-history').val(moment().subtract('month', 7).format('YYYY-MM-DD'));
-            $('#datepicker-example7-end-history').val(moment().subtract('month', 4).format('YYYY-MM-DD'));
+            $('#datepicker-example7-start').val(moment().subtract('month', 6).format('YYYY-MM-DD'));
+            $('#datepicker-example7-end').val(moment().subtract('month', 5).format('YYYY-MM-DD'));
+            $('#datepicker-example7-start-history').val(moment().subtract('month', 9).format('YYYY-MM-DD'));
+            $('#datepicker-example7-end-history').val(moment().subtract('month', 6).format('YYYY-MM-DD'));
 
         });
 

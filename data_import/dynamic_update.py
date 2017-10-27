@@ -172,14 +172,14 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.1.	炉次计划表（PRO_BOF_HIS_PLAN）
 		# --删除重复项并选取时间最晚的记录
 		sqlVO["sql"]='''create table pro_bof_his_plan_Middle as
-					select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists
+					select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists
 					(select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t2 where heat_no = t1.heat_no
 					and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.2.	炉次兑铁信息表（PRO_BOF_HIS_MIRON）
 		sqlVO["sql"]='''create table pro_bof_his_miron_Middle as
-		select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_scrapTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t2 where heat_no = t1.heat_no and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
+		select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_scrapTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t2 where heat_no = t1.heat_no and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
 		bsm.execute_single(sqlVO)
 		# --将铁水重量减去一吨
 
@@ -189,7 +189,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.3.	炉次兑废钢信息表（PRO_BOF_HIS_SCRAP)
 		# --步骤一：删除顺序号重复项
 		sqlVO["sql"]='''create table pro_bof_his_scrap_Middle1 as
-		select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 		# --步骤二：取最新值
 		sqlVO["sql"]='''create table pro_bof_his_scrap_Middle2 as
@@ -225,13 +225,13 @@ def batch_dyupdatebof():#进行更新
 
 		# --1.1.1.4.	炉次实绩表（PRO_BOF_HIS_POOL）
 		sqlVO["sql"]='''create table pro_bof_his_pool_Middle as
-		select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_poolTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t2 where heatno = t1.heatno and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
+		select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_poolTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t2 where heatno = t1.heatno and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.5.	炉次事件表（PRO_BOF_HIS_EVENTS）
 		# --步骤一：删除重复记录
 		sqlVO["sql"]='''create table pro_bof_his_events_Middle1 as
-		select * from QG_USER.pro_bof_his_events@dblink_to_l2 t1 where msg_date >= to_date(' ''' + table_eventsTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_events@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.pro_bof_his_events@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_eventsTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_events@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：行列转换(由于在事件表中所有事件混合编号，所以很难判断该事件是第几次发送，因此对下列事件均只选取了最新的记录，即一次操作)
@@ -263,7 +263,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.6.	炉次吹氧记录表（PRO_BOF_HIS_BOCSM）
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle1 as
-		select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_bocsmTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_bocsmTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：对吹氧量和吹氧时间进行加和
@@ -307,7 +307,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.7.	炉次测温表（PRO_BOF_HIS_TEMP）
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle1 as
-		select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_tempTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_tempTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤一：取最新值
@@ -350,7 +350,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.8.	炉次加料表A（PRO_BOF_HIS_CHRGDGEN）父表
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDGEN_Middle1 as
-		select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_chrgdgenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_chrgdgenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：行列转换（各批次加料时间等）(取了前30批)
@@ -403,7 +403,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.9.	炉次加料表B（PRO_BOF_HIS_CHRGDDAT）子表
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDDAT_Middle1 as
-		select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_chrgddatTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+		select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_chrgddatTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：行列转换(物料代码及加和的物料重量)（加料表B表，即子表）
@@ -440,7 +440,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.12.	取样信息记录（PRO_BOF_HIS_ANAGEN）
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_ANAGEN_Middle1 as
-		select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t1 where msg_date >= to_date(' ''' + table_anagenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t2 where t2.seq_no = t1.seq_no and t2.rowid > t1.rowid)''';
+		select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_anagenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t2 where t2.seq_no = t1.seq_no and t2.rowid > t1.rowid)''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：取样信息记录表字段的处理（取样时间、取样类型等）（取前5次取样）一个炉次号可能对应多个站别，取消station
@@ -480,7 +480,7 @@ def batch_dyupdatebof():#进行更新
 		# inner_exe(bsm)
 
 		sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
-		select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where t2.msg_date >= to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
+		select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no where t2.msg_date > to_date(' ''' + table_anadatTime+ ''' ','yyyy-mm-dd hh24:mi:ss')''';
 		bsm.execute_single(sqlVO)
 
 		# --步骤二：取最新成分数据(取样类型不能为3,3表示炉前数据)
@@ -592,7 +592,7 @@ def batch_dyupdatebof():#进行更新
 		# --取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，再取计算所得出钢量进行补充
 		# --1、取ccm炉坯重（TOTAL_SLAB_WGT）补充出钢量
 		# --UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE a.STEELWGT is null or a.STEELWGT=0;
-		sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_MIRON >= to_date(' '''+ table_mironTime+ "\','yyyy-mm-dd hh24:mi:ss');";
+		sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_MIRON > to_date(' '''+ table_mironTime+ "\','yyyy-mm-dd hh24:mi:ss');";
 		bsm.execute_single(sqlVO)
 		# --2、取计算所得出钢量进行补充
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -647,7 +647,7 @@ def batch_dyupdatebof():#进行更新
 		# --取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，再取计算所得出钢量进行补充
 		# --1、取ccm炉坯重（TOTAL_SLAB_WGT）补充出钢量
 		# --UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE a.STEELWGT is null or a.STEELWGT=0;
-		sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_SCRAP >= to_date(' ''' +table_scrapTime+'''\','yyyy-mm-dd hh24:mi:ss');''';
+		sqlVO["sql"]='''UPDATE PRO_BOF_HIS_ALLFIELDS a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE (a.STEELWGT is null or a.STEELWGT=0) and a.MSG_DATE_SCRAP > to_date(' ''' +table_scrapTime+'''\','yyyy-mm-dd hh24:mi:ss');''';
 		bsm.execute_single(sqlVO)
 		# --2、取计算所得出钢量进行补充
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A

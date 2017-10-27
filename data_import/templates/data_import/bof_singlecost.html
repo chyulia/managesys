@@ -8,7 +8,7 @@
 <h2>青钢转炉数据分析-转炉-成本-单炉次</h2>
 <!-- <h7><a href='/fluctuation'>To波动率分析页面  </a><a href='/test'>  To时间插件测试</a></h7> -->
 <div style="width:1500px">
-    <div style="width:1000px">
+    <div style="width:1400px">
 
         <!-- 隐藏域 -->
         <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
@@ -163,9 +163,10 @@
             url:  "/cost_produce",
             data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
-                alert("错误！！");
+                alert("cost_produce返回错误！！");
             },
             success: function(data) {
+                // alert("enter");
                 // data_imformation = JSON.stringify(data);
                 // alert(data_imformation);
                 removedom();//销毁echarts缓存，重新init
@@ -174,9 +175,10 @@
                     errorHeatNo(heat_no);
                     $("#coloum_div").hide();
                     $('#loadingarea').hide();
+                    $('#cause_area').hide();
 
                 }else{
-                    $("#actualInform").text("注：当前炉次所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
+                    $("#actualInform").text("注：当前炉次计划时间："+data.actual_PLAN_DATE+"；所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
                     var chart_imformation = JSON.stringify(data);
                     $("#hidden_inform5").val(chart_imformation);
                     // var myChart_main5 = echarts.getInstanceByDom(document.getElementById('main5'));
