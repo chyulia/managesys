@@ -1,0 +1,24 @@
+{% extends "data_import/base.html" %}
+{% load static %}
+{% load key_dict %}
+{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
+
+{% block pagejs %}
+<script type="text/javascript" src="{% static  'data_import/js/pricepredict.js'%}"></script>
+<script type="text/javascript" src="/static/data_import/js/loadChart.js"></script>
+{% endblock pagejs %}
+
+{% block content %}
+
+
+<meta http-equiv="refresh" content="3;url=/">
+<body>
+<h1>钢材价格预测和铁矿石价格预测维护中，敬请期待......</h1>
+<img src="/static/data_import/images/smile.jpeg" title="id=14048376" alt="404 Not Found">
+</body>
+
+
+<!-- End Portfolio Section -->
+
+
+{% endblock %}

@@ -18,4 +18,8 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "QinggangManageSys.settings")
 
+
 application = get_wsgi_application()
+
+# from QinggangManageSys.views import scrapy_elements
+# scrapy_elements()

@@ -9,6 +9,8 @@
 <!-- <h7><a href='/chen'>返回转炉数据分析</a></h7> -->
 <!-- <p><strong>1.请选择要进行波动率计算的各项参数</strong></p> -->
 <!-- <form action="javascript:void(0)" method="post"> -->
+<!-- 隐藏域 -->
+    <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
     <div style="margin-top:5px">
         <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name">
             <option value='blank' selected = "selected"></option>
@@ -31,10 +33,8 @@
             <option value='BOF2'>BOF2</option>
             <option value='BOF3'>BOF3</option>
         </select>
-        <!-- 字段名：<select name="flu_field" id="flu_field" class="fluctution_time"></select> -->
-        <!--<input id="datepicker-example5" type="text">-->
     </div>
-
+         
 
     <!--time_select已经被隐藏style="display:none"-->
     <!-- <div id='time_select' style="display:none"> -->
@@ -45,7 +45,7 @@
             至 <input id="datepicker-example7-end" type="text">
             快捷选项：<button id="thisMonth" onclick="months(this,'current',1,0)" > 近一月 </button>
         </div>
-
+        
         <div style="margin-top:5px;">
             <b>历史波动率的时间范围:</b>
             <input id="datepicker-example7-start-history" type="text" >
@@ -57,6 +57,12 @@
 
         <div style="margin-top:5px;">
             <button onclick="fluc_cost_produce()" id='click1' >成本字段分析</button>
+            <label>分析结果展示方式：</label>
+            <select name="chart_form" id="chart_form" onchange="change_chart_form();">
+                <option value='Histogram' selected = "selected">多轴直方图</option>
+                <option value='Radarmap'>雷达图</option>
+                <option value='LineChart'>折线图</option>
+            </select>
         </div>
     </div>
 
@@ -65,27 +71,29 @@
 
     <div style="width:1550px">
         <div id="loadingarea" style="float:middle;width:1000px;height:30px"></div>
-        <div id="main1" style="float:left;width:700px;height:300px"></div>
-        <div id="main2" style="float:left;width:800px;height:300px"></div>
-        <div id="main3" style="float:left;width:700px;height:300px"></div>
-        <div id="main4" style="float:left;width:800px;height:300px"></div>
-        <div id='cause_area' style="float:left;width:700px;height:200px;margin-top:5px">
+        <div id="main1" style="float:left;width:700px;height:400px"></div>
+        <div id="main2" style="float:left;width:800px;height:400px"></div>
+        <div id="main3" style="float:left;width:700px;height:400px"></div>
+        <div id="main4" style="float:left;width:800px;height:400px"></div>
+        <div id='cause_area' style="float:left;width:1500px;height:200px;margin-top:5px">
             <p><strong>转炉工序多炉次整体成本分析结果：</strong></p>
-            <textarea id="cause_txt" style="width: 700px;height:250px;"></textarea>
+            <textarea id="cause_txt_normal" style="width: 700px;height:250px;"></textarea>
+            <textarea id="cause_txt_error" style="width: 700px;height:250px;"></textarea>
         </div>
-    </div>
+    </div>     
 
-<!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">     -->
-<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />
-<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />
-<link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
-<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script>
-<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
+<!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">     --> 
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />  
+<link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.css" />  
+<link href="/static/data_import/daterangepicker+bootstrap2.3.1/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">  
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script> 
+<script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>  
 
-<script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
+<script type="text/javascript" src="/static/data_import/js/loadChart_product.js"></script>
+<!-- <script type="text/javascript" src="/static/data_import/js/loadParam.js"></script> -->
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-<script type="text/javascript">
+<script type="text/javascript"> 
 
 
 
@@ -93,37 +101,65 @@
         //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
         if (station=='current'){
             $('#datepicker-example7-start').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
-            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD'));
+            $('#datepicker-example7-end').val(moment().subtract('month', month2).format('YYYY-MM-DD')); 
         }
         else if(station=='history'){
             $('#datepicker-example7-start-history').val(moment().subtract('month', month1).format('YYYY-MM-DD'));
             $('#datepicker-example7-end-history').val(moment().subtract('month', month2).format('YYYY-MM-DD'));
-
+           
         }
-
+        
     }
+        //改变数据展现形式
+    function change_chart_form(){
+        var chart_imformation = $("#hidden_inform1").val();
+        // alert(chart_imformation);
+        var data=JSON.parse(chart_imformation);
+        // var stringdata=JSON.stringify(data)
+        // alert(stringdata);
+        var chartform=$("#chart_form").val();
+        selectChart(data,chartform);//按照所选形式画图
+    }
+
+    function selectChart(data,chartform){
+        if (chartform=='Histogram'){//多Y轴柱状图
+            removedom();
+            drawBarChart_fluc(data,0,'main1');
+            drawBarChart_fluc(data,1,'main2');
+            drawBarChart_fluc(data,2,'main3');
+            drawBarChart_fluc(data,3,'main4');
+
+        }else if (chartform=='Radarmap'){//雷达图
+            removedom();
+            drawRadarMap_fluc(data,0,'main1');
+            drawRadarMap_fluc(data,1,'main2');
+            drawRadarMap_fluc(data,2,'main3');
+            drawRadarMap_fluc(data,3,'main4');
+        }else if (chartform=='LineChart'){//折线图
+            removedom();
+            drawLineChart_fluc(data,0,'main1');
+            drawLineChart_fluc(data,1,'main2');
+            drawLineChart_fluc(data,2,'main3');
+            drawLineChart_fluc(data,3,'main4');
+        }
+    }
+
     function fluc_cost_produce(){
         var SPECIFICATION = $("#SPECIFICATION").val();//钢种,不用转化为大写
         var OPERATESHIFT = $("#OPERATESHIFT").val();//班次
         var OPERATECREW = $("#OPERATECREW").val();//班别
         var station = $("#station").val();//工位
-        // var fieldname = $("#flu_field").find("option:selected").val();//字段名
         var time1 = $('#datepicker-example7-start').val();//计算波动率的时间范围起始时间
         var time2 = $('#datepicker-example7-end').val();//计算波动率的时间范围终止时间
         var history_time1 = $('#datepicker-example7-start-history').val();//对比历史波动率的时间范围起始时间
         var history_time2 = $('#datepicker-example7-end-history').val();//对比历史波动率的时间范围终止时间
-        // alert(station);
         // var myChart_main = echarts.init(document.getElementById('main1'));
-        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
+        myChart_loading.clear()
+        myChart_loading.showLoading({ text: "图表数据正在努力加载...请勿执行其它操作！"});
         $('#loadingarea').show();
-        // var myChart_main2 = echarts.init(document.getElementById('main2'));
-        $("#cause_txt").empty();//清除文本内容
-//         myChart_main.showLoading({
-//                     text: "图表数据正在努力加载..."
-//                 });
-        myChart_loading.showLoading({
-                    text: "图表数据正在努力加载...请勿执行其它操作！"
-                });
+        $("#cause_txt_normal").empty();//清除文本内容
+        $("#cause_txt_error").empty();//清除文本内容
 
         console.log(time1,time2)
             $.ajax({
@@ -135,65 +171,103 @@
             },
             success: function(data) {
                 // alert(data.state);
-
+                removedom();//清除dom缓存
                 if(data.state=='failure_current'){
                     // alert('当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
                     //无法使用 $('#drawPicture_area').empty();这样是把整个区域都清空了，不再有main1、main2等
-                    $('#main1').empty();
-                    $('#main2').empty();
-                    $('#main3').empty();
-                    $('#main4').empty();
-                    $('#main1').append('！！注：当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
+                    // $('#main1').append('！！注：当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
+                    errorDist(data.time.time1,data.time.time2);
                     // myChart_loading.hideLoading();
                     $('#loadingarea').hide();
                     // $("#cause_area").hide();
                 }
                 else if(data.state=='failure_history'){
                     // alert('当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
-                    $('#main1').empty();
-                    $('#main2').empty();
-                    $('#main3').empty();
-                    $('#main4').empty();
-                    $('#main1').append('！！注：当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
+                    // $('#main1').append('！！注：当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
                     // myChart_loading.hideLoading();
+                    errorDist(data.time.history_time1,data.time.history_time2);
                     $('#loadingarea').hide();
                     // $("#cause_area").hide();
                 }
                 else{
-                    drawBarChart_fluc(data,0,'main1');
-                    drawBarChart_fluc(data,1,'main2');
-                    drawBarChart_fluc(data,2,'main3');
-                    drawBarChart_fluc(data,3,'main4');
-                    $("#main5").empty();
+                    var chart_imformation = JSON.stringify(data);
+                    // alert(chart_imformation);
+                    $("#hidden_inform1").val(chart_imformation);
+                    var chartform = $("#chart_form").val();
+                    selectChart(data,chartform);
+
+                    // $("#main5").empty();
                     multifurnace_regression_analyse(data);
                     // $('#loadingarea').hide();
+
                 }
-                // myChart_main1.hideLoading();
-                // myChart_main2.hideLoading();
             }
         })
-    };
+    }; 
 
+    function removedom(){//清空dom缓存
+        var myChart_main1 = echarts.getInstanceByDom(document.getElementById('main1'));
+        var myChart_main2 = echarts.getInstanceByDom(document.getElementById('main2'));
+        var myChart_main3 = echarts.getInstanceByDom(document.getElementById('main3'));
+        var myChart_main4 = echarts.getInstanceByDom(document.getElementById('main4'));
+        myChart_main1.clear();
+        myChart_main2.clear();
+        myChart_main3.clear();
+        myChart_main4.clear();
+
+    }
+
+    function errorDist(time1,time2){
+        var myChart_error = echarts.getInstanceByDom(document.getElementById('main1'));
+        myChart_error.clear();
+
+        var option = {
+            title: 
+            {
+                text: '注：当前筛选条件下'+time1+'至'+time2+'的时间区间内无数据！',
+                // subtext:'数据量过少，无法形成统计分布图！',
+                // x:'center'
+            },                                         
+            xAxis : [
+                {
+                    data : [],
+                    show : false
+                }
+            ],
+            yAxis : [
+                {
+                    show : false
+                }
+            ],
+            series : [
+                {
+                    type:'bar',
+                    data:[]
+                }
+            ]
+        }
+        // var ecConfig = echarts.config;
+        myChart_error.setOption(option,true);
+    }
 
     function multifurnace_regression_analyse(result){
-         var json_result = JSON.stringify(result);
-         var myChart_loading = echarts.init(document.getElementById('loadingarea'));
-         myChart_loading.showLoading({
-             text: "成本字段正在追溯中...请勿执行其它操作！"
-                });
-         // alert(json_result);
-         // alert(result);
-          $.ajax({
+        var json_result = JSON.stringify(result);
+        var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
+        myChart_loading.clear();
+        myChart_loading.showLoading({text: "成本字段正在追溯中...请勿执行其它操作！"});
+        $.ajax({
             type: "post",
             url:  "/multifurnace_regression_analyse",
             data: {'result':json_result},
             error: function() {
-                console.log("错误！！");
+                alert("错误！！");
             },
             success: function(data) {
                 // alert(data.str_cause);
-                $("#cause_txt").empty();
-                $("#cause_txt").append(data.str_cause);
+                $("#cause_txt_normal").empty();
+                $("#cause_txt_error").empty();
+                $("#cause_txt_normal").append(data.str_cause_normal);
+                $("#cause_txt_error").append(data.str_cause);
                 $("#cause_area").show();
                 $('#loadingarea').hide();
             }
@@ -232,164 +306,37 @@
 
 
 
-    function drawBarChart_fluc(result,classification_index,area){
-        var myChart = echarts.init(document.getElementById(area));
-        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#eeeeee', '#3397c9','#f39646','#e02222','#e0442f'];
-        // var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF','#FF0000','#FF7F00','#FFFF00','#00FF00','#00FFFF','#0000FF','#8B00FF'];
-        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
-        var classification_ch = ['原料','物料','产品','合金'];
-        var classification_ch_single=classification_ch[classification_index];
-        var classification=result.field_classification[classification_index];//classification_index 字段分类的索引
-        // alert(result.result[classification].condition);
-        if (result.result[classification].condition=='NoData'){
-            document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
-            return;
-        }
-            // 指定图表的配置项和数据
-            var option = {
-                color:colors,
-                title: {
-                    text: '转炉工序成本字段波动率计算:'+classification_ch_single,
-                    subtext: result.time.time1+'~'+result.time.time2+' || '+result.time.history_time1+'~'+result.time.history_time2+'时间范围内的波动率对比',
-                    // subtext: '当前时间范围：'+result.time.time1+'~'+result.time.time2+'\n历史时间范围：'+result.time.history_time1+'~'+result.time.history_time2,
-                    x:'center'
-                },
-                tooltip: {
-                        trigger:'item',
-                        formatter: function (params){//result.result.raw.fieldname_ch[params.dataIndex]
-                            var res = result.result[classification].fieldname_ch[params.dataIndex]+'<br/>'+params.seriesName+'：'+params.value+ '<br/>偏离程度：'+result.result[classification].offset_result_cent[params.dataIndex]+'</br>定性判断：'+result.result[classification].qualitative_offset_result[params.dataIndex];
-                            // var res = result.fieldname_ch[params.seriesIndex]+':</br>波动率实际值：'+params.value+'</br>波动率历史值：'+result.ana_describe_history[params.seriesIndex].numb[2]+ '<br/>偏离程度：'+result.offset_result[params.seriesIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.seriesIndex];
-                            return res;
-                            }
-
-                },
-                toolbox: {
-                    show : true,
-                    feature: {
-                        dataView: {show: true, readOnly: false},
-                        restore: {show: true},
-                        saveAsImage: {show: true}
-                        }
-                },
-                legend: {
-                    data:['波动率','对比历史波动率'],
-                    show:false
-                },
-                xAxis: [{
-                    type: 'category',
-                    axisTick: {
-                    alignWithLabel: true
-                    },
-                    data: result.result[classification].fieldname_ch,
-                },
-                ],
-                yAxis: [{
-                    name:'波动率',
-                    type: 'value',
-                    // min: 0,
-                    // max: 105000,
-                    position: 'left',
-                    offset:0,
-                    splitLine:{show: false},//去除网格线
-                    axisLine: {
-                        lineStyle: {
-                            color: colors[0]
-                        }
-                    },
-                    // axisLabel: {
-                    //     formatter: '{value} Kg'
-                    // }
-                },
-
-                ],
-                series: [{
-                    name:'波动率',
-                    type: 'bar',
-                    // barWidth : 50,//柱条（K线蜡烛）宽度
-                    // barGap: '1%',//柱间距离，默认为柱形宽度的30%，可设固定值
-                    barCategoryGap:'10%',//类目间柱形距离，默认为类目间距的20%，可设固定值
-                    barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
-                    yAxisIndex: 0,
-                    data: result.result[classification].fluc_ratio,
-                    itemStyle: {
-                        normal: {
-                            label : {
-                                show: true, position: 'top'
-                            },
-                            color:function(params) {
-                                return colors[params.dataIndex]
-                            }
-                        }
-                    }
-                },
-                {
-                    name:'对比历史波动率',
-                    type: 'bar',
-                    // barWidth : 50,//柱条（K线蜡烛）宽度
-                    // barGap: '1%',//柱间距离，默认为柱形宽度的30%，可设固定值
-                    barCategoryGap:'10%',//类目间柱形距离，默认为类目间距的20%，可设固定值
-                    barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
-                    yAxisIndex: 0,
-                    data: result.result[classification].fluc_ratio_history,
-                    itemStyle: {
-                        normal: {
-                            label : {
-                                show: true, position: 'top'
-                            },
-                            color: function(params) {
-                                return colors[params.dataIndex]
-                        }
-                    }
-                }
-                },
-
-                ]
-            };
-
-            var ecConfig = echarts.config;
-            myChart.on('click', function (params) {
-            if (typeof params.seriesIndex != 'undefined') {
-                // fieldname_chinese=result.fieldname_ch[params.seriesIndex];
-                // fieldname_english=result.fieldname_en[params.seriesIndex];
-                // probability_distribution(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value);
-
-                // fieldname_en=result.fieldname_en[params.dataIndex];//读取字段英文名字
-                index=params.dataIndex;//index表示分类中的第几个字段
-                retrospectfactor(result,classification,index);
-            }
-            console.log(params);
-            });
-
-
-            myChart.setOption(option);
-            // 使用刚指定的配置项和数据显示图表。
-    };
-
-
-       //回归系数因素追溯及其偏离程度
+       //单字段追溯结果
     function retrospectfactor(result,classification,index){
         var field = result.result[classification].fieldname_en[index];//字段名
         var ifcache = result['ifcache'];
         var whichcache = result['whichcache'];
+        alert('进入');
+        $("#cause_txt_normal").empty();//清除文本内容
+        $("#cause_txt_error").empty();//清除文本内容
 
-        $("#cause_txt").empty();//清除文本内容
-        $("#cause_txt").append('    经分析，字段'+result.result[classification].fieldname_ch[index]+'('+field+')在'+result.time.time1+'至'+result.time.time2+'之间的波动率为'+result.result[classification].fluc_ratio[index]+'，与'+result.time.history_time1+'至'+result.time.history_time2+'时间段内波动率相比，偏离程度为'+result.result[classification].offset_result_cent[index]);
+        $("#cause_txt_normal").append('    经分析，字段'+result.result[classification].fieldname_ch[index]+'('+field+')在'+result.time.time1+'至'+result.time.time2+'之间的波动率为'+result.result[classification].fluc_ratio[index]+'，与'+result.time.history_time1+'至'+result.time.history_time2+'时间段内波动率相比，偏离程度为'+result.result[classification].offset_result_cent[index]);
+        $("#cause_txt_error").append('    经分析，字段'+result.result[classification].fieldname_ch[index]+'('+field+')在'+result.time.time1+'至'+result.time.time2+'之间的波动率为'+result.result[classification].fluc_ratio[index]+'，与'+result.time.history_time1+'至'+result.time.history_time2+'时间段内波动率相比，偏离程度为'+result.result[classification].offset_result_cent[index]);
 
         if (result.result[classification].offset_result[index]<=0){
-            $("#cause_txt").append('，即相当于波动率变小，时间范围内数值趋于稳定。\n');
-            $("#cause_area").show();
+            $("#cause_txt_normal").append('，即相当于波动率变小，时间范围内数值趋于稳定。\n');
+            $("#cause_txt_error").append('，即相当于波动率变小，时间范围内数值趋于稳定。\n');
+            // $("#cause_area").show();
             return
-
+                
         }
         else if(result.result[classification].offset_result[index]<=0.1) {
-            $("#cause_txt").append('，在误差范围内，属于正常状态。\n');
-            $("#cause_area").show();
+            $("#cause_txt_normal").append('，在误差范围内，属于正常状态。\n');
+            $("#cause_txt_error").append('，在误差范围内，属于正常状态。\n');
+            // $("#cause_area").show();
             return
         }
-        else if (classification=='raw'){
-            $("#cause_txt").append('，属于原料字段，暂无追溯结果!\n');
+        else if (classification=='raw'){    
+            $("#cause_txt_normal").append('，属于原料字段，暂无追溯结果!\n');
+            $("#cause_txt_error").append('，属于原料字段，暂无追溯结果!\n');
         }
         else{
+            alert("ajax之前");
             $.ajax({
                 type: "post",
                 url:  "/fluc_influence",
@@ -398,22 +345,26 @@
                     alert("发生错误！！");
                 },
                 success: function(data) {
-                    $("#cause_txt").append('。\n    成本追溯所得字段影响因素分析如下:\n');
-                    for (var i=0;i<2;i++){
-                        $("#cause_txt").append('        No.'+(i+1)+' 相关字段为: '+data.En_to_Ch_result[i]+"，其偏离程度为："+data.offset_result_nature[i]+data.offset_result_cent[i]+'，权重系数为：'+data.regression_coefficient[i]+"。\n");
+                    alert("zhixing");
+                    // if(ajax.status == 200) {
+                        $("#cause_txt_normal").append('。\n    成本追溯所得字段影响因素分析如下:\n');
+                        $("#cause_txt_error").append('。\n    成本追溯所得字段影响因素分析如下:\n');
+                        for (var i=0;i<2;i++){
+                            $("#cause_txt_normal").append('        No.'+(i+1)+' 相关字段为: '+data.En_to_Ch_result[i]+"，其偏离程度为："+data.offset_result_nature[i]+data.offset_result_cent[i]+'，权重系数为：'+data.regression_coefficient[i]+"。\n");
+                            $("#cause_txt_error").append('        No.'+(i+1)+' 相关字段为: '+data.En_to_Ch_result[i]+"，其偏离程度为："+data.offset_result_nature[i]+data.offset_result_cent[i]+'，权重系数为：'+data.regression_coefficient[i]+"。\n");
+                        } 
                     }
-
-                    $("#cause_area").show();
-                }
+                   // $("#cause_area").show();
+                // }
             })
-        }
+        }         
 
     };
 
 
 
     //自动加载钢种
-    function loadGrape(){
+    function loadGrape(){ 
         $.ajax({
         type: "POST",
         dataType:"json",
@@ -423,7 +374,7 @@
             pnames=data.result;
             // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             for(var pname in pnames){
-                // console.log(pnames[pname])
+                console.log(pnames[pname]) 
                 $(".gangzhong_name").append("<option value='"+pnames[pname]+"'>"+pnames[pname]+"</option>");
             }
         },
@@ -437,9 +388,15 @@
     //初始化
     $(function(){
             // loadOption_chen();//自动加载字段
-            loadGrape(); //自动加载钢种
+            loadGrape(); //自动加载钢种   
             $("#cause_area").hide();
-            fluc_cost_produce();//打开页面自动执行函数
+            var myChart_main1 = echarts.init(document.getElementById('main1'));
+            var myChart_main2 = echarts.init(document.getElementById('main2'));
+            var myChart_main3 = echarts.init(document.getElementById('main3'));
+            var myChart_main4 = echarts.init(document.getElementById('main4'));
+            var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+            //fluc_cost_produce();//打开页面自动执行函数
+
         })
 
 

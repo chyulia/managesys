@@ -6,7 +6,7 @@
 {% block content %}
 
 <h2>青钢转炉数据分析-转炉-质量-波动率分析</h2>
-
+    <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
     <div style="margin-top:5px">
         <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name">
             <option value='blank' selected = "selected"></option>
@@ -55,6 +55,12 @@
 
         <div style="margin-top:5px;">
             <button onclick="fluc_cost_produce()" id='click1' >质量字段分析</button>
+            <label>分析结果展示方式：</label>
+            <select name="chart_form" id="chart_form" onchange="change_chart_form();">
+                <option value='Histogram' selected = "selected">多轴直方图</option>
+                <option value='Radarmap'>雷达图</option>
+                <option value='LineChart'>折线图</option>
+            </select>
         </div>
     </div>
 
@@ -79,7 +85,7 @@
 <script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/moment.js"></script>
 <script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
 
-<script type="text/javascript" src="/static/data_import/js/loadChart_chen.js"></script>
+<script type="text/javascript" src="/static/data_import/js/loadChart_product.js"></script>
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
 <script type="text/javascript">
@@ -97,6 +103,33 @@
         }
 
     }
+
+    //改变数据展现形式
+    function change_chart_form(){
+        var chart_imformation = $("#hidden_inform1").val();
+        // alert(chart_imformation);
+        var data=JSON.parse(chart_imformation);
+        // var stringdata=JSON.stringify(data)
+        // alert(stringdata);
+        var chartform=$("#chart_form").val();
+        selectChart(data,chartform);//按照所选形式画图
+    }
+
+    function selectChart(data,chartform){
+        if (chartform=='Histogram'){//多Y轴柱状图
+            removedom();
+            drawBarChart_qualityfluc(data,'main1');
+
+        }else if (chartform=='Radarmap'){//雷达图
+            removedom();
+            drawRadarMap_qualityfluc(data,'main1');
+        }else if (chartform=='LineChart'){//折线图
+            removedom();
+            drawLineChart_qualityfluc(data,'main1');
+        }
+    }
+
+
     function fluc_cost_produce(){
         var SPECIFICATION = $("#SPECIFICATION").val();//钢种,不用转化为大写
         var OPERATESHIFT = $("#OPERATESHIFT").val();//班次
@@ -107,12 +140,11 @@
         var time2 = $('#datepicker-example7-end').val();//计算波动率的时间范围终止时间
         var history_time1 = $('#datepicker-example7-start-history').val();//对比历史波动率的时间范围起始时间
         var history_time2 = $('#datepicker-example7-end-history').val();//对比历史波动率的时间范围终止时间
-        var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+        var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
+        myChart_loading.clear();
         $('#loadingarea').show();
         $("#cause_txt").empty();//清除文本内容
-        myChart_loading.showLoading({
-                    text: "图表数据正在努力加载...请勿执行其它操作！"
-                });
+        myChart_loading.showLoading({text: "图表数据正在努力加载...请勿执行其它操作！"});
 
         console.log(time1,time2)
             $.ajax({
@@ -124,33 +156,32 @@
             },
             success: function(data) {
                 // alert(data.state);
-
+                removedom();//清除dom缓存
                 if(data.state=='failure_current'){
                     // alert('当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
                     //无法使用 $('#drawPicture_area').empty();这样是把整个区域都清空了，不再有main1、main2等
-                    $('#main1').empty();
-                    $('#main2').empty();
-                    $('#main3').empty();
-                    $('#main4').empty();
-                    $('#main1').append('！！注：当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
+                    // $('#main1').empty();
+                    // $('#main1').append('！！注：当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
+                    errorDist(data.time.time1,data.time.time2);
                     // myChart_loading.hideLoading();
                     $('#loadingarea').hide();
                     // $("#cause_area").hide();
                 }
                 else if(data.state=='failure_history'){
                     // alert('当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
-                    $('#main1').empty();
-                    $('#main2').empty();
-                    $('#main3').empty();
-                    $('#main4').empty();
-                    $('#main1').append('！！注：当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
+                    // $('#main1').empty();
+                    // $('#main1').append('！！注：当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
                     // myChart_loading.hideLoading();
+                    errorDist(data.time.history_time1,data.time.history_time2);
                     $('#loadingarea').hide();
                     // $("#cause_area").hide();
                 }
                 else{
-                    drawBarChart_fluc(data.result,'main1');
-                    $("#main5").empty();
+                    var chart_imformation = JSON.stringify(data);
+                    // alert(chart_imformation);
+                    $("#hidden_inform1").val(chart_imformation);
+                    var chartform = $("#chart_form").val();
+                    selectChart(data,chartform);
                     multifurnace_regression_analyse(data.result);
                     // $('#loadingarea').hide();
                 }
@@ -162,12 +193,11 @@
 
 
     function multifurnace_regression_analyse(result){
-         var json_result = JSON.stringify(result);
-         var myChart_loading = echarts.init(document.getElementById('loadingarea'));
-         myChart_loading.showLoading({
-             text: "质量字段正在追溯中...请勿执行其它操作！"
-                });
-          $.ajax({
+        var json_result = JSON.stringify(result);
+        var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
+        myChart_loading.clear();
+        myChart_loading.showLoading({text: "质量字段正在追溯中...请勿执行其它操作！" });
+        $.ajax({
             type: "post",
             url:  "/quality_multifurnace_regression_analyse",
             data: {'result':json_result},
@@ -177,16 +207,53 @@
             success: function(data) {
                 // alert(data.str_cause);
                 $("#cause_txt").empty();
+                $("#cause_txt").append(data.str_cause_normal);
                 $("#cause_txt").append(data.str_cause);
                 $("#cause_area").show();
                 $('#loadingarea').hide();
             }
         })
-
-
     }
 
 
+    function removedom(){//清空dom缓存
+        var myChart_main1 = echarts.getInstanceByDom(document.getElementById('main1'));
+        myChart_main1.clear();
+
+    }
+
+    function errorDist(time1,time2){
+        var myChart_error = echarts.getInstanceByDom(document.getElementById('main1'));
+        myChart_error.clear();
+
+        var option = {
+            title: 
+            {
+                text: '注：当前筛选条件下'+time1+'至'+time2+'的时间区间内无数据！',
+                // subtext:'数据量过少，无法形成统计分布图！',
+                // x:'center'
+            },                                         
+            xAxis : [
+                {
+                    data : [],
+                    show : false
+                }
+            ],
+            yAxis : [
+                {
+                    show : false
+                }
+            ],
+            series : [
+                {
+                    type:'bar',
+                    data:[]
+                }
+            ]
+        }
+        // var ecConfig = echarts.config;
+        myChart_error.setOption(option,true);
+    }
 
     //初始化时间控件
     $(document).ready(function() {
@@ -213,135 +280,6 @@
             $('#datepicker-example7-end-history').val(moment().subtract('month', 4).format('YYYY-MM-DD'));
 
         });
-
-
-    function drawBarChart_fluc(result,area){
-        var myChart = echarts.init(document.getElementById(area));
-        // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#eeeeee', '#3397c9','#f39646','#e02222','#e0442f'];
-        var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
-        if (result.condition=='NoData'){
-            document.getElementById(area).innerHTML = "质量相关字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
-            return;
-        }
-            // 指定图表的配置项和数据
-            var option = {
-                color:colors,
-                title: {
-                    text: '转炉工序质量字段波动率计算',
-                    subtext: result.time.time1+'~'+result.time.time2+' || '+result.time.history_time1+'~'+result.time.history_time2+'时间范围内的波动率对比',
-                    // subtext: '当前时间范围：'+result.time.time1+'~'+result.time.time2+'\n历史时间范围：'+result.time.history_time1+'~'+result.time.history_time2,
-                    x:'center'
-                },
-                tooltip: {
-                        trigger:'item',
-                        formatter: function (params){//result.result.raw.fieldname_ch[params.dataIndex]
-                            var res = result.fieldname_ch[params.dataIndex]+'<br/>'+params.seriesName+'：'+params.value+ '<br/>偏离程度：'+result.offset_result_cent[params.dataIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.dataIndex];
-                            // var res = result.fieldname_ch[params.seriesIndex]+':</br>波动率实际值：'+params.value+'</br>波动率历史值：'+result.ana_describe_history[params.seriesIndex].numb[2]+ '<br/>偏离程度：'+result.offset_result[params.seriesIndex]+'</br>定性判断：'+result.qualitative_offset_result[params.seriesIndex];
-                            return res;
-                            }
-
-                },
-                toolbox: {
-                    show : true,
-                    feature: {
-                        dataView: {show: true, readOnly: false},
-                        restore: {show: true},
-                        saveAsImage: {show: true}
-                        }
-                },
-                legend: {
-                    data:['波动率','对比历史波动率'],
-                    show:false
-                },
-                xAxis: [{
-                    type: 'category',
-                    axisTick: {
-                    alignWithLabel: true
-                    },
-                    data: result.fieldname_ch,
-                },
-                ],
-                yAxis: [{
-                    name:'波动率',
-                    type: 'value',
-                    // min: 0,
-                    // max: 105000,
-                    position: 'left',
-                    offset:0,
-                    splitLine:{show: false},//去除网格线
-                    axisLine: {
-                        lineStyle: {
-                            color: colors[0]
-                        }
-                    },
-                    // axisLabel: {
-                    //     formatter: '{value} Kg'
-                    // }
-                },
-
-                ],
-                series: [{
-                    name:'波动率',
-                    type: 'bar',
-                    // barWidth : 50,//柱条（K线蜡烛）宽度
-                    // barGap: '1%',//柱间距离，默认为柱形宽度的30%，可设固定值
-                    barCategoryGap:'10%',//类目间柱形距离，默认为类目间距的20%，可设固定值
-                    barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
-                    yAxisIndex: 0,
-                    data: result.fluc_ratio,
-                    itemStyle: {
-                        normal: {
-                            label : {
-                                show: true, position: 'top'
-                            },
-                            color:function(params) {
-                                return colors[params.dataIndex]
-                            }
-                        }
-                    }
-                },
-                {
-                    name:'对比历史波动率',
-                    type: 'bar',
-                    // barWidth : 50,//柱条（K线蜡烛）宽度
-                    // barGap: '1%',//柱间距离，默认为柱形宽度的30%，可设固定值
-                    barCategoryGap:'10%',//类目间柱形距离，默认为类目间距的20%，可设固定值
-                    barMinHeight:10,//柱条最小高度，可用于防止某item的值过小而影响交互
-                    yAxisIndex: 0,
-                    data: result.fluc_ratio_history,
-                    itemStyle: {
-                        normal: {
-                            label : {
-                                show: true, position: 'top'
-                            },
-                            color: function(params) {
-                                return colors[params.dataIndex]
-                        }
-                    }
-                }
-                },
-
-                ]
-            };
-
-            var ecConfig = echarts.config;
-            myChart.on('click', function (params) {
-            if (typeof params.seriesIndex != 'undefined') {
-                // fieldname_chinese=result.fieldname_ch[params.seriesIndex];
-                // fieldname_english=result.fieldname_en[params.seriesIndex];
-                // probability_distribution(fieldname_chinese,fieldname_english,result.offset_result[params.seriesIndex],params.value);
-
-                // fieldname_en=result.fieldname_en[params.dataIndex];//读取字段英文名字
-                index=params.dataIndex;//index表示分类中的第几个字段
-                retrospectfactor(result,index);
-            }
-            console.log(params);
-            });
-
-
-            myChart.setOption(option);
-            // 使用刚指定的配置项和数据显示图表。
-    };
 
 
        //回归系数因素追溯及其偏离程度
@@ -412,7 +350,9 @@
     $(function(){
             loadGrape();//自动加载钢种
             $("#cause_area").hide();
-            fluc_cost_produce();//打开页面自动执行函数
+            var myChart_main1 = echarts.init(document.getElementById('main1'));
+            var myChart_loading = echarts.init(document.getElementById('loadingarea'));
+            //fluc_cost_produce();//打开页面自动执行函数
 
         })
 </script>

@@ -8,17 +8,19 @@ import math
 # from functools import reduce
 # import data_import.models as models
 from . import models
-def updatebof(request):
+
+def updatebof(request):#全部数据重新执行
 	batch_updatebof()
-	
+
+
 def batch_updatebof():
-	#========================【 输 入 】===========================
+#========================【 输 入 】===========================
 	print("开始执行updatebof")
 	# 按钢种查询数据库
 	# select all stock
 	sqlVO={}
 	sqlVO["db_name"]="l2query"
-
+#表格单独处理----------------------------
 	# --1.1.1.1.	炉次计划表（PRO_BOF_HIS_PLAN）
 	# --删除重复项并选取时间最晚的记录
 	sqlVO["sql"]='''create table pro_bof_his_plan_Result as
@@ -314,14 +316,19 @@ def batch_updatebof():
 
 
 	# --1.1.1.13.	成分信息记录（PRO_BOF_HIS_ANADAT）
-	# --步骤一：根据seq_no删除重复值
+	# # --步骤一：根据seq_no删除重复值
+	# sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Result1 as
+	# select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t1 where not exists (select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+	# models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	
+	# --步骤一：取样信息表中获取取样类型，添加到成分信息表中
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Result1 as
-	select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t1 where not exists (select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
+	select t2.*, t1.samp_type from PRO_BOF_HIS_ANAGEN t1 right join  PRO_BOF_HIS_ANADAT t2 on t1.samp_no = t2.samp_no and t1.heat_no =t2.heat_no''';
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
-	# --步骤二：在删除重复值基础上取最新成分数据
+	# --步骤二：取最新成分数据(取样类型不能为3,3表示炉前数据)
 	sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Result2 as
-	select * from PRO_BOF_HIS_ANADAT_Result1 t1 where not exists (select * from PRO_BOF_HIS_ANADAT_Result1 t2 where t2.heat_no = t1.heat_no and t2.ELMT_CODE=t1.ELMT_CODE and t2.SAMP_NO > t1.SAMP_NO)''';
+	select * from PRO_BOF_HIS_ANADAT_Result1 t1 where SAMP_TYPE !=3 AND not exists (select * from PRO_BOF_HIS_ANADAT_Result1 t2 where t2.heat_no = t1.heat_no and t2.ELMT_CODE=t1.ELMT_CODE and t2.SAMP_NO > t1.SAMP_NO )''';
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
 	# --步骤三：成分信息记录的行列转换（各成分参数）
@@ -366,13 +373,13 @@ def batch_updatebof():
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
 
-
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
 #--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#字段汇总-----------------------------------------
 	# --删除表
 	sqlVO["sql"]='''drop table IF EXISTS PRO_BOF_HIS_ALLFIELDS''';
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
@@ -1146,6 +1153,82 @@ def batch_updatebof():
 	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 	# --1.1.1.14.	实时数据记录（PRO_BOF_HIS_RDATA）	跳过
 
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#--------------------------------------------------INSERT SUMMURY TABLE--------------------------------------
+#总处理汇总--------------------------------------------------
+
+	# --将铁水重量减去一吨
+	sqlVO["sql"]='''update pro_bof_his_allfields set  miron_wgt = miron_wgt - 1000 where  miron_wgt>1000;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --1、把工序代码(plant_diff)整合到站别（station）,然后删除工序代码字段
+	sqlVO["sql"]='''UPDATE pro_bof_his_allfields SET station = plant_diff WHERE station is null;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column plant_diff''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+
+	# --2、将各废钢明细加和存储为字段
+	sqlVO["sql"]='''alter table pro_bof_his_allfields add  SCRAPWGT_count number(6);--废钢加入量（所有废钢加和得）
+	update pro_bof_his_allfields set SCRAPWGT_count=scrap_96053101+scrap_96052200+scrap_16010101+scrap_16020101+scrap_16030101+scrap_16040101+scrap_96052501;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+
+	# --3、对出钢量进行补充
+	# --首先保留自身出钢量字段（STEELWGT），若不存在，取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，则取计算所得出钢量（STEELWGT_COUNT）进行补充：钢水量=（铁水量+废钢量）*95%
+	sqlVO["sql"]='''UPDATE pro_bof_his_allfields a SET a.STEELWGT=(select b.TOTAL_SLAB_WGT from pro_ccm_his_heatplan_Result b where a.heat_no=b.heat_no) WHERE STEELWGT is null or STEELWGT=0;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''UPDATE pro_bof_his_allfields SET STEELWGT = (MIRON_WGT+SCRAPWGT_count)*0.95 WHERE STEELWGT is null or STEELWGT=0;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+
+	# --4、转炉煤气LDG计算
+	# --由补充后的出钢量（STEELWGT)计算而来：新建转炉煤气字段：LDG_STEELWGT
+	sqlVO["sql"]='''alter table pro_bof_his_allfields add LDG_STEELWGT NUMBER(10,3)'''; 
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''update pro_bof_his_allfields set LDG_STEELWGT=(MIRON_WGT*MIRON_C-STEELWGT*C)*22.4/0.85/12/100;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+
+	# --5、计算钢渣，新建钢渣字段：steel_slag 
+	sqlVO["sql"]='''alter table pro_bof_his_allfields add steel_slag NUMBER(10,3)''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --更新字段值（使用废钢总和字段进行加和）使用出钢量STEELWGT、转炉煤气LDG_STEELWGT
+	sqlVO["sql"]='''update pro_bof_his_allfields set steel_slag =(nvl(SUM_BO_CSM,0)*1.429+SCRAPWGT_COUNT+
+	MIRON_WGT+nvl(COLDPIGWGT,0)+nvl(L13010101,0)+nvl(L13010301,0)+nvl(L13020101,0)+nvl(L13020201,0)+nvl(L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+	nvl(L12010301,0)+nvl(L12010302,0)+nvl(L12010601,0)+nvl(L12010701,0)+nvl(L12020201,0)+nvl(L12020301,0)+nvl(L96040100,0)+nvl(L96040200,0)+nvl(L96053601,0)+nvl(L1602010074,0)-
+	STEELWGT-nvl(LDG_STEELWGT,0)*1.368)*0.9;
+	commit''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+
+	# --6、删除字段
+	# --删除铁水装入量、铁水入炉温度、渣钢
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column HOTMETALWGT''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column IS_TEMP'''; 
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column SLAGWGT''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --删除出钢开始日期、出钢开始时间、出钢结束日期、出钢结束时间
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column TAPPINGSTARTDATE''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column TAPPINGSTARTTIME'''; 
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column TAPPINGENDDATE''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column TAPPINGENDTIME''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --删除炉长OPERATORD字段，与OPERATORA字段相同
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column OPERATORD''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
+	# --删除炉订号HEATORDER字段，与HEAT_ORDER字段相同
+	sqlVO["sql"]='''alter table pro_bof_his_allfields drop column HEATORDER''';
+	models.BaseManage().direct_execute_query_sqlVO(sqlVO)
 
 
 if __name__ == '__main__':

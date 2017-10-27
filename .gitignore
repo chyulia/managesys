@@ -12,3 +12,6 @@ data_import/migrations/*
 .DS_Store
 QinggangManageSys/.ropeproject/
 .ropeproject
+spark-2.1.0/*
+data_import/functest/*
+data_import/static/data_import/flat-ui/*

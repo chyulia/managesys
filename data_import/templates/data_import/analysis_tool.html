@@ -5,17 +5,22 @@
 <h2>青钢数据分析工具</h2>
 <div id="loadingarea" style="float:middle;width:800px;height:30px"></div>
 <table>
+
 	<tr>
-		<td>更新数据库转炉字段全部数据统计值(每月更新): </td>
+		<td>更新转炉缓存表的全部数据统计值(每月更新): </td>
 		<td><button onclick='updatevalue()'>每月更新统计值</button></td>
 	</tr>
 	<tr>
-		<td>更新数据库转炉字段本月及上月数据统计值(每日更新): </td>
+		<td>更新转炉缓存表的本月及上月数据统计值(每日更新): </td>
 		<td><button onclick='daily_updatevalue()'>每日更新统计值</button></td>
 	</tr>
 	<tr>
 		<td>更新数据库转炉字段(guo): </td>
 		<td><button onclick='updatebof()'>更新统计值</button></td>
+	</tr>
+	<tr>
+		<td>定期更新汇总表数据(chen)</td>
+		<td><button onclick='batch_dyupdatebof()'>动态更新</button></td>
 	</tr>
 	<tr>
 		<td>相关性分析</td>
@@ -39,6 +44,19 @@
 
 
 <script type="text/javascript">
+	function batch_dyupdatebof(){
+		$.ajax({
+	        type: "post",
+	        url:  "/batch_dyupdatebof",
+	        data: {},
+	        error: function() {
+	            console.log("更新bof错误！");
+	        },
+	        success: function(data) {
+	            console.log("更新bof成功！");
+	        }
+	     })
+	}
 	function updatebof(){
 	        $.ajax({
 	        type: "post",

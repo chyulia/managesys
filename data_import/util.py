@@ -37,7 +37,7 @@ def create_select_condition(dictVO):
 		for each in dictVO:
 			whereCondition+=each+'=%s'+' and '
 			varlist.append(dictVO[each])
-		whereCondition=whereCondition[:len(whereCondition)-1]+')'
+		whereCondition=whereCondition[:len(whereCondition)-4]
 		print('{0}'.format(whereCondition))
 		result['whereCondition']=whereCondition
 		result['vars']=varlist
@@ -51,6 +51,9 @@ def create_select_sqlVO(model,dictVO):
 	whereCondition=condition.get('whereCondition')
 	if(model!=None):
 		table_name = model._meta.db_table
+		print(table_name)
+		if table_name == 'data_import_steelprice':
+			table_name = 'steelprice'
 	sql ='SELECT * FROM '+table_name+str(whereCondition)
 	print(sql)
 	return {'sql':sql,'vars':condition.get('vars')}

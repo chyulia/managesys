@@ -32,7 +32,7 @@ def cost_produce(request):
 	#先查出当前炉次实际所属钢种及班别
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
-	sqlVO["sql"]="SELECT HEAT_NO,SPECIFICATION,OPERATECREW FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO='"+heat_no+"'";
+	sqlVO["sql"]="SELECT HEAT_NO,SPECIFICATION,STATION,OPERATECREW FROM qg_user.PRO_BOF_HIS_ALLFIELDS WHERE HEAT_NO='"+heat_no+"'";
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
 	if len(scrapy_records)==0:#无该炉次号
 			contentVO['state']='error'
@@ -40,7 +40,13 @@ def cost_produce(request):
 
 	actual_SPECIFICATION=scrapy_records[0].get('SPECIFICATION',None)
 	actual_OPERATECREW=scrapy_records[0].get('OPERATECREW',None)
+	actual_STATION=scrapy_records[0].get('STATION',None)
 	
+	
+	contentVO['actual_SPECIFICATION']=actual_SPECIFICATION
+	contentVO['actual_OPERATECREW']=actual_OPERATECREW
+	contentVO['actual_STATION']=actual_STATION
+
 	#确认实际筛选语句		
 	str_select=""
 	if SPECIFICATION_ask=='native' and actual_SPECIFICATION !=None:#本钢种且本钢种不为空
@@ -132,7 +138,18 @@ def cost_produce(request):
 
 		print('xasis_fieldname',xasis_fieldname)
 		print('yaxis',yaxis)
-		offset_result=offset(xasis_fieldname,yaxis,str_select)#计算偏离程度函数的返回值
+		desired,offset_result=offset(xasis_fieldname,yaxis,str_select)#计算偏离程度函数的返回值
+
+		updesired_result=[]#存储期望*1.05
+		downdesired_result=[]#存储期望*0.95
+		for i in range(len(desired)):
+			if desired[i] != None or desired[i] !="null":
+				temp_value =float(desired[i])
+			else:
+				temp_value = 0
+			updesired_result.append(int(temp_value*bof_config.updesired))
+			downdesired_result.append(int(temp_value*bof_config.downdesired))
+
 		qualitative_offset_result=qualitative_offset(offset_result)#对偏离程度进行定性判断
 		offset_resultlist=[]#存储带百分号的偏离程度
 		for n in list(offset_result):
@@ -148,7 +165,8 @@ def cost_produce(request):
 		ana_result['xEnglishname']=xasis_fieldname#字段英文名字
 		ana_result['danwei']=danwei#字段的数值单位
 		ana_result['yvalue']=yaxis#该炉次字段的实际值
-
+		ana_result['updesired']=updesired_result#期望上范围
+		ana_result['downdesired']=downdesired_result#期望下范围
 		ana_result['attribute']=field_classification[k]#分类
 		ana_result['offset_result_nopercent']=offset_result#各字段的偏离程度值（不带百分比）
 		ana_result['offset_result']=offset_resultlist#各字段的偏离程度值（带百分比）
@@ -162,6 +180,7 @@ def cost_produce(request):
 #通过从数据库中查询期望等参数来输入/产出图中的偏离程度
 def offset(xasis_fieldname,yaxis,str_select):
 	offset_result=[]
+	desired=[]
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	# print('len(xasis_fieldname)',len(xasis_fieldname))
@@ -199,6 +218,7 @@ def offset(xasis_fieldname,yaxis,str_select):
 				temp_value=(adjusted_yaxis-scrapy_records[0]['MIN_VALUE'])/(scrapy_records[0]['MAX_VALUE']-scrapy_records[0]['MIN_VALUE'])-0.5
 			except:
 				temp_value=None
+			desired.append(scrapy_records[0]['DESIRED_VALUE'])
 			offset_result.append(temp_value)
 
 		else:#有筛选条件,需要动态经过上下限、五数等清洗后计算最大最小值
@@ -264,11 +284,13 @@ def offset(xasis_fieldname,yaxis,str_select):
 				temp_value=(adjusted_yaxis-avg_value)/(clean.max()-clean.min())
 			except:
 				temp_value=None
+				avg_value=None
 			offset_result.append(temp_value)
+			desired.append(avg_value)
 
 
 	print('offset_result',offset_result)
-	return offset_result
+	return desired,offset_result
 
 #对偏离程度进行定性判断：高，偏高，正常范围，偏低，低，极端异常
 def qualitative_offset(offset_result):
@@ -761,12 +783,13 @@ def singlefurnace_regression_analyse(request):
 
 	result = json.loads(request.POST.get("result"));
 
-	str_cause=regression_analyse_to(result)
+	str_cause,str_cause_normal=regression_analyse_to(result)
 
 	contentVO={
 		'title':'测试',
 		'state':'success',
-		'str_cause':str_cause
+		'str_cause':str_cause,
+		'str_cause_normal':str_cause_normal
 	}				
 	return HttpResponse(json.dumps(contentVO),content_type='application/json')	
 
@@ -777,7 +800,9 @@ def regression_analyse_to(result):
 	str_select = result['str_select'];#筛选条件 
 
 	n=0#n用来指示当前问题字段的个数
-	str_cause='本炉次为'+str(prime_cost)+'，问题字段因素分析如下：\n'#存放分析结果
+	m=0#m用来指示正常字段的个数
+	str_cause_normal='本炉次为'+str(prime_cost)+'，处于正常范围内的因素分析如下：\n'#存放分析结果
+	str_cause='本炉次为'+str(prime_cost)+'，通过数据分析，超出正常范围的因素分析如下：\n'
 	field_classification=['raw','material','product','alloy']
 	for attribute in field_classification:
 	# print('结果：：：：：',result)
@@ -800,6 +825,7 @@ def regression_analyse_to(result):
 			xaxis_chinese=xasis_fieldname_ch[i];
 			field=xasis_fieldname_en[i];
 			single_value=yaxis_single[i];
+			single_danwei=danwei[i];
 			offset_value=offset_result_nopercent[i];
 			offset_value_abs="%.2f%%"%(abs(float(offset_value))*100)
 			qualitative_offset_result_single=qualitative_offset_result[i];
@@ -822,6 +848,8 @@ def regression_analyse_to(result):
 				n=n+1
 				continue
 			elif abs(float(offset_value))<=bof_config.single_doretrospect:#偏离度小于20%的设定为正常
+				str_cause_normal=str_cause_normal+'【'+str(m+1)+'】'+xaxis_chinese+'实际值为'+str(single_value)+single_danwei+'，数值正常。\n'
+				m=m+1
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。\n'      
 				continue
 
@@ -829,7 +857,8 @@ def regression_analyse_to(result):
 			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result=analy_cof(prime_cost,field,single_value,offset_value,str_select);		
 			if 	En_to_Ch_result_score==None:
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
-
+				str_cause=str_cause+'【'+str(n+1)+'】'+xaxis_chinese+'，相关字段数据不足，无法追溯；\n'
+				n=n+1
 				continue
 			else:
 				# str_des='本炉次'+prime_cost+'的'+xaxis_chinese+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+',偏离度为'+offset_value+'。通过数据相关性分析发现，导致该问题的原因是:\n'      
@@ -839,9 +868,11 @@ def regression_analyse_to(result):
 					str_cause=str_cause+'[原因'+str(i+1)+']'+En_to_Ch_result_score[i]+offset_result_nature[i]+offset_value_single_cof[i]+'；'
 				str_cause=str_cause+'\n'
 	if n==0:
-		str_cause='本炉次为'+str(prime_cost)+'，无当前历史条件下的追溯结果：\n'
+		str_cause='本炉次为'+str(prime_cost)+'，无当前历史条件下的问题字段追溯结果：\n'
+	if m==0:
+		str_cause_normal='本炉次为'+str(prime_cost)+'，无当前历史条件下的正常字段分析结果：\n'
 	# print('追溯结果：',str_cause)
-	return 	str_cause		
+	return 	str_cause,str_cause_normal
 
 from . import zhuanlu
 def  analy_cof(prime_cost,field,single_value,offset_value,str_select):
@@ -884,7 +915,7 @@ def  analy_cof(prime_cost,field,single_value,offset_value,str_select):
 	# print("frame",frame)	
 	print("yaxis",yaxis)
 
-	offset_degree=offset(xasis_fieldname,yaxis,str_select)
+	desired,offset_degree=offset(xasis_fieldname,yaxis,str_select)
 	# print("字段名字：")
 	# print(xasis_fieldname)
 	# print("相关性：")
