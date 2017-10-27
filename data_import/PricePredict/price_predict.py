@@ -79,20 +79,22 @@ def price_history(request):
         params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
     print(params)
     rs = dc.format_data(params, history_begin, history_end)
-    dfs = rs[1]
-    #
-    if dfs is not None:
-        print(len(dfs))
-        timeline, price = dc.data_to_display(dfs)
-        contentVO['timeline'] = timeline
-        contentVO['price'] = price
-        contentVO['state'] = const.OK.get('code', 0)  # 前端检测state状态，匹配message信息进行相应处理
-    else:
+    if not rs:
         contentVO["his_warnning"] = "该筛选条件下无合适数据"
         contentVO['state'] = const.COMMON.INVALID_PARAM.get('code', None)
+    else:
+        dfs = rs[1]
+        #
+        if dfs is not None:
+            print(len(dfs))
+            timeline, price = dc.data_to_display(dfs)
+            contentVO['timeline'] = timeline
+            contentVO['price'] = price
+            contentVO['state'] = const.OK.get('code', 0)  # 前端检测state状态，匹配message信息进行相应处理
+        else:
+            contentVO["his_warnning"] = "该筛选条件下无合适数据"
+            contentVO['state'] = const.COMMON.INVALID_PARAM.get('code', None)
 
-    # contentVO['timeline'] = prices.get('timeline', None)
-    # contentVO['price'] = prices.get('price', None)
     contentVO['ele_info'] = ELE_INFOS.get('steel')
     return HttpResponse(json.dumps(contentVO), content_type='application/json')
 

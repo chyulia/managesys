@@ -354,7 +354,7 @@ class DataCleaning(object):
             return sqlVO, rs_df
         except Exception as e:
             print("ERROR:[", e, "]")
-            return None
+            return False
 
 
     def transform_dataframe(self, sqlVO):
