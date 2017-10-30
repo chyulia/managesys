@@ -614,13 +614,9 @@ def daily_updatevalue(request):
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	sqlVO["sql"]="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
-	print(sqlVO["sql"])
+	# print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-	print(len(scrapy_records))
-
-	# tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
-	# db=cx_Oracle.connect('qg_user','123456',tns)
-	# cur = db.cursor()#创建cursor
+	# print(len(scrapy_records))
 
 	tns=cx_Oracle.makedsn(bof_config.db_host,bof_config.db_port,bof_config.db_name)
 	db=cx_Oracle.connect(bof_config.db_user,bof_config.db_password,tns)
@@ -971,7 +967,7 @@ def multifurnace_regression_analyse_to(result):
 				En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result = analy_cof(ifcache,whichcache,singlefield_en,singlefield_offset,sentence_select,sentence_selecthistory)
 				if 	En_to_Ch_result_score==None:
 					# str_des='本炉次'+prime_cost+'的'+singlefield_ch+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
-					str_cause = str_cause+'【'+str(n+1)+'】'+singlefield_ch+qualitative_offset_result_single+offset_value_abs+'，相关字段数据不足，无法追溯；'
+					str_cause = str_cause+'【'+str(n+1)+'】'+singlefield_ch+qualitative_offset_result_single+offset_value_abs+'，相关字段数据不足，无法追溯！\n'
 					n=n+1
 					continue
 				else:

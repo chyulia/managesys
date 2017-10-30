@@ -707,12 +707,9 @@ def updatevalue(request):
 	sqlVO={}
 	sqlVO["db_name"]="l2own"
 	sqlVO["sql"]="select DATA_ITEM_EN,IF_ANALYSE,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,NUMERICAL_UPPER_BOUND from PRO_BOF_HIS_ALLSTRUCTURE"#读取字段列表,三个字段分别为字段名，是否用于分析，是否进行五值计算
-	print(sqlVO["sql"])
+	# print(sqlVO["sql"])
 	scrapy_records=models.BaseManage().direct_select_query_sqlVO(sqlVO)
-	print(len(scrapy_records))
-	# tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
-	# db=cx_Oracle.connect('qg_user','123456',tns)
-	# cur = db.cursor()#创建cursor
+	# print(len(scrapy_records))
 
 	tns=cx_Oracle.makedsn(bof_config.db_host,bof_config.db_port,bof_config.db_name)
 	db=cx_Oracle.connect(bof_config.db_user,bof_config.db_password,tns)
@@ -833,9 +830,6 @@ def Calculation_Parameters(fieldname,IF_FIVENUMBERSUMMARY,NUMERICAL_LOWER_BOUND,
 	return dataclean_result
 
 def set_IF_ANALYSE_TEMP(fieldname):
-	# tns=cx_Oracle.makedsn('202.204.54.212',1521,'orcl')
-	# db=cx_Oracle.connect('qg_user','123456',tns)
-	# cur = db.cursor()#创建cursor
 	tns=cx_Oracle.makedsn(bof_config.db_host,bof_config.db_port,bof_config.db_name)
 	db=cx_Oracle.connect(bof_config.db_user,bof_config.db_password,tns)
 	cur = db.cursor()#创建cursor
@@ -947,9 +941,9 @@ def regression_analyse_to(result):
 					str_cause=str_cause+'[原因'+str(i+1)+']'+En_to_Ch_result_score[i]+offset_result_nature[i]+offset_value_single_cof[i]+'；'
 				str_cause=str_cause+'\n'
 	if n==0:
-		str_cause='本炉次为'+str(prime_cost)+'，无当前历史条件下的问题字段追溯结果：\n'
+		str_cause='本炉次为'+str(prime_cost)+'，无当前历史条件下的问题字段追溯结果！\n'
 	if m==0:
-		str_cause_normal='本炉次为'+str(prime_cost)+'，无当前历史条件下的正常字段分析结果：\n'
+		str_cause_normal='本炉次为'+str(prime_cost)+'，无当前历史条件下的正常字段分析结果！\n'
 	# print('追溯结果：',str_cause)
 	return 	str_cause,str_cause_normal
 

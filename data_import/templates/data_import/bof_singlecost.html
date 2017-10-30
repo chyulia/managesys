@@ -29,6 +29,7 @@
                 <option value='A'>甲班</option>
                 <option value='B'>乙班</option>
                 <option value='C'>丙班</option>
+                <option value='D'>丁班</option>
             </select>
         <label id="actualInform"></label>
     </div>
@@ -163,7 +164,7 @@
             url:  "/cost_produce",
             data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
-                alert("cost_produce返回错误！！");
+                alert("返回错误！！");
             },
             success: function(data) {
                 // alert("enter");
