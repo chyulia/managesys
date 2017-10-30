@@ -18,7 +18,7 @@ master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local', 'ubuntu')
+dev_machines = ('cheng-cx','cheng-cx.local')
 win_machines = ('chyulia-PC',"TP-PC")
 
 
@@ -258,7 +258,7 @@ else:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.42',
+            'HOST': lab_ip,
             'PORT': '1521',
         },
         'default': {
@@ -266,7 +266,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.42',
+            'HOST': lab_ip,
             'PORT': '3306',
         },
         'mes_backup': {
@@ -290,7 +290,7 @@ else:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': '202.204.54.42',
+            'HOST': lab_ip,
 
         },
     }
