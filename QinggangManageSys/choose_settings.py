@@ -18,7 +18,7 @@ master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()
 print(node)
-dev_machines = ('cheng-cx','cheng-cx.local')
+dev_machines = ('cheng-cx','cheng-cx.local', 'ubuntu')
 win_machines = ('chyulia-PC',"TP-PC")
 
 
