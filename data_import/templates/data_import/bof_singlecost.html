@@ -83,6 +83,11 @@
     </div>
 </div>
 
+<div class="bg"></div>
+<div class="content">
+    <br/>
+    数据分析中，请耐心等待。。。
+</div>
 
 <!-- <link href="/static/data_import/bootstrap.min.css" rel="stylesheet"> -->
 <!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">    -->
@@ -95,8 +100,12 @@
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
 
 <script type="text/javascript" src="/static/data_import/js/loadChart_product.js"></script>
-<script type="text/javascript">
 
+<!--noaction-->
+<link rel="stylesheet" href="/static/data_import/css/noaction.css" type="text/css">
+<script type="text/javascript" src="/static/data_import/js/noaction.js"></script>
+
+<script type="text/javascript">
     function months(obj,month1,month2){//调用插件接口
         //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
         //hidden_inform隐藏域用于在进行追溯时直接从页面读取信息
@@ -158,6 +167,7 @@
         var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
         myChart_loading.clear();
         $('#loadingarea').show();
+        noAction();
         myChart_loading.showLoading({text: "图表数据正在努力加载...请勿执行其它操作！" });  
         $.ajax({
             type: "post",
@@ -203,6 +213,7 @@
                     // $("#main5").empty();
                     // $('#loadingarea').hide();
                     singlefurnace_regression_analyse(data);
+
                 }
 
             }
@@ -235,6 +246,7 @@
                 $("#cause_area").show();
                 myChart_loading.clear();
                 $('#loadingarea').hide();
+                removeNoAction();
             }
         })
     }
