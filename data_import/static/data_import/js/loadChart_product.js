@@ -2490,7 +2490,7 @@
             var option = {
                 title: {
                     text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
-                    x:'center'
+                    // x:'center'
                 },                                         
                 xAxis : [
                     {
@@ -2648,7 +2648,7 @@
             var option = {
                 title: {
                     text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
-                    x:'center'
+                    // x:'center'
                 },                                         
                 xAxis : [
                     {
@@ -2807,7 +2807,7 @@
             var option = {
                 title: {
                     text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
-                    x:'center'
+                    // x:'center'
                 },                                         
                 xAxis : [
                     {
