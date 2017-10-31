@@ -631,7 +631,7 @@ def multifurnace_regression_analyse_to(result):
 			En_to_Ch_result_score,offset_result_nature,offset_value_single_cof,regression_coefficient_result = analy_cof(ifcache,whichcache,singlefield_en,singlefield_offset,sentence_select,sentence_selecthistory)
 			if 	En_to_Ch_result_score==None:
 				# str_des='本炉次'+prime_cost+'的'+singlefield_ch+qualitative_offset_result_single+',实际值为'+str(single_value)+danwei[i]+'，但进行回归分析时相关字段无数据！'
-				str_cause= str_cause+'【'+str(n+1)+'】'+singlefield_ch+qualitative_offset_result_single+offset_value_abs+'，相关字段数据不足，无法追溯；'
+				str_cause= str_cause+'【'+str(n+1)+'】'+singlefield_ch+qualitative_offset_result_single+offset_value_abs+'，相关字段数据不足，无法追溯！\n'
 				n=n+1
 				continue
 			else:

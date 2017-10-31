@@ -2038,8 +2038,36 @@
         var classification=result.field_classification[classification_index];//classification_index 字段分类的索引
         // alert(result.result[classification].condition);
         if (result.result[classification].condition=='NoData'){
-            document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // return;
+
+            var option = {
+                title: {
+                    text: classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.",
+                    x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
             // 指定图表的配置项和数据
             var option = {
@@ -2174,9 +2202,38 @@
         var classification=result.field_classification[classification_index];//classification_index 字段分类的索引
 
         if (result.result[classification].condition=='NoData'){
-            document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // return;
+
+            var option = {
+                title: {
+                    text: classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.",
+                    x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
+
             // 指定图表的配置项和数据
             var option = {
                 // color:colors,
@@ -2307,8 +2364,36 @@
         var classification=result.field_classification[classification_index];//classification_index 字段分类的索引
         // alert(result.result[classification].condition);
         if (result.result[classification].condition=='NoData'){
-            document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // return;
+
+            var option = {
+                title: {
+                    text: classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.",
+                    x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
 
         var option = {
@@ -2397,9 +2482,38 @@
         myChart.clear();
         // var colors = ['#5793f3', '#d14a61', '#675bba','#00c957','#eeeeee', '#3397c9','#f39646','#e02222','#e0442f'];
         var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
-        if (result.condition=='NoData'){
-            document.getElementById(area).innerHTML = "质量相关字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+        var ll = result.result.fieldname_ch;
+        if (result.condition=='NoData' || ll.length==0){
+            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // return;
+            
+            var option = {
+                title: {
+                    text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
+                    // x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
             // 指定图表的配置项和数据
             var option = {
@@ -2526,10 +2640,38 @@
         var myChart = echarts.getInstanceByDom(document.getElementById(area));
         myChart.clear();
         // var colors = ['#FCBE91','#ACA7DC','#FFBF32','#BC8F8F','#DC6428','#7DB8CB','#9400D3','#AE8083','#808080','#3E8DC6','#9D947E'];
+        var ll = result.result.fieldname_ch;
+        if (result.condition=='NoData'|| ll.length==0){
+            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            // return;
 
-        if (result.condition=='NoData'){
-            document.getElementById(area).innerHTML = "质量字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+            var option = {
+                title: {
+                    text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
+                    // x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
             // 指定图表的配置项和数据
             var option = {
@@ -2657,10 +2799,38 @@
         var myChart = echarts.getInstanceByDom(document.getElementById(area));
         myChart.clear();
 
-        // alert(result.result[classification].condition);
-        if (result.condition=='NoData'){
-            document.getElementById(area).innerHTML = "质量字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
+        var ll = result.result.fieldname_ch;
+        if (result.condition=='NoData'|| ll.length==0){
+            // document.getElementById(area).innerHTML = "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.";
+            // return;
+
+            var option = {
+                title: {
+                    text: "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.",
+                    // x:'center'
+                },                                         
+                xAxis : [
+                    {
+                        data : [],
+                        show : false
+                    }
+                ],
+                yAxis : [
+                    {
+                        show : false
+                    }
+                ],
+                series : [
+                    {
+                        type:'bar',
+                        data:[]
+                    }
+                ]
+            }
+            myChart.setOption(option,true);
+
             return;
+
         }
 
         var option = {

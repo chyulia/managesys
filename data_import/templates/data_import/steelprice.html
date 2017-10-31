@@ -4,7 +4,7 @@
 {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}
 
 {% block pagecss %}
-<link rel="stylesheet" type="text/css" href="{% static 'data_import/css/custom.css' %}">
+<!--<link rel="stylesheet" type="text/css" href="{% static 'data_import/css/custom.css' %}">-->
 {% endblock %}
 
 {% block pagejs %}
@@ -59,7 +59,11 @@
                                       <label>{{ choose_col_meaning|key_dict:key}}</label>
                                       <select class="form-control input-lg" id="{{ key }}" placeholder="{{ choose_col_meaning|key_dict:key}}">
                                       {% for ele in value %}
-                                        <option value="{{ ele }}" >{{ ele }}</option>
+                                         {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
+                                            <option value="{{ ele }}" selected>{{ ele }}</option>
+                                           {% else %}
+                                           <option value="{{ ele }}" >{{ ele }}</option>
+                                           {% endif %}
                                       {% endfor %}
                                       </select>
                                     </div>
@@ -125,12 +129,16 @@
                                     {% endfor %}
                                     </select>
                                   </div>
-                                {% for key,value in predict_all_select.items %}
+                                {% for key,value in all_select.items %}
                                     <div class="form-group">
                                       <label>{{ choose_col_meaning|key_dict:key}}</label>
                                       <select class="form-control input-lg" id="{{ key }}_predict" placeholder="{{ choose_col_meaning|key_dict:key}}">
                                       {% for ele in value %}
-                                        <option value="{{ ele }}" >{{ ele }}</option>
+                                         {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
+                                            <option value="{{ ele }}" selected>{{ ele }}</option>
+                                           {% else %}
+                                           <option value="{{ ele }}" >{{ ele }}</option>
+                                           {% endif %}
                                       {% endfor %}
                                       </select>
                                     </div>

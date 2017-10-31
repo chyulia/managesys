@@ -30,6 +30,7 @@
                 <option value='A'>甲班</option>
                 <option value='B'>乙班</option>
                 <option value='C'>丙班</option>
+                <option value='D'>丁班</option>
             </select>
         <label id="actualInform"></label>
     </div>
@@ -77,7 +78,7 @@
     </div>
 </div>
 
-
+<div class="bg"></div>
 <!-- <button onclick='updatevalue()' id='updatevalue'>定期更新数据库转炉字段统计值</button> -->
 <!-- <link href="/static/data_import/bootstrap.min.css" rel="stylesheet"> -->
 <link rel="stylesheet" type="text/css" media="all" href="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-bs3.css" />
@@ -87,7 +88,8 @@
 <script type="text/javascript" src="/static/data_import/daterangepicker+bootstrap2.3.1/daterangepicker-1.3.7.js"></script>
 <script type="text/javascript" src="/static/data_import/js/zebra_datepicker.js"></script>
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
-
+<link rel="stylesheet" href="/static/data_import/css/noaction.css" type="text/css">
+<script type="text/javascript" src="/static/data_import/js/noaction.js"></script>
 <script type="text/javascript" src="/static/data_import/js/loadChart_product.js"></script>
 <script type="text/javascript">
 
@@ -140,6 +142,7 @@
         var starttime = $('#datepicker-example7-start').val();
         var endtime = $('#datepicker-example7-end').val();
         console.log(heat_no)
+        noAction();
         var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
         myChart_loading.clear();
         $('#loadingarea').show();
@@ -149,15 +152,11 @@
             url:  "/qualityfields",
             data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
+                removeNoAction();
                 console.log("错误！！");
             },
             success: function(data) {
                 removedom();
-                //alert(data.result);
-                //alert(data.result.xname)
-                //alert(data.result.yvalue)
-                // alert(data.result.offset_result[0]);
-                // $("#offset").val(data.result.offset_result[0]);
                 if (data.state=='error'){
                     // alert('当前筛选条件无可分析数据！')
                     // $("#main1").empty();
@@ -169,6 +168,7 @@
                     $("#coloum_div").hide();
                     $('#loadingarea').hide();
                     $("#cause_area").hide();
+                    removeNoAction();
 
                 }else{
                     $("#actualInform").text("注：当前炉次计划时间："+data.actual_PLAN_DATE+"；所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
@@ -183,7 +183,6 @@
                     }else if (chartform=='Radarmap'){//雷达图
                         drawRadarMap_quality(data.result);
                     }
-
 
                     // $("#main5").empty();
                     // $('#loadingarea').hide();
@@ -239,15 +238,18 @@
             url:  "/quality_singlefurnace_regression_analyse",
             data: {'result':json_result},
             error: function() {
+                removeNoAction();
                 console.log("错误！！");
             },
             success: function(data) {
                 // alert(data.str_cause);
                 $("#cause_txt").empty();
                 $("#cause_txt").append(data.str_cause_normal);
+                $("#cause_txt").append('\n');
                 $("#cause_txt").append(data.str_cause);
                 $("#cause_area").show();
                 $('#loadingarea').hide();
+                removeNoAction();
             }
         })
     }
@@ -295,6 +297,7 @@
         var fieldname_chinese=fieldname_chinese;//字段中文名
         var coloum_number = $("#change_column").val();//定义概率正方分布的柱状图个数
         console.log(heat_no,fieldname_english,fieldname_chinese);
+        noAction();
         var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
         myChart_loading.clear();
         $('#loadingarea').show();
@@ -304,6 +307,7 @@
             url:  "/probability_distribution",
             data: {'heat_no':heat_no,'fieldname_english':fieldname_english,'fieldname_chinese':fieldname_chinese,'offset_value':offset_value,'actual_value':actual_value,'coloum_number':coloum_number,'str_select':str_select},
             error: function() {
+                removeNoAction();
                 alert("404");
             },
             success: function(data) {
@@ -321,11 +325,14 @@
                     $('#main5').empty();
                     $('#main5').append('数据量过少，无法形成统计分布图！');
                     $('#loadingarea').hide();
+                    removeNoAction();
 
                 }else{
                     probability_normal_picture(data);
                     $("#coloum_div").show();
                     $('#loadingarea').hide();
+                    removeNoAction();
+
                 }
             }
         })

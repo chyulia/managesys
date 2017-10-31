@@ -29,6 +29,7 @@
                 <option value='A'>甲班</option>
                 <option value='B'>乙班</option>
                 <option value='C'>丙班</option>
+                <option value='D'>丁班</option>
             </select>
         <label id="actualInform"></label>
     </div>
@@ -82,6 +83,11 @@
     </div>
 </div>
 
+<div class="bg"></div>
+<!--<div class="content">-->
+        <!--&lt;!&ndash;<br/>&ndash;&gt;-->
+        <!--&lt;!&ndash;数据分析中，请耐心等待。。。&ndash;&gt;-->
+<!--</div>-->
 
 <!-- <link href="/static/data_import/bootstrap.min.css" rel="stylesheet"> -->
 <!-- <link href="/static/data_import/daterangepicker+bootstrap2.3.1/bootstrap.min.css" rel="stylesheet">    -->
@@ -94,8 +100,12 @@
 <link rel="stylesheet" href="/static/data_import/css/default.css" type="text/css">
 
 <script type="text/javascript" src="/static/data_import/js/loadChart_product.js"></script>
-<script type="text/javascript">
 
+<!--noaction-->
+<link rel="stylesheet" href="/static/data_import/css/noaction.css" type="text/css">
+<script type="text/javascript" src="/static/data_import/js/noaction.js"></script>
+
+<script type="text/javascript">
     function months(obj,month1,month2){//调用插件接口
         //month1，month2表示前month1个月到前month2个月，正数表示之前，负数表示之后
         //hidden_inform隐藏域用于在进行追溯时直接从页面读取信息
@@ -157,13 +167,15 @@
         var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
         myChart_loading.clear();
         $('#loadingarea').show();
+        noAction();
         myChart_loading.showLoading({text: "图表数据正在努力加载...请勿执行其它操作！" });  
         $.ajax({
             type: "post",
             url:  "/cost_produce",
             data: {'heat_no':heat_no,'SPECIFICATION':SPECIFICATION,'OPERATECREW':OPERATECREW,'starttime':starttime,'endtime':endtime},
             error: function() {
-                alert("cost_produce返回错误！！");
+                removeNoAction();
+                alert("返回错误！！");
             },
             success: function(data) {
                 // alert("enter");
@@ -176,6 +188,7 @@
                     $("#coloum_div").hide();
                     $('#loadingarea').hide();
                     $('#cause_area').hide();
+                    removeNoAction();
 
                 }else{
                     $("#actualInform").text("注：当前炉次计划时间："+data.actual_PLAN_DATE+"；所属钢种："+data.actual_SPECIFICATION+"；所属班别："+data.actual_OPERATECREW+"；所属站别："+data.actual_STATION);
@@ -202,6 +215,7 @@
                     // $("#main5").empty();
                     // $('#loadingarea').hide();
                     singlefurnace_regression_analyse(data);
+
                 }
 
             }
@@ -222,7 +236,8 @@
             url:  "/singlefurnace_regression_analyse",
             data: {'result':json_result},
             error: function() {
-                alert("错误！！");
+                removeNoAction();
+                alert("追溯过程出现错误！！");
                 myChart_loading.clear();
             },
             success: function(data) {
@@ -234,6 +249,7 @@
                 $("#cause_area").show();
                 myChart_loading.clear();
                 $('#loadingarea').hide();
+                removeNoAction();
             }
         })
     }
@@ -288,7 +304,7 @@
         var fieldname_chinese=fieldname_chinese;//字段中文名
         var coloum_number = $("#change_column").val();//定义概率正方分布的柱状图个数
         console.log(heat_no,fieldname_english,fieldname_chinese);
-
+        noAction();
         var myChart_loading = echarts.getInstanceByDom(document.getElementById('loadingarea'));
         myChart_loading.clear();
         myChart_loading.showLoading({ text: "分布图正在加载中...请勿执行其它操作！"});
@@ -299,7 +315,9 @@
             url:  "/probability_normal",
             data: {'heat_no':heat_no,'fieldname_english':fieldname_english,'fieldname_chinese':fieldname_chinese,'offset_value':offset_value,'actual_value':actual_value,'coloum_number':coloum_number,'str_select':str_select},
             error: function() {
+                removeNoAction();
                 alert("404");
+                
             },
             success: function(data) {
                 if(data.state=='error'){
@@ -309,10 +327,12 @@
                     // $('#main5').append('数据量过少，无法形成统计分布图！');
                     $('#loadingarea').hide();
                     errorDist(fieldname_chinese);
+                    removeNoAction();
                 }else{
                     probability_normal_picture(data);
                     $("#coloum_div").show();
                     $('#loadingarea').hide();
+                    removeNoAction();
                 }
             }
         })

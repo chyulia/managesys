@@ -20,11 +20,32 @@ predict_method = {
 # 	"year":"年",
 # }
 
-INFO = "描述信息：以2016年1月以前的历史数据外延预测2016年1月之后的价格数据。"
+INFO = "描述信息：以2017年9月以前的历史数据外延预测2017年9月之后的价格数据。"
 ELE_INFOS = {
     'steel':"描述信息：数据爬取自<a href='http://search.mysteel.com/market/list.ms'>我的钢铁</a>",
+    'WTI':"描述信息：数据爬取自<a href='http://index.mysteel.com/data/#0402-1'>我的钢铁</a>",
+    'feigang':"描述信息：数据爬取自<a href='http://www.96369.net/Indices/78'>西本新干线</a>",
+    'tkszs_qdg':"描述信息：数据爬取自<a href='http://index.glinfo.com/xpic/detail.ms?tabName=kuangsi'>我的钢铁</a>",
+    'tegang_zonghe_zhishu':"描述信息：数据爬取自<a href='http://index.glinfo.com/xpic/detail.ms?tabName=kuangsi'>我的钢铁</a>",
+    'meiyuan':"描述信息：数据爬取自<a href='https://cn.investing.com/quotes/us-dollar-index-historical-data'>investing.com</a>",
+    'psjgzs':"描述信息：数据爬取自<a href='http://www.96369.net/Indices/125'>西本新干线</a>",
+    'haiyun_BDI':"描述信息：数据爬取自<a href='http://index.glinfo.com/data/#0403-1'>我的钢铁</a>",
+    'haiyun_BDTI':"描述信息：数据爬取自<a href='http://index.glinfo.com/data/#0403-1'>我的钢铁</a>",
+    'pugang_zhishu':"描述信息：数据爬取自<a href='http://index.mysteel.com/xpic/detail.ms?tabName=pugang'>我的钢铁</a>",
 }
-
+"""
+<select class="form-control input-lg" id="yinsu_type" name="yinsu_type" placeholder="铁矿石价格因素">
+  <option value="WTI">WTI原油价格</option>
+  <option value="feigang">废钢价格</option>
+  <option value="tkszs_qdg">铁矿石指数</option>
+  <option value="tegang_zonghe_zhishu">特钢综合指数</option>
+  <option value="meiyuan">美元指数</option>
+  <option value="psjgzs">普氏价格指数</option>
+  <option value="haiyun_BDTI">波罗的海原油指数</option>
+  <option value="haiyun_BDI">波罗的海指数</option>
+  <option value="pugang_zhishu">普刚指数</option>
+</select>
+"""
 WARNING = "数据处理耗时较长，请耐心等待..."
 
 model_classname = {
