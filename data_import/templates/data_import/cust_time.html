@@ -74,7 +74,9 @@
 <br>
 <div >
     钢种选择: <a id="showtext" onClick="showdiv('moreTrade','showtext')">&nbsp;&nbsp;显示更多钢种</a>
+        <div id="chooseTradeNoDIV">
     
+    </div>
 </div>
 <div id="lessTrade" class="none" style="display:block">
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=45>45
@@ -109,11 +111,28 @@
 <br>
 <div id="main4" style="width: 800px;height:400px;"></div>
 <div id="main5" style="width: 60px;height:400px;">
-<textarea id="txt" style="width: 800px;height:100px;"></textarea>
+<textarea id="txt" style="width: 800px;height:300px;"></textarea>
 </div>
 
 <script type="text/javascript" src="/static/data_import/js/loadDateSelect.js"></script>
 <script type="text/javascript">
+
+    var isCheckAll = false;
+    function SelectAll(){
+         if (isCheckAll) {  
+               $("input[type='checkbox']").each(function() {  
+                   this.checked = false;  
+               });  
+                isCheckAll = false;  
+          } else {  
+              $("input[type='checkbox']").each(function() {  
+              this.checked = true;  
+                });  
+               isCheckAll = true;  
+           }  
+   
+    }
+
 
     function showdiv(targetid,objN){
    
@@ -124,18 +143,19 @@
 
             if (target.style.display=="block"){
                 target.style.display="none";
+                $("#chooseTradeNoDIV").empty();
                 clicktext.innerText="显示更多钢种";
                 target2.style.display="block";
   
 
             } else {
                 target.style.display="block";
+                $("#chooseTradeNoDIV").append("<button id='btnSelectAll' onclick='SelectAll()'>选择全部钢种</button><br>");
                 clicktext.innerText='关闭更多钢种';
                 target2.style.display="none";
             }
    
     }
-
 
     var data_save = {
         result: null,
