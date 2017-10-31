@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import platform
 
-lab_ip = '202.204.54.43'
+lab_ip = '202.204.54.42'
 master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()
@@ -40,10 +40,10 @@ if node in dev_machines:
         },
         'l2own': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME':'orcl',
-            'USER': 'qg_user',
-            'PASSWORD': '123456',
-            'HOST': lab_ip,
+            'NAME':'qinggang',
+            'USER': 'qinggang',
+            'PASSWORD': 'qinggang',
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
         'sale': {
@@ -51,7 +51,7 @@ if node in dev_machines:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': lab_ip,
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
     }
@@ -258,7 +258,7 @@ else:
             'NAME':'orcl',
             'USER': 'qg_user',
             'PASSWORD': '123456',
-            'HOST': lab_ip,
+            'HOST': '202.204.54.42',
             'PORT': '1521',
         },
         'default': {
@@ -266,7 +266,7 @@ else:
             'NAME': 'qinggang',
             'USER': 'root',
             'PASSWORD': '123456',
-            'HOST': lab_ip,
+            'HOST': '202.204.54.42',
             'PORT': '3306',
         },
         'mes_backup': {
@@ -290,7 +290,7 @@ else:
             'NAME':'orcl',
             'USER': 'meskc',
             'PASSWORD': '123456',
-            'HOST': lab_ip,
+            'HOST': '202.204.54.42',
 
         },
     }
