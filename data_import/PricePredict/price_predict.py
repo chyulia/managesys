@@ -17,7 +17,7 @@ import data_import.PricePredict.PredictModels as PredictModels
 from data_import.PricePredict.predict_day import predict_day
 from data_import.PricePredict.predict_yue import predict_yue
 from data_import.PricePredict.pre_config import ELE_INFOS, steel_type, predict_method, time_scale, \
-    INFO, WARNING, model_classname, iron_type, stone_predict_method, yinsu_type, choose_col_meaning, all_select
+    INFO, WARNING, model_classname, iron_type, stone_predict_method, yinsu_type, choose_col_meaning, all_select, search_advice
 from data_import import models, util
 from data_import.PricePredict import data_preparetion
 
@@ -46,25 +46,44 @@ def steelprice(request):
     }
     # df = dc.valid_steel_data_by_time()
     #  从数据库里读取,可以写到配置文件里，减少读取时间，增加缓存，减少参数初始化时间
-    all_select,choose_col = dc.get_all_history_select()
-    # choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'region', 'factory')
+    all_select = dc.get_all_steeltype()
+    print(all_select)
+    # choose_col = ('tradeno', 'delivery', 'specification', 'region', 'factory')
+    choose_col = ('tradeno', 'region', 'factory', 'delivery', 'specification', )
     predict_all_select = all_select.copy()
     # predict_all_select.pop('region')
-    for col in choose_col:
-        contentVO[col] = all_select[col]
+    # for col in choose_col:
+    #     contentVO[col] = all_select[col]
     # model_selcet_eles = ['steeltype', 'tradeno', 'delivery','specification']
+    all_select_pridict = dc.get_all_history_select("弹簧钢")
     contentVO['all_select'] = all_select
     contentVO['predict_all_select'] = predict_all_select
-    contentVO["steel_type"] = steel_type
     contentVO['choose_col'] = choose_col
     contentVO['choose_col_meaning'] = choose_col_meaning
     contentVO["predict_method"] = predict_method
     contentVO['time_scale'] = time_scale
     contentVO['info'] = INFO
+    contentVO['steel_type'] = steel_type
+    contentVO['all_select_pridict'] = all_select_pridict
 
 
     contentVO['warning'] = WARNING
     return render(request, 'data_import/steelprice.html', contentVO)
+
+def load_his_option(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/login")
+    dc = data_preparetion.DataCleaning()
+    contentVO = {
+        'title': 'history options',
+    }
+    if request.method == 'POST':
+        steel_type = request.POST.get('steeltype', '')
+    all_select = dc.get_all_history_select(steel_type)
+    print(all_select)
+    contentVO['all_select'] = all_select
+    return HttpResponse(json.dumps(contentVO), content_type='application/json')
+
 
 def price_history(request):
     if not request.user.is_authenticated():
@@ -74,13 +93,22 @@ def price_history(request):
     }
     dc = data_preparetion.DataCleaning()
     if request.method == 'POST':
-        pop_no_op = ['csrfmiddlewaretoken', 'steel_type']
+        pop_no_op = ['csrfmiddlewaretoken']
         print(dict(request.POST))
         params, history_begin, history_end = dc.first_ele(dict(request.POST), pop_no_op=pop_no_op)
+        tradeno = request.POST.get("tradeno",'')
     print(params)
     rs = dc.format_data(params, history_begin, history_end)
     if not rs:
-        contentVO["his_warnning"] = "该筛选条件下无合适数据"
+        his_warnning = "该筛选条件下无合适数据<br/>"
+        if tradeno !='':
+            print(tradeno)
+            his_warnning = his_warnning + "检索建议：<br/>"
+            print(search_advice)
+            search_advices = search_advice.get(tradeno)
+        his_warnning  = his_warnning + str(search_advices)
+        contentVO["his_warnning"] = his_warnning
+
         contentVO['state'] = const.COMMON.INVALID_PARAM.get('code', None)
     else:
         dfs = rs[1]
@@ -127,11 +155,11 @@ def price_predict(request):
     dc = data_preparetion.DataCleaning()
 
     if request.method == 'POST':
-        pop_no_op = ['csrfmiddlewaretoken', 'steel_type', 'timeScale', 'typestr']
+        pop_no_op = ['csrfmiddlewaretoken', 'timeScale', 'typestr']
         print(dict(request.POST))
         # TODO 如果前端js取值为空，js是不会把这个值打包进参数传递给后台的
-        if 'steel_type' not in dict(request.POST):
-            pop_no_op.pop('steel_type')
+        # if 'steel_type' not in dict(request.POST):
+        #     pop_no_op.pop('steel_type')
         steel_type = request.POST.get('steelType', '')
         time_scale = request.POST.get('timeScale', '')
         typestr = request.POST.get('typestr', '')

@@ -172,6 +172,7 @@ class Data_Preparetion(object):
                     if not nums[i]:
                         nums[i] = 0
                 return (float(nums[0]) + float(nums[1])) / 2
+
             else:
                 return x
 
@@ -285,18 +286,33 @@ class DataCleaning(object):
             df = pd.DataFrame(rs, columns=desc[0])
         return df
 
-    def get_all_history_select(self, df=None):
+    def get_all_history_select(self, steel_type,df=None):
         df = self.valid_steel_data_by_time()
         df = self.data_pre_process(df)
-        extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark')
-        choose_col = ('steeltype', 'tradeno', 'delivery', 'specification', 'factory', 'region')
+        extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark', 'steeltype')
+        choose_col = ('tradeno', 'delivery', 'specification', 'factory', 'region')
+        df = df[df['steeltype'] == steel_type]
         all_select = dict()
         for col in df.columns:
             if col in extra_col:
                 print(col)
                 continue
+            eles = list(df[col].unique())
+            if len(eles) > 5:
+                eles = eles[0:5]
+            all_select[col] = eles
+        return all_select
+
+    def get_all_steeltype(self, df=None):
+        df = self.valid_steel_data_by_time()
+        df = self.data_pre_process(df)
+        extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark')
+        all_select = dict()
+        for col in df.columns:
+            if col != 'steeltype':
+                continue
             all_select[col] = list(df[col].unique())
-        return all_select, choose_col
+        return all_select
 
     def data_pre_process(self, df):
         # tradeno因空格差异导致不同
@@ -369,8 +385,27 @@ class DataCleaning(object):
             raise Exception(" 该筛选条件下无数据")
 
     def data_to_display(self, df):
+        def extra_unexcepted_symbol(x):
+            if str(x).find('-') > -1:
+                nums = str(x).split('-')
+                print(len(nums))
+                for i in range(len(nums)):
+                    print(nums[i])
+                    if not nums[i]:
+                        nums[i] = 0
+                return (float(nums[0]) + float(nums[1])) / 2
+            elif str(x).find('~') > -1:
+                nums = str(x).split('-')
+                print(len(nums))
+                for i in range(len(nums)):
+                    print(nums[i])
+                    if not nums[i]:
+                        nums[i] = 0
+                return (float(nums[0]) + float(nums[1])) / 2
+            else:
+                return x
         df["updatetime"] = df['updatetime'].map(lambda x: str(x))
-        df['price'] = df['price'].map(lambda x: float(x))
+        df['price'] = df['price'].map(lambda x: extra_unexcepted_symbol(x))
         timeline = list(df['updatetime'])
         price = list(df['price'])
         return timeline, price

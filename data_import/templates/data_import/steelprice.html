@@ -40,34 +40,82 @@
                       <div class="col-md-6">
                         <form role="form" id="history_form" action="">
 
+                                <!--<div class="form-group">-->
+                                  <!--<label>钢材种类</label>-->
+                                    <!--&lt;!&ndash;在大类的选择下增加onchange函数，一代大类选择完毕，相应的选项会相应发生变化&ndash;&gt;-->
+                                  <!--<select class="form-control input-lg" id="steel_type" name="steel_type" placeholder="钢种">-->
+                                        <!--{% for type,display in steel_type.items %}-->
+                                          <!--{% if type == "60Si2Mn" %}-->
+                                          <!--<option value="{{ type }}" selected>{{ display }}</option>-->
+                                          <!--{% else %}-->
+                                          <!--<option value="{{ type }}">{{ display }}</option>-->
+                                          <!--{% endif %}-->
+                                        <!--{% endfor %}-->
+                                  <!--</select>-->
+                                <!--</div>-->
+
+                                <!--{% for key,value in all_select.items %}-->
+                                    <!--<div class="form-group">-->
+                                      <!--<label>{{ choose_col_meaning|key_dict:key}}</label>-->
+                                      <!--<select class="form-control input-lg" id="{{ key }}" placeholder="{{ choose_col_meaning|key_dict:key}}">-->
+                                      <!--{% for ele in value %}-->
+                                         <!--{% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}-->
+                                            <!--<option value="{{ ele }}" selected>{{ ele }}</option>-->
+                                           <!--{% else %}-->
+                                           <!--<option value="{{ ele }}" >{{ ele }}</option>-->
+                                           <!--{% endif %}-->
+                                      <!--{% endfor %}-->
+                                      <!--</select>-->
+                                    <!--</div>-->
+                                <!--{% endfor %}-->
                                 <div class="form-group">
-                                  <label>钢材种类（大类）</label>
-                                    <!--在大类的选择下增加onchange函数，一代大类选择完毕，相应的选项会相应发生变化-->
-                                  <select class="form-control input-lg" id="steel_type" name="steel_type" placeholder="钢种">
-                                        {% for type,display in steel_type.items %}
-                                          {% if type == "60Si2Mn" %}
-                                          <option value="{{ type }}" selected>{{ display }}</option>
-                                          {% else %}
-                                          <option value="{{ type }}">{{ display }}</option>
-                                          {% endif %}
-                                        {% endfor %}
+                                  <label>{{ choose_col_meaning|key_dict:"steeltype"}}</label>
+                                  <select class="form-control input-lg" id="steeltype" placeholder="" onchange="loadType()">
+                                  {% for ele in all_select.steeltype %}
+                                     {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
+                                        <option value="{{ ele }}" selected>{{ ele }}</option>
+                                       {% else %}
+                                       <option value="{{ ele }}" >{{ ele }}</option>
+                                       {% endif %}
+                                  {% endfor %}
                                   </select>
                                 </div>
-
-                                {% for key,value in all_select.items %}
+                                <!--<div id="specific_search" class="hide">-->
+                                    {% for key in choose_col %}
                                     <div class="form-group">
                                       <label>{{ choose_col_meaning|key_dict:key}}</label>
-                                      <select class="form-control input-lg" id="{{ key }}" placeholder="{{ choose_col_meaning|key_dict:key}}">
-                                      {% for ele in value %}
-                                         {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
-                                            <option value="{{ ele }}" selected>{{ ele }}</option>
-                                           {% else %}
-                                           <option value="{{ ele }}" >{{ ele }}</option>
-                                           {% endif %}
-                                      {% endfor %}
+                                      <select class="form-control input-lg" id="{{ key }}" class="{{ key }}"placeholder="">
+
                                       </select>
                                     </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                    <!--{% for key,value in all_select.items %}-->
+                                        <!--<div class="form-group">-->
+                                          <!--<label>{{ choose_col_meaning|key_dict:key}}</label>-->
+                                          <!--<select class="form-control input-lg" id="{{ key }}" placeholder="{{ choose_col_meaning|key_dict:key}}">-->
+                                          <!--{% for ele in value %}-->
+                                             <!--{% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}-->
+                                                <!--<option value="{{ ele }}" selected>{{ ele }}</option>-->
+                                               <!--{% else %}-->
+                                               <!--<option value="{{ ele }}" >{{ ele }}</option>-->
+                                               <!--{% endif %}-->
+                                          <!--{% endfor %}-->
+                                          <!--</select>-->
+                                        <!--</div>-->
+                                    <!--{% endfor %}-->
+                                <!--</div>-->
+                                <!--<div class="form-group">-->
+                                  <!--<label>{{ choose_col_meaning|key_dict:"tradeno"}}</label>-->
+                                  <!--<select class="form-control input-lg" id="tradeno" placeholder="">-->
+                                  <!--{% for ele in all_select.tradeno %}-->
+                                     <!--{% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}-->
+                                        <!--<option value="{{ ele }}" selected>{{ ele }}</option>-->
+                                       <!--{% else %}-->
+                                       <!--<option value="{{ ele }}" >{{ ele }}</option>-->
+                                       <!--{% endif %}-->
+                                  <!--{% endfor %}-->
+                                  <!--</select>-->
+                                <!--</div>-->
 
                                 <div class="form-group">
                                   <label>初始时间</label>
@@ -119,30 +167,38 @@
                                 <div class="col-md-6">
                                   <div class="form-group">
                                     <label >预测钢材种类</label>
-                                    <select class="form-control input-lg" id="steel_type_predict" name="steel_type" placeholder="钢种">
-                                    {% for type,display in steel_type.items %}
-                                      {% if type == "弹簧钢" %}
-                                      <option value="{{ type }}" selected>{{ display }}</option>
-                                      {% else %}
-                                      <option value="{{ type }}">{{ display }}</option>
-                                      {% endif %}
-                                    {% endfor %}
-                                    </select>
+                                    <select class="form-control input-lg" id="steeltype_predict" placeholder="">
+                                  {% for ele in steel_type %}
+                                     {% if ele == "tanhuang"%}
+                                        <option value="{{steel_type.tanhuang}}" selected>{{ steel_type.tanhuang }}</option>
+                                       {% else %}
+                                       <option value="{{ value }}" >{{ value }}</option>
+                                       {% endif %}
+                                  {% endfor %}
+                                  </select>
                                   </div>
-                                {% for key,value in all_select.items %}
-                                    <div class="form-group">
-                                      <label>{{ choose_col_meaning|key_dict:key}}</label>
-                                      <select class="form-control input-lg" id="{{ key }}_predict" placeholder="{{ choose_col_meaning|key_dict:key}}">
-                                      {% for ele in value %}
-                                         {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
-                                            <option value="{{ ele }}" selected>{{ ele }}</option>
-                                           {% else %}
-                                           <option value="{{ ele }}" >{{ ele }}</option>
-                                           {% endif %}
-                                      {% endfor %}
-                                      </select>
-                                    </div>
-                                {% endfor %}
+                                    {% for key,value in all_select_pridict.items %}
+                                        <div class="form-group">
+                                          <label>{{ choose_col_meaning|key_dict:key}}</label>
+                                          <select class="form-control input-lg" id="{{ key }}_predict" placeholder="{{ choose_col_meaning|key_dict:key}}">
+                                          {% for ele in value %}
+                                             {% if ele == "65Mn" or ele == "热轧" or ele == "济源钢铁" or ele == "Φ5.5" or ele == "全国" or ele == "弹簧钢" %}
+                                                <option value="{{ ele }}" selected>{{ ele }}</option>
+                                               {% else %}
+                                               <option value="{{ ele }}" >{{ ele }}</option>
+                                               {% endif %}
+                                          {% endfor %}
+                                          </select>
+                                        </div>
+                                    {% endfor %}
+                                <!--{% for key in choose_col %}-->
+                                    <!--<div class="form-group">-->
+                                      <!--<label>{{ choose_col_meaning|key_dict:key}}</label>-->
+                                      <!--<select class="form-control input-lg" id="{{ key }}_predict" class="{{ key }}"placeholder="">-->
+
+                                      <!--</select>-->
+                                    <!--</div>-->
+                                    <!--{% endfor %}-->
                                   <div class="form-group">
                                     <label>时间尺度选择</label>
                                     <select class="form-control input-lg" id="time_scale_predict" placeholder="选择时间尺度">
@@ -205,6 +261,10 @@
 
     </div>
 </div>
+<div class="bg"></div>
+<!--noaction-->
+<link rel="stylesheet" href="/static/data_import/css/noaction.css" type="text/css">
+<script type="text/javascript" src="/static/data_import/js/noaction.js"></script>
 <script type="text/javascript">
   $(document).on('submit', 'form#predict_form', function() {
     predict_query();
@@ -215,7 +275,39 @@
     history_query();
     return false;
     });
-
+  function loadType() {
+      console.log('hello');
+      var steeltype = $("#steeltype").val();
+      $("#steeltype_predict").value = steeltype
+      console.log(steeltype)
+      var params = {
+                    "steeltype":steeltype,
+                 };
+      noAction();
+      $.ajax({
+        type: "post",
+        url:  "/type_options",
+        data: params,
+        error: function() {
+            console.log("404");
+            removeNoAction();
+        },
+        success: function(data) {
+            $("#specific_search").removeClass("hide");
+            console.log(data.all_select);
+            $.each(data.all_select,function(name,value) {
+                $("#" + name).empty();
+                for(ele in value){
+                    $("#" + name).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+                }
+            });
+            removeNoAction();
+        }
+    })
+  }
+  $(function () {
+      loadType();
+  })
 </script>
 </section>
 <!-- End Portfolio Section -->

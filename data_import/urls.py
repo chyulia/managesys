@@ -86,7 +86,7 @@ urlpatterns = [
     url(r'^price_history$', price_predict.price_history),#价格历史数据
 
     url(r'^price_predict$', price_predict.price_predict),#价格预测
-
+    url(r'^type_options$', price_predict.load_his_option),#价格预测
     #铁矿石价格预测
     url(r'^ironstoneprice',price_predict.ironstoneprice),
     # url(r'^iron_price_history', ironstoneprice.iron_price_history),stone_price_predict
