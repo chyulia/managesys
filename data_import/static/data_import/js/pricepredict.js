@@ -447,7 +447,9 @@ function iron_predict_query(){
 //            drawPredictBrokenLineChart(data.result.zhi)
         }
     })
-}
+};
+
+
 $(function(){
 
 })
