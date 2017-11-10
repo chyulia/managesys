@@ -22,11 +22,11 @@ function drawMapChartChina(data,tradeNo,aspect_name,maxValue,module_name,sql_dat
                 }
             }
         },
-        legend: {
-            orient: 'vertical',
-            x:'left',
-            data:[tradeNo]
-        },
+        // legend: {
+        //     orient: 'vertical',
+        //     x:'left',
+        //     data:[tradeNo]
+        // },
         dataRange: {
             min: 0,
             max:  (maxValue + 1),

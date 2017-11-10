@@ -65,21 +65,24 @@
 </div>
 <br>
 <div >
-    钢种选择: <a id="showtext" onClick="showdiv('moreTrade','showtext')">&nbsp;&nbsp;显示更多钢种</a>
-    
+    钢种选择: <a id="showtext" onClick="showdiv('moreTrade','showtext')">&nbsp;&nbsp;显示更多钢种</a><br>
+   <!-- <button id='btnSelectSome' onclick='SelectAll()'>选择常用钢种</button> -->
+    <div id="chooseTradeNoDIV">
+        
+    </div>
 </div>
 <div id="lessTrade" class="none" style="display:block">
+    <!-- <button id="btnSelectSome" onclick="SelectSome()">选择常用钢种</button> -->
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=45>45
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=50>50
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=C82DA>C82DA
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=60Si2Mn>60Si2Mn
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=C82A>C82A
     <input type="checkbox" name="select_tradeNo" id="select_tradeNo" value=ER50-6E>ER50-6E
+     
     
 </div>
 <div id="moreTrade" class="none" style="display:none">
-
-
 </div>
 
 
@@ -112,23 +115,72 @@
 <script type="text/javascript">
 
 
+    var isCheckAll = false;
+    function SelectAll(){
+         if (isCheckAll) {  
+               $("input[type='checkbox']").each(function() {  
+                   this.checked = false;  
+               });  
+                isCheckAll = false;  
+          } else {  
+              $("input[type='checkbox']").each(function() {  
+              this.checked = true;  
+                });  
+               isCheckAll = true;  
+           }  
+   
+    }
+    // var isCheckSome = false;
+    // function SelectSome(){
+    //     if (isCheckSome) {  
+    //            $("input[type='checkbox']").each(function() {  
+    //                this.checked = false;  
+    //            });  
+    //             isCheckSome = false;  
+    //     } else {  
+    //           $("input[type='checkbox']").each(function() {  
+    //           this.checked = true;  
+    //             });  
+    //            isCheckSome = true;  
+    //     }  
+   
+    // }
+
+
     function showdiv(targetid,objN){
    
       var target=document.getElementById(targetid);
       var target2=document.getElementById('lessTrade');
       var clicktext=document.getElementById(objN);
+      var target3=document.getElementById('btnSelectSome');
+      //var target4=document.getElementById('btnSelectAll');
       loadGrape();
 
             if (target.style.display=="block"){
                 target.style.display="none";
+                $("#chooseTradeNoDIV").empty();
+
                 clicktext.innerText="显示更多钢种";
                 target2.style.display="block";
-  
+                target3.style.display="block";
+                // if (isCheckAll) {  
+                //     $("input[type='checkbox']").each(function() {  
+                //         this.checked = false;  
+                //     });  
+                // }
 
             } else {
                 target.style.display="block";
+                $("#chooseTradeNoDIV").append("<button id='btnSelectAll' onclick='SelectAll()'>选择全部钢种</button><br>");
+                
                 clicktext.innerText='关闭更多钢种';
                 target2.style.display="none";
+                target3.style.display="none";
+                // if (isCheckSome) {  
+                //     $("input[type='checkbox']").each(function() {  
+                //     typehis.checked = false;  
+                //     });  
+                // }
             }
    
     }
@@ -147,6 +199,7 @@
         showStyle: null,
         pieresult: null,
         space:null,
+        //allTradeNo:null,
     }
  
 
@@ -342,6 +395,11 @@
 
     //自动加载钢种
     function loadGrape(){ 
+
+        // var allTradeNo = ""
+        // var arr = new Array();
+        // comma = ","
+
         $.ajax({
         type: "POST",
         dataType:"json",
@@ -353,7 +411,17 @@
             // $(".gangzhong_name").append("<option value='blank' selected =\"selected\"></option>");
             //var target=document.getElementById('moreTrade');
             countTrade = 0;
+                
+            
             for(var pname in pnames){
+
+                // arr.push(pname);
+                // if (allTradeNo == ""){
+                //     allTradeNo = allTradeNo + items[i].value;
+                // }else{
+                //     allTradeNo = allTradeNo + comma + items[i].value;
+                // }
+                // data_save.allTradeNo = allTradeNo
                 console.log(pnames[pname]) 
                 test = "<input type='checkbox' name='select_tradeNo' id='select_tradeNo' value="+pnames[pname]+"><a>"+pnames[pname]+"</a>"
                 console.log(test)
@@ -368,6 +436,9 @@
             alert("error");
             }
          });
+        
+        //return allTradeNo
+
         };
 
 

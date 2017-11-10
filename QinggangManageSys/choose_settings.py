@@ -291,11 +291,12 @@ else:
             'USER': 'meskc',
             'PASSWORD': '123456',
             'HOST': lab_ip,
+            'PORT': '1521',
 
         },
     }
-    PROJECT_DIR = '/home/maksim/qinggang/managesys'
-    PROJECT_DIR_BASE = '/home/maksim/qinggang/'
+    PROJECT_DIR = '/home/liusinuo/qinggang/managesys'
+    PROJECT_DIR_BASE = '/home/liusinuo/qinggang/'
     # PROJECT_DIR = '/Users/changxin/qinggang/managesys'
     MEDIA_ROOT = os.path.join(PROJECT_DIR_BASE, 'media/')
 
