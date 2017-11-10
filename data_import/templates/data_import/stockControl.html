@@ -105,7 +105,10 @@
             console.log(" ajax 执行完毕 即将绘图");
             console.log(data)
             console.log(data.result)
+            var myChart = echarts.getInstanceByDom(document.getElementById('main4'));
+            myChart.hideLoading();
             drawStockControl(data.result,module_unit_key);
+
             $("#txt").empty();
             $("#txt").append(data.describe); 
             describe = data.describe;
