@@ -292,8 +292,8 @@ else:
 
         },
     }
-    PROJECT_DIR = '/home/liusinuo/qinggang/managesys'
-    PROJECT_DIR_BASE = '/home/liusinuo/qinggang/'
+    PROJECT_DIR = '/home/maksim/qinggang/managesys'
+    PROJECT_DIR_BASE = '/home/maksim/qinggang/'
     # PROJECT_DIR = '/Users/changxin/qinggang/managesys'
     MEDIA_ROOT = os.path.join(PROJECT_DIR_BASE, 'media/')
 
