@@ -289,19 +289,33 @@ class DataCleaning(object):
     def get_all_history_select(self, steel_type,df=None):
         df = self.valid_steel_data_by_time()
         df = self.data_pre_process(df)
-        extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark', 'steeltype')
-        choose_col = ('tradeno', 'delivery', 'specification', 'factory', 'region')
+        # extra_col = ('id', 'price', 'updown', 'trademark', 'updatetime', 'remark', 'steeltype')
+        # choose_col = ('tradeno', 'delivery', 'specification', 'factory', 'region')
         df = df[df['steeltype'] == steel_type]
         all_select = dict()
-        for col in df.columns:
-            if col in extra_col:
-                print(col)
-                continue
-            eles = list(df[col].unique())
-            if len(eles) > 5:
-                eles = eles[0:5]
-            all_select[col] = eles
-        return all_select
+        tradeno_factory = dict()
+        types = dict()
+        choose_col = ['tradeno', 'factory']
+        for col in choose_col:
+            types[col] = df[col].unique()
+        for a in types['tradeno']:
+            df_a = df[df['tradeno'] == a]
+            tradeno_factory[a] = list()
+            for c in types['factory']:
+                df_c = df_a[df_a['factory'] == c]
+                if df_c["steeltype"].any():
+                    tradeno_factory[a].append(c)
+                    # print(a, c, "<br/>")
+        # for col in df.columns:
+        #     if col in extra_col:
+        #         print(col)
+        #         continue
+        #     # save all options which have data
+        #     eles = list(df[col].unique())
+        #     if len(eles) > 5:
+        #         eles = eles[0:5]
+        #     all_select[col] = eles
+        return tradeno_factory
 
     def get_all_steeltype(self, df=None):
         df = self.valid_steel_data_by_time()

@@ -68,6 +68,7 @@
                                       <!--</select>-->
                                     <!--</div>-->
                                 <!--{% endfor %}-->
+
                                 <div class="form-group">
                                   <label>{{ choose_col_meaning|key_dict:"steeltype"}}</label>
                                   <select class="form-control input-lg" id="steeltype" placeholder="" onchange="loadType()">
@@ -80,6 +81,9 @@
                                   {% endfor %}
                                   </select>
                                 </div>
+
+                                  <input type="hidden" id="delivery" value="热轧"/>
+
                                 <!--<div id="specific_search" class="hide">-->
                                     {% for key in choose_col %}
                                     <div class="form-group">
@@ -293,14 +297,52 @@
             removeNoAction();
         },
         success: function(data) {
-            $("#specific_search").removeClass("hide");
             console.log(data.all_select);
+
+//            $.each(data.all_select,function(name,value) {
+//                $("#" + name).empty();
+//                for(ele in value){
+//                    $("#" + name).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+//                }
+//            });
+            var tag = 1;
             $.each(data.all_select,function(name,value) {
-                $("#" + name).empty();
-                for(ele in value){
-                    $("#" + name).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+                if (tag == 1){
+                    console.log(value)
+                    $("#tradeno").empty();
+                    $("#factory" ).empty();
+                    $("#tradeno" ).append("<option value='"+name+"' selected>"+name+"</option>");
+                    for(ele in value){
+                        $("#factory" ).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+                    }
+                    tag = tag + 1;
+                }else{
+                    $("#tradeno").append("<option value='"+name+"'>"+name+"</option>");
                 }
             });
+            $('#tradeno').change(function(){
+                var tradeno = $("#tradeno").val();
+                var all_select = data.all_select
+                console.log(JSON.stringify(data.all_select));
+                $("#factory" ).empty();
+                for(key in all_select){
+                    console.log(key)
+                    if(key==tradeno){
+                        value = all_select[key];
+                        console.log(value)
+                        for(ele in value){
+                            $("#factory" ).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+                        }
+                    }
+                }
+//                for(ele in value){
+//                    $("#" + name).append("<option value='"+value[ele]+"'>"+value[ele]+"</option>");
+//                }
+//                alert($(this).children('option:selected').val());
+//                var p1=$(this).children('option:selected').val();//这就是selected的值
+//                var p2=$('#param2').val();//获取本页面其他标签的值
+//                window.location.href="xx.php?param1="+p1+"¶m2="+p2+"";//页面跳转并传参
+            })
             removeNoAction();
         }
     })
