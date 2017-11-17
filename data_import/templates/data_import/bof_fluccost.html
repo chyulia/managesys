@@ -115,6 +115,15 @@
         }
         
     }
+    function DateDiff(startDate, endDate){
+        var aDate, oDate1, oDate2, iDays ;
+        aDate = startDate.split('-');
+        oDate1 = new Date(aDate[1]+'-'+aDate[2]+'-'+aDate[0]) ;
+        aDate = endDate.split('-');
+        oDate2 = new Date(aDate[1]+'-'+ aDate[2] +'-'+aDate[0]);
+        iDays = parseInt(Math.abs(oDate1 -oDate2)/1000/60/60/24); //把相差的毫秒数转换为天数
+        return iDays ;
+    }
         //改变数据展现形式
     function change_chart_form(){
         var chart_imformation = $("#hidden_inform1").val();
@@ -177,6 +186,15 @@
         noAction();
 
         console.log(time1,time2)
+
+        var days1 = DateDiff(time1,time2);
+        var days2 = DateDiff(history_time1,history_time2);
+        if(days1>93 ||days2>93){
+            // alert(days1);
+            // alert(days2);
+            alert('您选择的时间范围超过90天，计算时间可能较长，请耐心等候！');
+        }
+        // alert(time1-time2);
             $.ajax({
             type: "post",
             url:  "/fluc_cost_produce",
