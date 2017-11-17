@@ -16,6 +16,7 @@
         <input type="hidden" name="hidden_inform3" id='hidden_inform3'>
         <input type="hidden" name="hidden_inform4" id='hidden_inform4'>
         <input type="hidden" name="hidden_inform5" id='hidden_inform5'>  <!-- 存放所有字段的信息，用于图表形式的转变 -->
+        <input type="hidden" name="hidden_inform6" id='hidden_inform6'><!--存放当前炉次-->
         <!-- <p><strong>单炉次成本相关字段分析</strong></p> -->
         <p>请输入炉次号，例如：1634230，并选择筛选条件。</p>
         <label>炉次号：</label><input type="text" name="prime_analyse" value="1634230" id="prime_analyse">
@@ -123,28 +124,32 @@
     //改变数据展现形式
     function change_chart_form(){
         var chart_imformation = $("#hidden_inform5").val();
-        var data=JSON.parse(chart_imformation);
-        // var stringdata=JSON.stringify(data)
-        // alert(stringdata);
-        var chartform=$("#chart_form").val();
-        if (chartform=='Histogram'){//多Y轴柱状图
-            // alert('Enter Histogram');
-            // $("#main1").empty();
-            // $("#main2").empty();
-            // $("#main3").empty();
-            // $("#main4").empty();
-            drawBarChart_raw(data.heat_no,data.str_select,data.result);
-            drawBarChart_material(data.heat_no,data.str_select,data.result);
-            drawBarChart_product(data.heat_no,data.str_select,data.result);
-            drawBarChart_alloy(data.heat_no,data.str_select,data.result);
 
-        }else if (chartform=='Radarmap'){//雷达图
-            // alert("Enter Radarmap");
-            drawRadarMap(data.heat_no,data.result,0,'main1');
-            drawRadarMap(data.heat_no,data.result,1,'main2');
-            drawRadarMap(data.heat_no,data.result,2,'main3');
-            drawRadarMap(data.heat_no,data.result,3,'main4');
+        if(chart_imformation==''){
+
+        }else if(chart_imformation=='heatno_not_exist'){
+            var heat_no = $("#hidden_inform6").val();
+            errorHeatNo(heat_no);
+        }else{
+            var data=JSON.parse(chart_imformation);
+            // var stringdata=JSON.stringify(data)
+            // alert(stringdata);
+            var chartform=$("#chart_form").val();
+            if (chartform=='Histogram'){//多Y轴柱状图
+                drawBarChart_raw(data.heat_no,data.str_select,data.result);
+                drawBarChart_material(data.heat_no,data.str_select,data.result);
+                drawBarChart_product(data.heat_no,data.str_select,data.result);
+                drawBarChart_alloy(data.heat_no,data.str_select,data.result);
+
+            }else if (chartform=='Radarmap'){//雷达图
+                // alert("Enter Radarmap");
+                drawRadarMap(data.heat_no,data.result,0,'main1');
+                drawRadarMap(data.heat_no,data.result,1,'main2');
+                drawRadarMap(data.heat_no,data.result,2,'main3');
+                drawRadarMap(data.heat_no,data.result,3,'main4');
+            }
         }
+
     }
 
     //改变概率直方分布的柱状个数
@@ -185,6 +190,8 @@
                 if (data.state=='error'){
                     $("#actualInform").text("注：当前"+heat_no+"炉次不存在！");
                     errorHeatNo(heat_no);
+                    $("#hidden_inform5").val("heatno_not_exist");
+                    $("#hidden_inform6").val(heat_no);
                     $("#coloum_div").hide();
                     $('#loadingarea').hide();
                     $('#cause_area').hide();
@@ -238,7 +245,7 @@
             error: function() {
                 removeNoAction();
                 alert("追溯过程出现错误！！");
-                myChart_loading.clear();
+                $('#loadingarea').hide();
             },
             success: function(data) {
                 // alert(data.str_cause);
@@ -316,15 +323,14 @@
             data: {'heat_no':heat_no,'fieldname_english':fieldname_english,'fieldname_chinese':fieldname_chinese,'offset_value':offset_value,'actual_value':actual_value,'coloum_number':coloum_number,'str_select':str_select},
             error: function() {
                 removeNoAction();
-                alert("404");
+                // alert("出现错误！");
+                $('#loadingarea').hide();
                 
             },
             success: function(data) {
                 if(data.state=='error'){
                     // alert('数据量过少，无法形成统计分布图！');
                     $("#coloum_div").hide();
-                    // $('#main5').empty();
-                    // $('#main5').append('数据量过少，无法形成统计分布图！');
                     $('#loadingarea').hide();
                     errorDist(fieldname_chinese);
                     removeNoAction();
@@ -372,7 +378,7 @@
         var myChart_main4 = echarts.init(document.getElementById('main4'));
         var myChart_main5 = echarts.init(document.getElementById('main5'));
         var myChart_loading = echarts.init(document.getElementById('loadingarea'));
-        //cost_produce();//打开页面自动执行函数
+        cost_produce();//打开页面自动执行函数
 
         // myChart_main1.clear();
         // myChart_main2.clear();

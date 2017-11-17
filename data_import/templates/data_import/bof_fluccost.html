@@ -11,6 +11,9 @@
 <!-- <form action="javascript:void(0)" method="post"> -->
 <!-- 隐藏域 -->
     <input type="hidden" name="hidden_inform1" id='hidden_inform1'>
+    <input type="hidden" name="hidden_inform2" id='hidden_inform2'>
+    <input type="hidden" name="hidden_inform3" id='hidden_inform3'>
+    <!-- hidden_inform2 和hidden_inform3 在无数据时用来存储无数据的时期 -->
     <div style="margin-top:5px">
         <label>钢种：</label><select name="SPECIFICATION" id="SPECIFICATION" class="gangzhong_name">
             <option value='blank' selected = "selected">所有钢种</option>
@@ -116,11 +119,20 @@
     function change_chart_form(){
         var chart_imformation = $("#hidden_inform1").val();
         // alert(chart_imformation);
-        var data=JSON.parse(chart_imformation);
-        // var stringdata=JSON.stringify(data)
-        // alert(stringdata);
-        var chartform=$("#chart_form").val();
-        selectChart(data,chartform);//按照所选形式画图
+        if(chart_imformation==''){
+            
+        }else if(chart_imformation=='failure_current'||chart_imformation=='failure_history'){
+            var starttime = $("#hidden_inform2").val();
+            var endtime = $("#hidden_inform3").val();
+            errorDist(starttime,endtime);
+        }else{
+            var data=JSON.parse(chart_imformation);
+            // var stringdata=JSON.stringify(data)
+            // alert(stringdata);
+            var chartform=$("#chart_form").val();
+            selectChart(data,chartform);//按照所选形式画图
+        }
+        
     }
 
     function selectChart(data,chartform){
@@ -181,6 +193,9 @@
                     //无法使用 $('#drawPicture_area').empty();这样是把整个区域都清空了，不再有main1、main2等
                     // $('#main1').append('！！注：当前筛选条件下'+data.time.time1+'至'+data.time.time2+'的时间区间内无数据！');
                     errorDist(data.time.time1,data.time.time2);
+                    $("#hidden_inform1").val('failure_current');
+                    $("#hidden_inform2").val(data.time.time1);
+                    $("#hidden_inform3").val(data.time.time2);
                     // myChart_loading.hideLoading();
                     $('#loadingarea').hide();
                     removeNoAction();
@@ -191,6 +206,9 @@
                     // $('#main1').append('！！注：当前筛选条件下'+data.time.history_time1+'至'+data.time.history_time2+'的历史时间区间内无数据！');
                     // myChart_loading.hideLoading();
                     errorDist(data.time.history_time1,data.time.history_time2);
+                    $("#hidden_inform1").val('failure_history');
+                    $("#hidden_inform2").val(data.time.history_time1);
+                    $("#hidden_inform3").val(data.time.history_time2);
                     $('#loadingarea').hide();
                     removeNoAction();
                     // $("#cause_area").hide();
@@ -402,7 +420,7 @@
             var myChart_main3 = echarts.init(document.getElementById('main3'));
             var myChart_main4 = echarts.init(document.getElementById('main4'));
             var myChart_loading = echarts.init(document.getElementById('loadingarea'));
-            //fluc_cost_produce();//打开页面自动执行函数
+            fluc_cost_produce();//打开页面自动执行函数
 
         })
 

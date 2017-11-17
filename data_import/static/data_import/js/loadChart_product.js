@@ -1118,6 +1118,20 @@
         var classification_en = ['raw','material','product','alloy'];
         var classification_ch_single=classification_ch[classification_index];
         var classification_en_single=classification_en[classification_index];
+        // alert(result[classification_en_single].updesired);
+        var indicator_max=[];
+        for(var i=0;i<result[classification_en_single].yvalue.length;i++){
+            if(result[classification_en_single].updesired==''){//针对历史时期无数据的情况
+                indicator_max.push(result[classification_en_single].yvalue[i]*1.6);
+            }else if (result[classification_en_single].yvalue[i]<1.6*result[classification_en_single].updesired[i]){
+                indicator_max.push(1.6*result[classification_en_single].updesired[i]);
+            }else{
+                indicator_max.push(result[classification_en_single].yvalue[i]);
+            }
+            
+        };
+        // alert(indicator_max);
+
         var option = {
             title: {
                 text: '炉次'+heat_no+'【'+classification_ch_single+'】组成',
@@ -1144,20 +1158,19 @@
                     var fieldname = result[classification_en_single].xname;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i], max:result[classification_en_single].updesired[i]*1.6
+                            // name: fieldname[i], max:result[classification_en_single].updesired[i]*rate[i]
+                            name: fieldname[i], max:indicator_max[i]
                         });
                     };
                     
                     return res;
                 })()
-
             },
             series: [{
-                name: '实际值 vs 正常范围',
+                name: '炉次实际值',
                 type: 'radar',
                 // areaStyle: {normal: {}},
-                data : [
-                    {
+                data : [{
                         value : result[classification_en_single].yvalue,
                         name : '炉次实际值',
                         label: {
@@ -1168,8 +1181,13 @@
                                 }
                             }
                         }
-                    },
-                     {
+                    }]
+            },
+            {
+                name: '上范围',
+                type: 'radar',
+                // areaStyle: {normal: {}},
+                data : [{
                         value : result[classification_en_single].updesired,
                         name : '上范围',
                         label: {
@@ -1180,8 +1198,15 @@
                                 }
                             }
                         }
-                    },
-                    {
+                    }
+
+                    ]
+                },
+                {
+                name: '下范围',
+                type: 'radar',
+                // areaStyle: {normal: {}},
+                data : [{
                         value : result[classification_en_single].downdesired,
                         name : '下范围',
                         label: {
@@ -1192,13 +1217,14 @@
                                 }
                             }
                         }
-                    }
-                ]
-            }]
+                    }]
+                }
+            ]
         };
          var ecConfig = echarts.config;
          myChart.setOption(option,true);
     }
+
 
 //单炉次质量分析：------------------
     // 条形图（含量）(多Y轴直方图)-尺寸：1400
@@ -1798,6 +1824,19 @@
         var myChart = echarts.getInstanceByDom(document.getElementById('main1'));
         myChart.clear();
 
+        var indicator_max=[];
+        for(var i=0;i<result.yvalue.length;i++){
+            if(result.updesired==''){//针对历史时期无数据的情况
+                indicator_max.push(result.yvalue[i]*1.6);
+            }else if (result.yvalue[i]<1.6*result.updesired[i]){
+                indicator_max.push(1.6*result.updesired[i]);
+            }else{
+                indicator_max.push(result.yvalue[i]);
+            }
+            
+        };
+        // alert(indicator_max);
+
         var option = {
             title: {
                 text: '炉次'+result.heat_no+'【质量】分析',
@@ -1824,18 +1863,27 @@
                     var fieldname = result.xname;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i], max:result.updesired[i]*1.6
-                        });
+                            name: fieldname[i], max:indicator_max[i]
+                        })
                     };
                     
                     return res;
                 })()
 
             },
-            series: [{
-                name: '实际值 vs 正常范围',
+            series: [
+            {
+                name: '炉次实际值',
                 type: 'radar',
                 // areaStyle: {normal: {}},
+                label:{
+                    normal:{
+                        show:true,
+                        formatter: function(params) {
+                                    return params.value;
+                                }
+                    }
+                },
                 data : [
                     {
                         value : result.yvalue,
@@ -1848,7 +1896,29 @@
                                 }
                             }
                         }
-                    },
+                    }
+                ]
+                // data:function (){
+                //     var list = [];
+                //     for (var i = 0; i < result.yvalue.length; i++) {
+                //         list.push(result.yvalue[i]);
+                //     }
+                //     return list;
+                // }()
+            },
+            {
+                name: '上范围',
+                type: 'radar',
+                label:{
+                    normal:{
+                        show:true,
+                        formatter: function(params) {
+                                    return params.value;
+                                }
+                    }
+                },
+                // areaStyle: {normal: {}},
+                data : [
                      {
                         value : result.updesired,
                         name : '上范围',
@@ -1860,7 +1930,22 @@
                                 }
                             }
                         }
-                    },
+                    }
+               ]
+           },
+            {
+                name: '下范围',
+                type: 'radar',
+                label:{
+                    normal:{
+                        show:true,
+                        formatter: function(params) {
+                                    return params.value;
+                                }
+                    }
+                },
+                // areaStyle: {normal: {}},
+                data : [
                     {
                         value : result.downdesired,
                         name : '下范围',
@@ -1874,8 +1959,9 @@
                         }
                     }
                 ]
-            }]
-        };
+            }
+            ]  
+            };
          var ecConfig = echarts.config;
          myChart.setOption(option,true);
     }
@@ -2364,8 +2450,6 @@
         var classification=result.field_classification[classification_index];//classification_index 字段分类的索引
         // alert(result.result[classification].condition);
         if (result.result[classification].condition=='NoData'){
-            // document.getElementById(area).innerHTML = classification_ch[classification_index]+"字段缺少数据，无法进行图表展示！详情请见成本分析结果.";
-            // return;
 
             var option = {
                 title: {
@@ -2395,6 +2479,16 @@
             return;
 
         }
+
+        var indicator_max=[];
+        for(var i=0;i<result.result[classification].fieldname_ch.length;i++){
+            //与单炉次不同，多炉次中不存在某个时期无数据的情况，因为提前已处理，不需要出图
+            if (result.result[classification].fluc_ratio[i]<1.4*result.result[classification].fluc_ratio_history[i]){
+                indicator_max.push(1.4*result.result[classification].fluc_ratio_history[i]);
+            }else{
+                indicator_max.push(result.result[classification].fluc_ratio[i]);
+            }    
+        };
 
         var option = {
             title: {
@@ -2426,7 +2520,8 @@
                     var fieldname = result.result[classification].fieldname_ch;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i],max:result.result[classification].fluc_ratio_history[i]*1.4
+                            // name: fieldname[i],max:result.result[classification].fluc_ratio_history[i]*rate[i]
+                            name: fieldname[i],max:indicator_max[i]
                         });
                     };
                     
@@ -2436,13 +2531,13 @@
 
             },
 
-            series: [{
-                name: '当前波动率 vs 历史波动率',
+            series: [
+            {
+                name: '当前波动率',
                 type: 'radar',
                 // areaStyle: {normal: {}},
                 data : [
                     {
-                        // value : result.material.yvalue,
                         value : result.result[classification].fluc_ratio,
                         name : '当前波动率',
                         label: {
@@ -2454,8 +2549,14 @@
                             }
                         }
                     },
+                    ]
+            },
+            {
+                name: '历史波动率',
+                type: 'radar',
+                // areaStyle: {normal: {}},
+                data : [
                      {
-                        // value : result.material.yvalue,
                         value : result.result[classification].fluc_ratio_history,
                         name : '历史波动率',
                         label: {
@@ -2801,8 +2902,6 @@
 
         var ll = result.result.fieldname_ch;
         if (result.condition=='NoData'|| ll.length==0){
-            // document.getElementById(area).innerHTML = "质量字段缺少数据，无法进行图表展示！详情请见质量分析结果.";
-            // return;
 
             var option = {
                 title: {
@@ -2832,6 +2931,28 @@
             return;
 
         }
+
+        // var rate=[];
+        // for(var i=0;i<result.result.fieldname_ch.length;i++){
+        //     if (result.result.fluc_ratio[i]<=1.4*result.result.fluc_ratio_history[i] ||1.4*result.result.fluc_ratio_history[i]==0){
+        //         rate.push(1.4);
+        //     }else{
+        //         rate.push((result.result.fluc_ratio[i]/result.result.fluc_ratio_history[i]).toFixed(1));
+        //     }
+            
+        // };
+
+        var indicator_max=[];
+        for(var i=0;i<result.result.fieldname_ch.length;i++){
+            //与单炉次不同，多炉次中不存在某个时期无数据的情况，因为提前已处理，不需要出图
+            if (result.result.fluc_ratio[i]<1.4*result.result.fluc_ratio_history[i]){
+                indicator_max.push(1.4*result.result.fluc_ratio_history[i]);
+            }else{
+                indicator_max.push(result.result.fluc_ratio[i]);
+            }
+            
+        };
+
 
         var option = {
             title: {
@@ -2863,7 +2984,8 @@
                     var fieldname = result.result.fieldname_ch;
                     for(var i=0;i<fieldname.length;i++){
                         res.push({
-                            name: fieldname[i],max:result.result.fluc_ratio_history[i]*1.4
+                            // name: fieldname[i],max:result.result.fluc_ratio_history[i]*rate[i]
+                            name: fieldname[i],max:indicator_max[i]
                         });
                     };
                     
@@ -2873,13 +2995,13 @@
 
             },
 
-            series: [{
-                name: '当前波动率 vs 历史波动率',
+            series: [
+            {
+                name: '当前波动率',
                 type: 'radar',
                 // areaStyle: {normal: {}},
                 data : [
                     {
-                        // value : result.material.yvalue,
                         value : result.result.fluc_ratio,
                         name : '当前波动率',
                         label: {
@@ -2891,8 +3013,14 @@
                             }
                         }
                     },
+                    ]
+            },
+            {
+                name: '历史波动率',
+                type: 'radar',
+                // areaStyle: {normal: {}},
+                data : [
                      {
-                        // value : result.material.yvalue,
                         value : result.result.fluc_ratio_history,
                         name : '历史波动率',
                         label: {
@@ -2904,313 +3032,12 @@
                             }
                         }
                     }
-                ]
-            }]
+                    ]
+            }
+            ]
+
         };
         // var ecConfig = echarts.config;
         myChart.setOption(option,true);
     };
-
-
-
-
-
-
-
-
-
-//单炉次成本分析：雷达图---------------------
-    // //雷达图（原料raw）
-    // function drawRadarMap_raw(heat_no,str_select,result){
-    //     // var myChart = echarts.init(document.getElementById('main1'));
-    //     var myChart = echarts.getInstanceByDom(document.getElementById('main1'));
-    //     myChart.clear();
-    //     var option = {
-    //         title: {
-    //             text: '炉次号'+heat_no+'的原料组成',
-    //             // x: 'center'
-    //         },
-    //         tooltip: {},
-    //         legend: {
-    //             data: ['炉次实际值', '历史平均值']
-    //         },
-    //         radar: {
-    //             // shape: 'circle',
-    //             name: {
-    //                 formatter:'{value}',
-    //                 textStyle: {
-    //                     color: '#000',
-    //                     backgroundColor: '#999',
-    //                     borderRadius: 3,
-    //                     padding: [3, 5],
-                        
-    //                }
-    //             },
-    //             indicator: [
-    //                { name: '铁水重量(Kg)',  max: 150000},
-    //                { name: '生铁(Kg)', max: 12000},
-    //                { name: '废钢总和(Kg)', max: 12000},
-    //                { name: '大渣钢(Kg)', max: 10000},
-    //                { name: '自产废钢(Kg)', max: 10000},
-    //                { name: '重型废钢(Kg)', max: 10000},
-    //                { name: '中型废钢(Kg)', max: 10000}
-    //             ]
-
-    //         },
-    //         series: [{
-    //             name: '实际值 vs 平均值',
-    //             type: 'radar',
-    //             // areaStyle: {normal: {}},
-    //             data : [
-    //                 {
-    //                     value : result.raw.yvalue,
-    //                     name : '炉次实际值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 },
-    //                  {
-    //                     value : result.raw.yvalue,
-    //                     name : '历史平均值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }]
-    //     };
-    //      var ecConfig = echarts.config;
-    //      myChart.setOption(option);
-    // }
-
-    // //雷达图（物料material）
-    // function drawRadarMap_material(heat_no,str_select,result){
-    //     // var myChart = echarts.init(document.getElementById('main2'));
-    //     var myChart = echarts.getInstanceByDom(document.getElementById('main2'));
-    //     myChart.clear();
-    //     var option = {
-    //         title: {
-    //             text: '炉次号'+heat_no+'的物料组成',
-    //             // x: 'center'
-    //         },
-    //         tooltip: {},
-    //         legend: {
-    //             data: ['炉次实际值', '历史平均值']
-    //         },
-    //         radar: {
-    //             // shape: 'circle',
-    //             name: {
-    //                 formatter:'{value}',
-    //                 textStyle: {
-    //                     color: '#000',
-    //                     backgroundColor: '#999',
-    //                     borderRadius: 3,
-    //                     padding: [3, 5],
-                        
-    //                }
-    //             },
-    //             indicator: [
-    //                { name: '总吹氧消耗(NM3)',  max: 5000},
-    //                { name: '氮气耗量(NM3)', max: 1500},
-    //                { name: '1#烧结矿(Kg)', max: 8000},
-    //                { name: '石灰石_40-70mm(Kg)', max: 8000},
-    //                { name: '萤石_FL80(Kg)', max: 8000},
-    //                { name: '增碳剂(Kg)', max: 8000},
-    //                { name: '低氮增碳剂(Kg)', max: 8000},
-    //                { name: '石灰(Kg)', max: 8000},
-    //                { name: '轻烧白云石(Kg)', max: 8000}
-    //             ]
-
-    //         },
-    //         series: [{
-    //             name: '实际值 vs 平均值',
-    //             type: 'radar',
-    //             // areaStyle: {normal: {}},
-    //             data : [
-    //                 {
-    //                     value : result.material.yvalue,
-    //                     name : '炉次实际值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 },
-    //                  {
-    //                     value : result.material.yvalue,
-    //                     name : '历史平均值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }]
-    //     };
-    //      var ecConfig = echarts.config;
-    //      myChart.setOption(option);
-    // }
-
-    // //雷达图（产品product）
-    // function drawRadarMap_product(heat_no,str_select,result){
-    //     // var myChart = echarts.init(document.getElementById('main3'));
-    //     var myChart = echarts.getInstanceByDom(document.getElementById('main3'));
-    //     myChart.clear();
-    //     var option = {
-    //         title: {
-    //             text: '炉次号'+heat_no+'的产品组成',
-    //             // x: 'center'
-    //         },
-    //         tooltip: {},
-    //         legend: {
-    //             data: ['炉次实际值', '历史平均值']
-    //         },
-    //         radar: {
-    //             // shape: 'circle',
-    //             name: {
-    //                 formatter:'{value}',
-    //                 textStyle: {
-    //                     color: '#000',
-    //                     backgroundColor: '#999',
-    //                     borderRadius: 3,
-    //                     padding: [3, 5],
-                        
-    //                }
-    //             },
-    //             indicator: [
-    //                { name: '钢水(Kg)',  max: 105000},
-    //                { name: '转炉煤气(Kg)', max: 12000},
-    //                { name: '钢渣(Kg)', max: 22000},
-    //             ]
-
-    //         },
-    //         series: [{
-    //             name: '实际值 vs 平均值',
-    //             type: 'radar',
-    //             // areaStyle: {normal: {}},
-    //             data : [
-    //                 {
-    //                     value : result.product.yvalue,
-    //                     name : '炉次实际值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 },
-    //                  {
-    //                     value : result.product.yvalue,
-    //                     name : '历史平均值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }]
-    //     };
-    //      var ecConfig = echarts.config;
-    //      myChart.setOption(option);
-    // }
-
-    // //雷达图（合金alloy）
-    // function drawRadarMap_alloy(heat_no,str_select,result){
-    //     // var myChart = echarts.init(document.getElementById('main4'));
-    //     var myChart = echarts.getInstanceByDom(document.getElementById('main4'));
-    //     myChart.clear();
-    //     var option = {
-    //         title: {
-    //             text: '炉次号'+heat_no+'的合金组成',
-    //             // x: 'center'
-    //         },
-    //         tooltip: {},
-    //         legend: {
-    //             data: ['炉次实际值', '历史平均值']
-    //         },
-    //         radar: {
-    //             // shape: 'circle',
-    //             name: {
-    //                 formatter:'{value}',
-    //                 textStyle: {
-    //                     color: '#000',
-    //                     backgroundColor: '#999',
-    //                     borderRadius: 3,
-    //                     padding: [3, 5],
-                        
-    //                }
-    //             },
-    //             indicator: [
-    //                { name: '硅铁(Kg)',  max: 5000},
-    //                { name: '微铝硅铁(Kg)', max: 5000},
-    //                { name: '硅锰合金(Kg)', max: 5000},
-    //                { name: '高硅硅锰(Kg)', max: 5000},
-    //                { name: '中碳铬铁(Kg)', max: 5000}
-    //                // { name: '硅铁(Kg)'},
-    //                // { name: '微铝硅铁(Kg)'},
-    //                // { name: '硅锰合金(Kg)'},
-    //                // { name: '高硅硅锰(Kg)'},
-    //                // { name: '中碳铬铁(Kg)'}
-    //             ]
-
-    //         },
-    //         series: [{
-    //             name: '实际值 vs 平均值',
-    //             type: 'radar',
-    //             // areaStyle: {normal: {}},
-    //             data : [
-    //                 {
-    //                     value : result.alloy.yvalue,
-    //                     name : '炉次实际值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 },
-    //                  {
-    //                     value : result.alloy.yvalue,
-    //                     name : '历史平均值',
-    //                     label: {
-    //                         normal: {
-    //                             show: true,
-    //                             formatter:function(params) {
-    //                                 return params.value;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }]
-    //     };
-    //      var ecConfig = echarts.config;
-    //      myChart.setOption(option);
-    // }
-
 
