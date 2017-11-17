@@ -48,13 +48,14 @@ def steelprice(request):
     #  从数据库里读取,可以写到配置文件里，减少读取时间，增加缓存，减少参数初始化时间
     all_select = dc.get_all_steeltype()
     print(all_select)
-    # choose_col = ('tradeno', 'delivery', 'specification', 'region', 'factory')
-    choose_col = ('tradeno', 'region', 'factory', 'delivery', 'specification', )
+    # choose_col = ('tradeno', 'region', 'factory', 'delivery', 'specification', )
+    choose_col = ('tradeno', 'factory')
     predict_all_select = all_select.copy()
     # predict_all_select.pop('region')
     # for col in choose_col:
     #     contentVO[col] = all_select[col]
     # model_selcet_eles = ['steeltype', 'tradeno', 'delivery','specification']
+
     all_select_pridict = dc.get_all_history_select("弹簧钢")
     contentVO['all_select'] = all_select
     contentVO['predict_all_select'] = predict_all_select
