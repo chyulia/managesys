@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import platform
 
-lab_ip = '202.204.54.43'
+lab_ip = '202.204.54.154'
 master_ip = '10.30.0.152'
 backuppwd= "xxxx"
 node = platform.node()

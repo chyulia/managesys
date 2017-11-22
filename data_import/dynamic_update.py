@@ -33,7 +33,7 @@ drop public database link DBLINK_TO_L2;
 -- Create database link 
 create public database link DBLINK_TO_L2
   connect to QG_USER identified by "123456"
-  using '202.204.54.42:1521/orcl';
+  using '202.204.54.154:1521/orcl';
 """
 
 def dynamic_updatebof(request):#定期更新的执行,记录上次更新时间
@@ -67,6 +67,7 @@ def updateRecordbof():#定期更新完成后更新记录表
 		sqlVO["sql"]= "update PRO_BOF_HIS_RECORD set RECORD_TIME = sysdate";
 		bsm.execute_single(sqlVO)
 	inner_sql(bsm)
+	print('记录表更新完毕！')
 
 def batch_dyupdatebof():#进行更新
 	sqlVO = {}
@@ -79,17 +80,7 @@ def batch_dyupdatebof():#进行更新
 		print(scrapy_records)#list
 		print("---------------")
 		print(type(scrapy_records[0]))#dict
-		# table_mironTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_MIRON',None],'%Y-%m-%d %H:%M:%S')
-		# table_planTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_PLAN',None],'%Y-%m-%d %H:%M:%S')
-		# table_scrapTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_SCRAP',None],'%Y-%m-%d %H:%M:%S')
-		# table_poolTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_POOL',None],'%Y-%m-%d %H:%M:%S')
-		# table_eventsTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_EVENTS',None],'%Y-%m-%d %H:%M:%S')
-		# table_bocsmTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_BOCSM',None],'%Y-%m-%d %H:%M:%S')
-		# table_tempTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_TEMP',None],'%Y-%m-%d %H:%M:%S')
-		# table_chrgdgenTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_CHRGDGEN',None],'%Y-%m-%d %H:%M:%S')
-		# table_chrgddatTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_CHRGDDAT',None],'%Y-%m-%d %H:%M:%S')
-		# table_anagenTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_ANAGEN',None],'%Y-%m-%d %H:%M:%S')
-		# table_anadatTime = datetime.datetime.strftime(scrapy_records[0].get['TABLE_ANADAT',None],'%Y-%m-%d %H:%M:%S')
+
 		table_mironTime = datetime.datetime.strftime(scrapy_records[0]['TABLE_MIRON'],'%Y-%m-%d %H:%M:%S')
 		table_planTime = datetime.datetime.strftime(scrapy_records[0]['TABLE_PLAN'],'%Y-%m-%d %H:%M:%S')
 		table_scrapTime = datetime.datetime.strftime(scrapy_records[0]['TABLE_SCRAP'],'%Y-%m-%d %H:%M:%S')
@@ -169,7 +160,10 @@ def batch_dyupdatebof():#进行更新
 
 		bsm.execute_single(sqlVO)
 
+		print('--------开始处理独立表数据！--------')
+
 		# --1.1.1.1.	炉次计划表（PRO_BOF_HIS_PLAN）
+		print('1.进行计划表数据处理！')
 		# --删除重复项并选取时间最晚的记录
 		sqlVO["sql"]='''create table pro_bof_his_plan_Middle as
 					select * from QG_USER.pro_bof_his_plan@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists
@@ -178,15 +172,16 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.2.	炉次兑铁信息表（PRO_BOF_HIS_MIRON）
+		print('2.进行兑铁信息表数据处理！')
 		sqlVO["sql"]='''create table pro_bof_his_miron_Middle as
 		select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_scrapTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_miron@dblink_to_l2 t2 where heat_no = t1.heat_no and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
 		bsm.execute_single(sqlVO)
 		# --将铁水重量减去一吨
-
 		sqlVO["sql"]='''update pro_bof_his_miron_Middle set  miron_wgt = miron_wgt - 1000 where  miron_wgt>1000;''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.3.	炉次兑废钢信息表（PRO_BOF_HIS_SCRAP)
+		print('3.进行废钢表数据处理！')
 		# --步骤一：删除顺序号重复项
 		sqlVO["sql"]='''create table pro_bof_his_scrap_Middle1 as
 		select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_mironTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_scrap@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -224,11 +219,13 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.4.	炉次实绩表（PRO_BOF_HIS_POOL）
+		print('4.进行实绩表数据处理！')
 		sqlVO["sql"]='''create table pro_bof_his_pool_Middle as
 		select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_poolTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.pro_bof_his_pool@dblink_to_l2 t2 where heatno = t1.heatno and (t2.MSG_DATE > t1.MSG_DATE or (t2.MSG_DATE = t1.MSG_DATE and t2.rowid > t1.rowid)) )''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.5.	炉次事件表（PRO_BOF_HIS_EVENTS）
+		print('5.进行事件表数据处理！')
 		# --步骤一：删除重复记录
 		sqlVO["sql"]='''create table pro_bof_his_events_Middle1 as
 		select * from QG_USER.pro_bof_his_events@dblink_to_l2 t1 where msg_date > to_date(' ''' + table_eventsTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.pro_bof_his_events@dblink_to_l2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -261,6 +258,7 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.6.	炉次吹氧记录表（PRO_BOF_HIS_BOCSM）
+		print('6.进行吹氧表数据处理！')
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_BOCSM_Middle1 as
 		select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_bocsmTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and  not exists (select * from QG_USER.PRO_BOF_HIS_BOCSM@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -305,6 +303,7 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.7.	炉次测温表（PRO_BOF_HIS_TEMP）
+		print('7.进行测温表数据处理！')
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_TEMP_Middle1 as
 		select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_tempTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_TEMP@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -348,6 +347,7 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.8.	炉次加料表A（PRO_BOF_HIS_CHRGDGEN）父表
+		print('8.进行加料A表数据处理！')
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDGEN_Middle1 as
 		select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_chrgdgenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDGEN@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -401,6 +401,7 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.9.	炉次加料表B（PRO_BOF_HIS_CHRGDDAT）子表
+		print('9.进行加料B表数据处理！')
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_CHRGDDAT_Middle1 as
 		select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_chrgddatTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_CHRGDDAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -438,6 +439,7 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.12.	取样信息记录（PRO_BOF_HIS_ANAGEN）
+		print('12.进行取样信息表数据处理！')
 		# --步骤一：根据seq_no删除重复值
 		sqlVO["sql"]='''create table PRO_BOF_HIS_ANAGEN_Middle1 as
 		select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t1 where msg_date > to_date(' ''' + table_anagenTime+ ''' ','yyyy-mm-dd hh24:mi:ss') and not exists (select * from QG_USER.PRO_BOF_HIS_ANAGEN@DBLINK_TO_L2 t2 where t2.seq_no = t1.seq_no and t2.rowid > t1.rowid)''';
@@ -464,6 +466,7 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.13.	成分信息记录（PRO_BOF_HIS_ANADAT）
+		print('13.进行成分信息表数据处理！')
 		# # --步骤一：根据seq_no删除重复值
 		# sqlVO["sql"]='''create table PRO_BOF_HIS_ANADAT_Middle1 as
 		# select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t1 where to_char(MSG_DATE,'yyyy-mm-dd')>='2017-06-08' and not exists (select * from QG_USER.PRO_BOF_HIS_ANADAT@DBLINK_TO_L2 t2 where t2.seq_no=t1.seq_no and t2.rowid>t1.rowid) ''';
@@ -528,15 +531,18 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 		sqlVO["sql"]='''drop table PRO_BOF_HIS_ANADAT_Middle2''';
 		bsm.execute_single(sqlVO)
-	#-----------------------------------------------------------------------
-	#-----------------------------------------------------------------------
-	#-----------------------------------------------------------------------
 
+		print('---------独立表数据处理完毕！----------')
+	#-----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+		print('---------开始进行数据汇总！----------')
 	#各Middle表的数据汇总：各Middle表-->AllFields表(有些需要加和更新，有些直接update）)
 	#将原先的总处理汇总分担到了数据汇总里
 
 		# --将更新的数据添加到汇总表 记得一定要commit!!!
 		# --1.1.1.1.	炉次计划表（PRO_BOF_HIS_PLAN_MIDDLE）
+		print('1.进行计划表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_PLAN_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -569,6 +575,7 @@ def batch_dyupdatebof():#进行更新
 
 
 		# --1.1.1.2.	炉次兑铁信息表（PRO_BOF_HIS_MIRON）
+		print('2.进行兑铁信息表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS a
 		USING(select * from PRO_BOF_HIS_MIRON_MIDDLE) b
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -608,7 +615,7 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;''';
+				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*a.C)*22.4/0.85/12/100;''';
 		bsm.execute_single(sqlVO)
 		# --4、计算钢渣
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -616,13 +623,14 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.steel_slag=(nvl(a.SUM_BO_CSM,0)*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+				SET a.steel_slag=(a.SUM_BO_CSM*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
 		nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
-		a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;''';
+		a.STEELWGT-a.LDG_STEELWGT*1.368)*0.9;''';
 		bsm.execute_single(sqlVO)
 
 
 		# --1.1.1.3.	炉次兑废钢信息表（PRO_BOF_HIS_SCRAP）
+		print('3.进行废钢信息表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_SCRAP_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -638,7 +646,7 @@ def batch_dyupdatebof():#进行更新
 			a.scrap_16030101= b.scrap_16030101 ,
 			a.scrap_16040101= b.scrap_16040101 ,
 			a.scrap_96052501= b.scrap_96052501 ,
-			a.SCRAPWGT_count=b.scrap_96053101+b.scrap_96052200+b.scrap_16010101+b.scrap_16020101+b.scrap_16030101+b.scrap_16040101+b.scrap_96052501--对汇总表中涉及炉次的废钢总和字段进行更新
+			a.SCRAPWGT_count=nvl(b.scrap_96053101,0)+nvl(b.scrap_96052200,0)+nvl(b.scrap_16010101,0)+nvl(b.scrap_16020101,0)+nvl(b.scrap_16030101,0)+nvl(b.scrap_16040101,0)+nvl(b.scrap_96052501,0)--对汇总表中涉及炉次的废钢总和字段进行更新
 		WHEN NOT MATCHED THEN
 			INSERT (HEAT_NO,MSG_DATE_SCRAP,LDL_NO_SCRAP, SCRAP_NUM,scrap_96053101, scrap_96052200,scrap_16010101,scrap_16020101,scrap_16030101,scrap_16040101,scrap_96052501)
 			VALUES (b.HEAT_NO,b.MSG_DATE,b.LDL_NO, b.SCRAP_NUM,b.scrap_96053101, b.scrap_96052200,b.scrap_16010101,b.scrap_16020101,b.scrap_16030101,b.scrap_16040101,b.scrap_96052501);''';
@@ -663,7 +671,7 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;''';
+				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*a.C)*22.4/0.85/12/100;''';
 		bsm.execute_single(sqlVO)
 		# --4、计算钢渣
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -671,12 +679,13 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.steel_slag=(nvl(a.SUM_BO_CSM,0)*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+				SET a.steel_slag=(a.SUM_BO_CSM*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
 		nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
-		a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;''';
+		a.STEELWGT-a.LDG_STEELWGT*1.368)*0.9;''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.4.	炉次实绩表（PRO_BOF_HIS_POOL）
+		print('4.进行实绩表数据汇总！')
 		# --对出钢量进行补充
 		# --首先保留自身出钢量字段（STEELWGT），若不存在，取ccm炉坯重（TOTAL_SLAB_WGT）进行补充，仍缺失，则取计算所得出钢量（STEELWGT_COUNT）进行补充：钢水量=（铁水量+废钢量）*95%
 		# --1、先在独立更新表中进行ccm炉坯重的补充
@@ -776,7 +785,7 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEATNO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*C)*22.4/0.85/12/100 WHERE a.STEELWGT is null or a.STEELWGT=0;''';
+				SET a.LDG_STEELWGT=(a.MIRON_WGT*a.MIRON_C-a.STEELWGT*a.C)*22.4/0.85/12/100;''';
 		bsm.execute_single(sqlVO)
 		# --5、计算钢渣
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
@@ -784,12 +793,13 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEATNO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.steel_slag=(nvl(a.SUM_BO_CSM,0)*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+				SET a.steel_slag=(a.SUM_BO_CSM*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
 		nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
-		a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;''';
+		a.STEELWGT-a.LDG_STEELWGT*1.368)*0.9;''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.5.	炉次事件表（PRO_BOF_HIS_EVENTS）
+		print('5.进行事件表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_EVENTS_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -811,14 +821,15 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.6.	炉次吹氧记录表（PRO_BOF_HIS_BOCSM）
+		print('6.进行吹氧表数据汇总！')
 		# --由于吹氧记录表是行列转换而来，因此如果某炉次的吹氧信息被分为两拨数据，则在新数据更新时，会把空值赋给原先的非空值，这个问题需要解决。（但是这种情况可能性很小）
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_BOCSM_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE	
-			SET	a.SUM_BO_CSM=a.SUM_BO_CSM+b.SUM_BO_CSM,
-			a.SUM_BO_DUR=a.SUM_BO_DUR+b.SUM_BO_DUR,
+			SET	a.SUM_BO_CSM=nvl(a.SUM_BO_CSM,0)+nvl(b.SUM_BO_CSM,0),
+			a.SUM_BO_DUR=nvl(a.SUM_BO_DUR,0)+nvl(b.SUM_BO_DUR,0),
 			a.D1_BOSTRT_TIME=b.D1_BOSTRT_TIME ,
 			a.D1_BOEND_TIME=b.D1_BOEND_TIME ,
 			a.D1_BO_DUR=b.D1_BO_DUR,
@@ -857,12 +868,13 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.steel_slag=(nvl(a.SUM_BO_CSM,0)*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+				SET a.steel_slag=(a.SUM_BO_CSM*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
 		nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
-		a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;''';
+		a.STEELWGT-a.LDG_STEELWGT*1.368)*0.9;''';
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.7.	炉次测温表（PRO_BOF_HIS_TEMP）
+		print('7.进行测温表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_TEMP_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -899,6 +911,7 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.8.	炉次加料表A（PRO_BOF_HIS_CHRGDGEN）
+		print('8.进行加料A表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_CHRGDGEN_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -999,28 +1012,29 @@ def batch_dyupdatebof():#进行更新
 		bsm.execute_single(sqlVO)
 
 		# --1.1.1.9.	炉次加料表B（PRO_BOF_HIS_CHRGDDAT）
+		print('9.进行加料B表数据汇总！')
 		# --加料量需要加和，而不是直接赋值覆盖
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_CHRGDDAT_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.L12010301 = a.L12010301+b.L12010301,
-				a.L12010302 = a.L12010302+b.L12010302,
-				a.L12010601 = a.L12010601+b.L12010601,
-				a.L12010701 = a.L12010701+b.L12010701,
-				a.L12020201 = a.L12020201+b.L12020201,
-				a.L13010101 = a.L13010101+b.L13010101,
-				a.L13010301 = a.L13010301+b.L13010301,
-				a.L13020101 = a.L13020101+b.L13020101,
-				a.L13020201 = a.L13020201+b.L13020201,
-				a.L13020501 = a.L13020501+b.L13020501,
-				a.L13040400 = a.L13040400+b.L13040400,
-				a.L96020400 = a.L96020400+b.L96020400,
-				a.L96040100 = a.L96040100+b.L96040100,
-				a.L96040200 = a.L96040200+b.L96040200,
-				a.L96053601 =  a.L96053601+b.L96053601,
-				a.L1602010074 = a.L1602010074+b.L1602010074
+				SET a.L12010301 = nvl(a.L12010301,0)+nvl(b.L12010301,0),
+				a.L12010302 = nvl(a.L12010302,0)+nvl(b.L12010302,0),
+				a.L12010601 = nvl(a.L12010601,0)+nvl(b.L12010601,0),
+				a.L12010701 = nvl(a.L12010701,0)+nvl(b.L12010701,0),
+				a.L12020201 = nvl(a.L12020201,0)+nvl(b.L12020201,0),
+				a.L13010101 = nvl(a.L13010101,0)+nvl(b.L13010101,0),
+				a.L13010301 = nvl(a.L13010301,0)+nvl(b.L13010301,0),
+				a.L13020101 = nvl(a.L13020101,0)+nvl(b.L13020101,0),
+				a.L13020201 = nvl(a.L13020201,0)+nvl(b.L13020201,0),
+				a.L13020501 = nvl(a.L13020501,0)+nvl(b.L13020501,0),
+				a.L13040400 = nvl(a.L13040400,0)+nvl(b.L13040400,0),
+				a.L96020400 = nvl(a.L96020400,0)+nvl(b.L96020400,0),
+				a.L96040100 = nvl(a.L96040100,0)+nvl(b.L96040100,0),
+				a.L96040200 = nvl(a.L96040200,0)+nvl(b.L96040200,0),
+				a.L96053601 = nvl(a.L96053601,0)+nvl(b.L96053601,0),
+				a.L1602010074 = nvl(a.L1602010074,0)+nvl(b.L1602010074,0)
 		WHEN NOT MATCHED THEN
 			INSERT (HEAT_NO,STATION,L12010301,L12010302,L12010601,L12010701,L12020201,L12020301,
 			L13010101,L13010301,L13020101,L13020201,L13020501,L13040400,L96020400,L96040100,L96040200,L96053601,L1602010074)
@@ -1033,9 +1047,9 @@ def batch_dyupdatebof():#进行更新
 		ON (a.HEAT_NO = b.HEAT_NO)
 		WHEN MATCHED THEN 
 			UPDATE
-				SET a.steel_slag=(nvl(a.SUM_BO_CSM,0)*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
+				SET a.steel_slag=(a.SUM_BO_CSM*1.429+a.SCRAPWGT_COUNT+a.MIRON_WGT+nvl(a.COLDPIGWGT,0)+nvl(a.L13010101,0)+nvl(a.L13010301,0)+nvl(a.L13020101,0)+nvl(a.L13020201,0)+nvl(a.L13020501,0)+nvl(L13040400,0)+nvl(L96020400,0)+
 		nvl(a.L12010301,0)+nvl(a.L12010302,0)+nvl(a.L12010601,0)+nvl(a.L12010701,0)+nvl(a.L12020201,0)+nvl(a.L12020301,0)+nvl(a.L96040100,0)+nvl(a.L96040200,0)+nvl(a.L96053601,0)+nvl(a.L1602010074,0)-
-		a.STEELWGT-nvl(a.LDG_STEELWGT,0)*1.368)*0.9 WHERE a.steel_slag is null or a.steel_slag=0;''';
+		a.STEELWGT-a.LDG_STEELWGT*1.368)*0.9;''';
 		bsm.execute_single(sqlVO)
 
 
@@ -1043,6 +1057,7 @@ def batch_dyupdatebof():#进行更新
 		# --1.1.1.10.	线上设备信息（PRO_BOF_HIS_EQPONLINE）	跳过
 		# --1.1.1.11.	设备维修记录表（PRO_BOF_HIS_EQPLOG）跳过
 		# --1.1.1.12.	取样信息记录（PRO_BOF_HIS_ANAGEN）	(由于原表中存在一个炉次号对应不同个站别的情况，因此删除了站别字段，由其他表进行补充)
+		print('12.进行取样信息表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_ANAGEN_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
@@ -1065,6 +1080,7 @@ def batch_dyupdatebof():#进行更新
 
 		# --1.1.1.13.	成分信息记录（PRO_BOF_HIS_ANADAT）
 		# --由于成分表是行列转换而来，因此如果某炉次的取样信息被分为两拨数据，则在新数据更新时，会把空值赋给原先的非空值，这个问题需要解决。（但是这种情况可能性很小）
+		print('13.进行成分信息表数据汇总！')
 		sqlVO["sql"]='''MERGE INTO PRO_BOF_HIS_ALLFIELDS A
 		USING(select * from PRO_BOF_HIS_ANADAT_MIDDLE) B
 		ON (a.HEAT_NO = b.HEAT_NO)
